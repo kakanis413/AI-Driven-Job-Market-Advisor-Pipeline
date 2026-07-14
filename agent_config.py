@@ -1,6 +1,8 @@
 from pydantic import BaseModel, Field
 from google.adk import Agent
 
+from tools import get_major_data
+
 
 class OccupationInfo(BaseModel):
     soc: str
@@ -35,4 +37,5 @@ Rules:
 - Reference the specific occupations listed, not generic career advice.
 - Keep responses to 3-5 short, conversational paragraphs.
 """,
+    tools=[get_major_data],
 )
