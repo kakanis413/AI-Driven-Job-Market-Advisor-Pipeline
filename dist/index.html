@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Major Visualizer — How exposed is your major to AI?</title>
+    <meta
+      name="description"
+      content="An interactive treemap and heatmap of how exposed US college majors are to AI, with an AI career advisor."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='2' width='17' height='17' rx='3' fill='%230d7f46'/%3E%3Crect x='21' y='2' width='9' height='11' rx='3' fill='%23d99a2b'/%3E%3Crect x='2' y='21' width='11' height='9' rx='3' fill='%23d96331'/%3E%3Crect x='15' y='21' width='15' height='9' rx='3' fill='%23c22f2f'/%3E%3C/svg%3E"
+    />
+    <script>
+      // Set theme before first paint to avoid a flash of the wrong mode.
+      const saved = localStorage.getItem('mv-theme')
+      if (saved === 'dark' || (!saved && matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark')
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-DjDJ13v-.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dkvf-sNA.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
