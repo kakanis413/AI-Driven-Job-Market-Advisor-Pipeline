@@ -1,38 +1,55 @@
-import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from google.adk.runners import Runner
+from google.adk.sessions import InMemorySessionService
+from google.genai import types
 
-# Force testing mode so it runs cleanly right on your laptop
-os.environ["ENV"] = "testing"
+from agent_config import root_agent, MajorAnalysisSchema
 
-from data_pipeline import MajorMarketDataPipeline
-from agent_config import CollegeAdvisorAgent, MajorAnalysisSchema
+app = FastAPI(title="AI-Driven Job Market Advisor Pipeline")
 
-app = FastAPI(title="Google Cloud Project Workspace")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # tighten this before the real demo
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-pipeline = MajorMarketDataPipeline()
-agent = CollegeAdvisorAgent(agent_id="kirkland-advisor-node-01")
+session_service = InMemorySessionService()
+runner = Runner(
+    agent=root_agent,
+    app_name="college_advisor",
+    session_service=session_service,
+)
+
 
 @app.get("/")
-def home():
-    return {"message": "Use the interactive browser tools at http://127.0.0.1:8080/docs"}
+async def root():
+    return {"status": "ok", "service": "college_advisor"}
+
 
 @app.post("/api/v1/analyze-major")
-def analyze_major_endpoint(payload: MajorAnalysisSchema):
-    mock_scraped_news = {"headline": f"AI trends for {payload.major_name}."}
-    gcs_path = pipeline.stage_raw_news_to_gcs(payload.major_name, mock_scraped_news)
-    pipeline.stream_metrics_to_bigquery(payload.major_name, ai_exposure_score=0.78)
-    agent_response = agent.execute_agent_reasoning(payload)
-    
-    return {
-        "infrastructure_logs": {
-            "gcs_path": gcs_path,
-            "bigquery_stream_status": "synced"
-        },
-        "vertex_ai_geap_layer": agent_response
-    }
+async def analyze_major(data: MajorAnalysisSchema):
+    session_id = f"session-{data.major_name.replace(' ', '_').lower()}"
 
-# THIS BLOCK FORCES THE SERVER TO START IMMEDIATELY
-if __name__ == "__main__":
-    import uvicorn
-    print("\n--- BOOTING UP INTERACTIVE DASHBOARD SERVER ---")
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    await session_service.create_session(
+        app_name="college_advisor",
+        user_id="demo",
+        session_id=session_id,
+    )
+
+    prompt = f"MAJOR DATA: {data.model_dump_json()}\n\nSTUDENT QUESTION: {data.query_context}"
+    content = types.Content(role="user", parts=[types.Part(text=prompt)])
+
+    reply = ""
+    async for event in runner.run_async(
+        user_id="demo", session_id=session_id, new_message=content
+    ):
+        if event.is_final_response():
+            reply = event.content.parts[0].text
+
+    return {
+        "agent_node": "college_advisor",
+        "status": "active_reasoning",
+        "generated_guidance": reply,
+    }

@@ -12,7 +12,35 @@ The microservice implements an automated extraction-load pipeline that standardi
 
 ## 🏛 Architecture Diagram
 
-
+                       ┌────────────────────────────────────┐
+                       │            FRONTEND                 │
+                       │  React + D3 (treemap/heatmap)       │
+                       │  Framer Motion · find-your-major    │
+                       │  Firebase Hosting                   │
+                       └───────┬───────────────────┬─────────┘
+                               │ reads             │ chat (HTTPS)
+                        static │                   │
+                     data.json │                   ▼
+                       ┌───────▼──────┐   ┌─────────────────────────┐
+                       │ Cloud Storage │   │      Cloud Run          │
+                       │ data.json,    │   │  ADK agent service      │
+                       │ artifacts     │   │  (FastAPI)              │
+                       └───────▲──────┘   │                         │
+                               │          │  Orchestrator agent     │
+                        build  │          │   ├─ Data agent ──────► BigQuery
+                       pipeline │          │   ├─ News agent ──────► News API / Search
+                               │          │   └─ Advisor agent ───► Gemini 3.5 Flash
+                       ┌───────┴───────────────────────────────────┐
+                       │                 BigQuery                   │
+                       │  dim_major · dim_occupation · bridge_cip_soc│
+                       │  fact_employment · fact_exposure           │
+                       └───────▲───────────────────────────────────┘
+                               │ load
+              ┌────────────────┼─────────────────┬──────────────────┐
+        IPEDS Completions   CIP→SOC          BLS OEWS           BLS OOH /
+        (enrollment/         Crosswalk       (wages, jobs        EP projections
+         completions          (NCES)          via public ds)     (growth outlook)
+         by CIP)
 
 1. **Ingestion Layer:** FastAPI receives structured incoming payloads via a type-safe router (`/api/v1/analyze-major`).
 2. **Infrastructure Fabric:** The ingestion controller triggers clean filename standardization, tracking local object writes representing GCS paths and signaling sync statuses to BigQuery tables.

@@ -1,15 +1,14 @@
-import os
-import json
+"""
+GCS + BigQuery ingestion pipeline.
+Not wired into Sprint 1 — the advisor endpoint receives major data
+directly in the request body from the frontend's static data.json.
+This file becomes active in Sprint 2 when data.json is generated
+from BigQuery on a schedule.
+"""
 
-class MajorMarketDataPipeline:
-    def __init__(self):
-        self.is_testing = True
-        self.bucket_name = "us-college-major-artifacts"
-        self.dataset_id = "job_market_insights"
+def load_to_gcs(*args, **kwargs):
+    raise NotImplementedError("Sprint 2 task — not needed for Sprint 1 milestone.")
 
-    def stage_raw_news_to_gcs(self, major_name: str, raw_data: dict) -> str:
-        file_name = f"raw_news_{major_name.lower().replace(' ', '_')}.json"
-        return f"Mocked GCS Upload Path: daily_scrapes/{file_name}"
 
-    def stream_metrics_to_bigquery(self, major_name: str, ai_exposure_score: float) -> bool:
-        return True
+def sync_to_bigquery(*args, **kwargs):
+    raise NotImplementedError("Sprint 2 task — not needed for Sprint 1 milestone.")
