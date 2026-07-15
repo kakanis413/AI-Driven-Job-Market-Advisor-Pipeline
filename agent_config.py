@@ -5,7 +5,7 @@ from tools import get_major_data
 
 
 class OccupationInfo(BaseModel):
-    soc: str
+
     title: str
     exposure: float
 
