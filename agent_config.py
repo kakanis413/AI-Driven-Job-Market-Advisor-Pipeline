@@ -5,7 +5,7 @@ from tools import get_major_data
 
 
 class OccupationInfo(BaseModel):
-
+    soc: str
     title: str
     exposure: float
 
@@ -14,7 +14,9 @@ class MajorAnalysisSchema(BaseModel):
     major_name: str = Field(..., description="The US College Major being evaluated.")
     exposure: float = Field(..., description="AI exposure score 0-10 for this major.")
     median_pay: int = Field(..., description="Employment-weighted median pay.")
-    growth: str = Field(..., description="Growth outlook, e.g. 'faster', 'average'.")
+    growth: str | None = Field(
+        None, description="Growth outlook, e.g. 'faster', 'average'. May be null until Sprint 2 data enrichment."
+    )
     occupations: list[OccupationInfo] = Field(
         ..., description="Occupations this major feeds into."
     )
@@ -35,6 +37,8 @@ Rules:
 - High exposure does NOT mean job loss. Exposure measures how AI-transformable the
   *work* is, not whether the job disappears. Make this distinction explicit.
 - Reference the specific occupations listed, not generic career advice.
+- If growth outlook is not provided, do not guess at it — acknowledge the gap
+  rather than inventing a trend.
 - Keep responses to 3-5 short, conversational paragraphs.
 """,
     tools=[get_major_data],
