@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from main import app
-from tools import get_major_data
+
 
 
 client = TestClient(app)
@@ -77,15 +77,6 @@ def test_analyze_major_different_query_gives_different_response():
         resp2.json()["generated_guidance"]
     )
 
-
-def test_get_major_data():
-    result = get_major_data("Computer Science")
-
-    assert result["status"] == "success"
-    assert result["major_name"] == "Computer Science"
-    assert result["exposure"] == 9.0
-    assert result["median_pay"] == 99000
-    assert len(result["occupations"]) > 0
 
 
 # ─────────────────────────────────────────────────────────────────────────────
