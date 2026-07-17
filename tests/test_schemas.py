@@ -1,49 +1,72 @@
+"""Contract validation for the advisor request/response schemas."""
+
+from __future__ import annotations
+
 import pytest
 from pydantic import ValidationError
-from agent_config import MajorAnalysisSchema, OccupationInfo
+
+from advisor.schemas import AdvisorRequest, OccupationInfo
 
 
-def test_valid_schema_accepts_full_payload():
-    data = MajorAnalysisSchema(
-        major_name="Computer Science", exposure=8.4, median_pay=125831,
-        growth="faster", occupations=[OccupationInfo(soc="15-1252", title="Software Developers", exposure=9.0)],
+def test_full_payload_ok():
+    req = AdvisorRequest(
+        major_name="Computer science", exposure=9.0, median_pay=99000, growth="faster",
+        occupations=[OccupationInfo(soc="15-1252", title="Software developers", exposure=9.0)],
         query_context="Is this risky?",
     )
-    assert data.exposure == 8.4
+    assert req.exposure == 9.0
+    assert req.occupations[0].title == "Software developers"
 
 
-def test_missing_required_field_raises():
+def test_growth_is_optional():
+    # The real data.json has growth=null for every major — must not 422.
+    req = AdvisorRequest(major_name="Nursing", query_context="Tell me about this")
+    assert req.growth is None
+
+
+def test_median_pay_optional_and_zero_becomes_unknown():
+    # Frontend coerces null -> 0; we treat 0 as "unknown", never as a real $0 salary.
+    req = AdvisorRequest(major_name="Art", median_pay=0, query_context="?")
+    assert req.median_pay is None
+
+
+def test_growth_placeholder_strings_normalize_to_none():
+    for placeholder in ["not available", "N/A", "unknown", ""]:
+        req = AdvisorRequest(major_name="X", growth=placeholder, query_context="?")
+        assert req.growth is None, placeholder
+
+
+def test_missing_question_raises():
     with pytest.raises(ValidationError):
-        MajorAnalysisSchema(major_name="History")  # missing exposure, median_pay, etc.
+        AdvisorRequest(major_name="History")  # no query_context
 
 
-def test_exposure_wrong_type_raises():
+def test_blank_question_raises():
     with pytest.raises(ValidationError):
-        MajorAnalysisSchema(
-            major_name="Art", exposure="very high",  # should be float, not string
-            median_pay=50000, growth="average", occupations=[], query_context="?",
-        )
+        AdvisorRequest(major_name="History", query_context="   ")
 
 
-def test_empty_occupations_list_is_valid():
-    """occupations is a required list but an empty list should still be valid."""
-    data = MajorAnalysisSchema(
-        major_name="Undeclared", exposure=5.0, median_pay=50000,
-        growth="average", occupations=[], query_context="What should I know?",
+def test_exposure_out_of_range_raises():
+    with pytest.raises(ValidationError):
+        AdvisorRequest(major_name="X", exposure=42, query_context="?")
+
+
+def test_grounding_block_marks_unknowns():
+    req = AdvisorRequest(major_name="Mystery", query_context="?")
+    block = req.grounding_block()
+    assert "not available" in block
+    assert "Mystery" in block
+    # never fabricate a $0 or 0/10
+    assert "$0" not in block
+
+
+def test_grounding_block_includes_occupations():
+    req = AdvisorRequest(
+        major_name="Computer science", exposure=9.0, median_pay=99000,
+        occupations=[OccupationInfo(title="Software developers", exposure=9.0)],
+        query_context="?",
     )
-    assert data.occupations == []
-
-
-def test_null_growth_currently_fails_validation():
-    """
-    KNOWN MISMATCH: growth is currently a required str in agent_config.py,
-    but the real data.json has growth: null for every major. Until the
-    schema is loosened to `str | None`, every real request will 422 here.
-    This test documents that gap rather than hiding it — if it starts
-    failing (i.e. null growth becomes valid), update/remove this test.
-    """
-    with pytest.raises(ValidationError):
-        MajorAnalysisSchema(
-            major_name="Biology", exposure=5.8, median_pay=75024,
-            growth=None, occupations=[], query_context="Career outlook?",
-        )
+    block = req.grounding_block()
+    assert "Software developers" in block
+    assert "$99,000" in block
+    assert "9.0/10" in block
