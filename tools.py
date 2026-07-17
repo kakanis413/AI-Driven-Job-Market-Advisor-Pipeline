@@ -30,3 +30,4 @@ def get_major_data(major_name: str) -> dict[str, Any]:
             }
         ],
     }
+
