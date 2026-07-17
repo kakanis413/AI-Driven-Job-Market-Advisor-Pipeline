@@ -35,6 +35,15 @@ export interface Major {
   growth: Growth | null
   occupations: Occupation[]
   rationale: string
+  /** Early-career pay ÷ typical student debt (e.g. 2.7 → earns 2.7× the debt).
+   *  Optional: absent in the bundled sample; supplied by the pipeline. */
+  payToDebt?: number | null
+  /** payToDebt's 0–1 rank across all majors — drives the meter fill. */
+  payToDebtRank?: number | null
+  /** Count of distinct occupations the major maps to (higher = more flexible). */
+  versatility?: number | null
+  /** versatility's 0–1 rank across all majors — drives the meter fill. */
+  versatilityRank?: number | null
 }
 
 /** Shared tooltip payload (client coords + the hovered major). */

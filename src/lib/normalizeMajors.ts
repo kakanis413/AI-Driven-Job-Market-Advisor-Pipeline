@@ -18,6 +18,10 @@ interface RawMajor {
   graduates?: unknown
   completions?: unknown
   cip?: unknown
+  pay_to_debt_ratio?: unknown
+  pay_to_debt_ratio_norm?: unknown
+  versatility?: unknown
+  versatility_norm?: unknown
   exposure?: unknown
   ai_exposure?: unknown
   ai_exposure_norm?: unknown
@@ -127,6 +131,10 @@ function toMajor(raw: RawMajor, index: number): Major | null {
     rationale:
       str(raw.rationale) ??
       'AI-exposure scoring for this major is still pending in the data pipeline.',
+    payToDebt: num(raw.pay_to_debt_ratio),
+    payToDebtRank: num(raw.pay_to_debt_ratio_norm),
+    versatility: num(raw.versatility),
+    versatilityRank: num(raw.versatility_norm),
   }
 }
 

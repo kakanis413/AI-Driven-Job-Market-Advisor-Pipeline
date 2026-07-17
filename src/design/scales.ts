@@ -130,6 +130,13 @@ const compact = new Intl.NumberFormat('en-US', {
 })
 export const fmtCount = (v: number) => compact.format(v).toLowerCase()
 
+/** Pay-to-debt ratio → "2.7×". */
+export const fmtRatio = (v: number) => `${v.toFixed(1)}×`
+
+/** A 0–1 rank → a plain-language band. Keeps color from being the only signal. */
+export const bandOf = (norm: number) =>
+  norm < 1 / 3 ? 'Narrow' : norm < 2 / 3 ? 'Moderate' : 'Broad'
+
 /* ---------- growth display ---------- */
 
 export const GROWTH_META: Record<
