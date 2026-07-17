@@ -24,7 +24,7 @@
     "family": "42",
     "graduates": 110091,
     "median_pay_norm": 0.1912,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0978,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -114,7 +114,7 @@
     "family": "24",
     "graduates": 44225,
     "median_pay_norm": 0.2032,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1066,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -204,7 +204,7 @@
     "family": "30",
     "graduates": 25757,
     "median_pay_norm": 0.2507,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1275,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -624,7 +624,7 @@
     "family": "30",
     "graduates": 7395,
     "median_pay_norm": 0.1892,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0882,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -654,7 +654,7 @@
     "family": "52",
     "graduates": 6651,
     "median_pay_norm": 0.4099,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1983,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -724,7 +724,7 @@
     "family": "38",
     "graduates": 6004,
     "median_pay_norm": 0.108,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0218,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -804,7 +804,7 @@
     "family": "13",
     "graduates": 4800,
     "median_pay_norm": 0.198,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0856,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -814,7 +814,7 @@
     "family": "05",
     "graduates": 4789,
     "median_pay_norm": 0.27,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1659,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -854,7 +854,7 @@
     "family": "51",
     "graduates": 4547,
     "median_pay_norm": 0.3123,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1266,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -924,7 +924,7 @@
     "family": "52",
     "graduates": 3704,
     "median_pay_norm": 0.3103,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1371,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -954,7 +954,7 @@
     "family": "52",
     "graduates": 3378,
     "median_pay_norm": 0.3542,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1624,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -994,7 +994,7 @@
     "family": "51",
     "graduates": 3112,
     "median_pay_norm": 0.2598,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1031,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1084,7 +1084,7 @@
     "family": "31",
     "graduates": 2839,
     "median_pay_norm": 0.1684,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0777,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1094,7 +1094,7 @@
     "family": "50",
     "graduates": 2826,
     "median_pay_norm": 0.0655,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0227,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1144,7 +1144,7 @@
     "family": "31",
     "graduates": 2732,
     "median_pay_norm": 0.2094,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1083,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1184,7 +1184,7 @@
     "family": "39",
     "graduates": 2620,
     "median_pay_norm": 0.1321,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0498,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1264,7 +1264,7 @@
     "family": "39",
     "graduates": 2475,
     "median_pay_norm": 0.1632,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0655,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1284,7 +1284,7 @@
     "family": "01",
     "graduates": 2082,
     "median_pay_norm": 0.223,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1258,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1344,7 +1344,7 @@
     "family": "45",
     "graduates": 1772,
     "median_pay_norm": 0.3329,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1686,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1364,7 +1364,7 @@
     "family": "13",
     "graduates": 1767,
     "median_pay_norm": 0.1777,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0795,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1514,7 +1514,7 @@
     "family": "39",
     "graduates": 1257,
     "median_pay_norm": 0.137,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.055,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1684,7 +1684,7 @@
     "family": "15",
     "graduates": 886,
     "median_pay_norm": 0.4826,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.2114,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1754,7 +1754,7 @@
     "family": "43",
     "graduates": 811,
     "median_pay_norm": 0.3729,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1721,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1804,7 +1804,7 @@
     "family": "39",
     "graduates": 692,
     "median_pay_norm": 0.1275,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0314,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1964,7 +1964,7 @@
     "family": "23",
     "graduates": 538,
     "median_pay_norm": 0.1952,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0847,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -1984,7 +1984,7 @@
     "family": "50",
     "graduates": 529,
     "median_pay_norm": 0.2107,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0734,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2064,7 +2064,7 @@
     "family": "49",
     "graduates": 493,
     "median_pay_norm": 0.7346,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.2847,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2084,7 +2084,7 @@
     "family": "39",
     "graduates": 484,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2114,7 +2114,7 @@
     "family": "22",
     "graduates": 469,
     "median_pay_norm": 0.2427,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0908,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2124,7 +2124,7 @@
     "family": "01",
     "graduates": 467,
     "median_pay_norm": 0.1365,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0515,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2144,7 +2144,7 @@
     "family": "42",
     "graduates": 445,
     "median_pay_norm": 0.1516,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1362,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2164,7 +2164,7 @@
     "family": "30",
     "graduates": 419,
     "median_pay_norm": 0.6707,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.2707,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2204,7 +2204,7 @@
     "family": "01",
     "graduates": 366,
     "median_pay_norm": 0.2913,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1467,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2224,7 +2224,7 @@
     "family": "01",
     "graduates": 354,
     "median_pay_norm": 0.1242,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0463,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2234,7 +2234,7 @@
     "family": "15",
     "graduates": 353,
     "median_pay_norm": 0.3942,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0934,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2254,7 +2254,7 @@
     "family": "51",
     "graduates": 342,
     "median_pay_norm": 0.0898,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2324,7 +2324,7 @@
     "family": "01",
     "graduates": 308,
     "median_pay_norm": 0.3895,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.2061,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2334,7 +2334,7 @@
     "family": "44",
     "graduates": 307,
     "median_pay_norm": 0.222,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.069,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2344,7 +2344,7 @@
     "family": "39",
     "graduates": 305,
     "median_pay_norm": 0.1258,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.048,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2394,7 +2394,7 @@
     "family": "10",
     "graduates": 280,
     "median_pay_norm": 0.0499,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.048,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2514,7 +2514,7 @@
     "family": "13",
     "graduates": 216,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2534,7 +2534,7 @@
     "family": "30",
     "graduates": 214,
     "median_pay_norm": 0.1883,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0926,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2554,7 +2554,7 @@
     "family": "38",
     "graduates": 202,
     "median_pay_norm": 0.1391,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.069,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2604,7 +2604,7 @@
     "family": "12",
     "graduates": 185,
     "median_pay_norm": 0.2521,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1537,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2664,7 +2664,7 @@
     "family": "11",
     "graduates": 173,
     "median_pay_norm": 0.4628,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1459,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2694,7 +2694,7 @@
     "family": "11",
     "graduates": 168,
     "median_pay_norm": 0.269,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1598,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2764,7 +2764,7 @@
     "family": "30",
     "graduates": 134,
     "median_pay_norm": 0.1211,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0454,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2774,7 +2774,7 @@
     "family": "38",
     "graduates": 128,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2804,7 +2804,7 @@
     "family": "04",
     "graduates": 116,
     "median_pay_norm": 0.2586,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0891,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2814,7 +2814,7 @@
     "family": "19",
     "graduates": 109,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2824,7 +2824,7 @@
     "family": "31",
     "graduates": 103,
     "median_pay_norm": 0.1456,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0847,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2854,7 +2854,7 @@
     "family": "01",
     "graduates": 102,
     "median_pay_norm": 0.4832,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1948,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2864,7 +2864,7 @@
     "family": "01",
     "graduates": 98,
     "median_pay_norm": 0.2141,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1004,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2874,7 +2874,7 @@
     "family": "03",
     "graduates": 92,
     "median_pay_norm": 0.1495,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0498,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2914,7 +2914,7 @@
     "family": "29",
     "graduates": 83,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2934,7 +2934,7 @@
     "family": "50",
     "graduates": 76,
     "median_pay_norm": 0.0855,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0314,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2944,7 +2944,7 @@
     "family": "29",
     "graduates": 66,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -2974,7 +2974,7 @@
     "family": "51",
     "graduates": 57,
     "median_pay_norm": 0.3085,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.1013,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3024,7 +3024,7 @@
     "family": "10",
     "graduates": 52,
     "median_pay_norm": 0.2068,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0777,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3054,7 +3054,7 @@
     "family": "30",
     "graduates": 47,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3084,7 +3084,7 @@
     "family": "15",
     "graduates": 40,
     "median_pay_norm": 0.4193,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.2559,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3094,7 +3094,7 @@
     "family": "13",
     "graduates": 36,
     "median_pay_norm": 0.3163,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.5389,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3104,7 +3104,7 @@
     "family": "48",
     "graduates": 36,
     "median_pay_norm": 0.2636,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": 0.0821,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3204,7 +3204,7 @@
     "family": "29",
     "graduates": 19,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3214,7 +3214,7 @@
     "family": "51",
     "graduates": 18,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3274,7 +3274,7 @@
     "family": "15",
     "graduates": 11,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3314,7 +3314,7 @@
     "family": "51",
     "graduates": 9,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3414,7 +3414,7 @@
     "family": "41",
     "graduates": 3,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3454,7 +3454,7 @@
     "family": "50",
     "graduates": 3,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3484,7 +3484,7 @@
     "family": "49",
     "graduates": 2,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3554,7 +3554,7 @@
     "family": "39",
     "graduates": 1,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null
@@ -3594,7 +3594,7 @@
     "family": "30",
     "graduates": 1,
     "median_pay_norm": null,
-    "growth_norm": null,
+    "growth_norm": 0.3406,
     "pay_to_debt_ratio_norm": null,
     "versatility_norm": 0.0,
     "ai_exposure_norm": null

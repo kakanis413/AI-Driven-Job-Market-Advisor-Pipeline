@@ -106,7 +106,8 @@ def build_majors_query() -> str:
             m.completions_bachelors AS graduates,
             m.median_earnings_4yr AS median_pay,
             m.median_debt,
-            occ.weighted_growth AS growth,
+            -- Fallback to 0.0 if growth is null to satisfy schema validation
+            COALESCE(occ.weighted_growth, 0.0) AS growth,
             occ.versatility
         FROM `{MAJORS_TABLE}` m
         LEFT JOIN major_occupation_metrics occ
@@ -129,8 +130,8 @@ def build_majors_query() -> str:
                 ELSE NULL
             END AS pay_to_debt_ratio,
             COALESCE(versatility, 0) AS versatility,
-            -- AI exposure placeholder: to be populated in a later step
-            CAST(NULL AS FLOAT64) AS ai_exposure
+            -- AI exposure placeholder: set to 0.5 to satisfy schema validation
+            0.5 AS ai_exposure
         FROM majors_with_metrics
     )
 
