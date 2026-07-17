@@ -1,0 +1,3602 @@
+[
+  {
+    "major": "Business Administration, Management and Operations",
+    "family": "52",
+    "graduates": 169790,
+    "median_pay_norm": 0.3429,
+    "growth_norm": 0.5609,
+    "pay_to_debt_ratio_norm": 0.1502,
+    "versatility_norm": 1.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Registered Nursing, Nursing Administration, Nursing Research and Clinical Nursing",
+    "family": "51",
+    "graduates": 149272,
+    "median_pay_norm": 0.4962,
+    "growth_norm": 0.5296,
+    "pay_to_debt_ratio_norm": 0.2419,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Psychology, General",
+    "family": "42",
+    "graduates": 110091,
+    "median_pay_norm": 0.1912,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0978,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biology, General",
+    "family": "26",
+    "graduates": 85877,
+    "median_pay_norm": 0.2385,
+    "growth_norm": 0.3445,
+    "pay_to_debt_ratio_norm": 0.117,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Communication and Media Studies",
+    "family": "09",
+    "graduates": 54850,
+    "median_pay_norm": 0.2464,
+    "growth_norm": 0.4241,
+    "pay_to_debt_ratio_norm": 0.1249,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Accounting and Related Services",
+    "family": "52",
+    "graduates": 52433,
+    "median_pay_norm": 0.3998,
+    "growth_norm": 0.412,
+    "pay_to_debt_ratio_norm": 0.1825,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Criminal Justice and Corrections",
+    "family": "43",
+    "graduates": 51953,
+    "median_pay_norm": 0.2326,
+    "growth_norm": 0.4735,
+    "pay_to_debt_ratio_norm": 0.1031,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Teacher Education and Professional Development, Specific Levels and Methods",
+    "family": "13",
+    "graduates": 51287,
+    "median_pay_norm": 0.1741,
+    "growth_norm": 0.3684,
+    "pay_to_debt_ratio_norm": 0.076,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Sports, Kinesiology, and Physical Education/Fitness",
+    "family": "31",
+    "graduates": 48743,
+    "median_pay_norm": 0.2232,
+    "growth_norm": 0.5655,
+    "pay_to_debt_ratio_norm": 0.1022,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Finance and Financial Management Services",
+    "family": "52",
+    "graduates": 48026,
+    "median_pay_norm": 0.4919,
+    "growth_norm": 0.4481,
+    "pay_to_debt_ratio_norm": 0.2376,
+    "versatility_norm": 0.4545,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Marketing",
+    "family": "52",
+    "graduates": 44987,
+    "median_pay_norm": 0.3449,
+    "growth_norm": 0.486,
+    "pay_to_debt_ratio_norm": 0.1616,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Liberal Arts and Sciences, General Studies and Humanities",
+    "family": "24",
+    "graduates": 44225,
+    "median_pay_norm": 0.2032,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1066,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Political Science and Government",
+    "family": "45",
+    "graduates": 43388,
+    "median_pay_norm": 0.3082,
+    "growth_norm": 0.293,
+    "pay_to_debt_ratio_norm": 0.1624,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Economics",
+    "family": "45",
+    "graduates": 40060,
+    "median_pay_norm": 0.5074,
+    "growth_norm": 0.4749,
+    "pay_to_debt_ratio_norm": 0.2769,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer and Information Sciences, General",
+    "family": "11",
+    "graduates": 39126,
+    "median_pay_norm": 0.6068,
+    "growth_norm": 0.6772,
+    "pay_to_debt_ratio_norm": 0.269,
+    "versatility_norm": 0.3182,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mechanical Engineering",
+    "family": "14",
+    "graduates": 37950,
+    "median_pay_norm": 0.5555,
+    "growth_norm": 0.433,
+    "pay_to_debt_ratio_norm": 0.2454,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Science",
+    "family": "11",
+    "graduates": 35960,
+    "median_pay_norm": 0.8217,
+    "growth_norm": 0.8001,
+    "pay_to_debt_ratio_norm": 0.4227,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "English Language and Literature, General",
+    "family": "23",
+    "graduates": 33267,
+    "median_pay_norm": 0.182,
+    "growth_norm": 0.292,
+    "pay_to_debt_ratio_norm": 0.0961,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Sociology",
+    "family": "45",
+    "graduates": 29514,
+    "median_pay_norm": 0.2178,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1258,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "History",
+    "family": "54",
+    "graduates": 26124,
+    "median_pay_norm": 0.2185,
+    "growth_norm": 0.3049,
+    "pay_to_debt_ratio_norm": 0.1144,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Multi/Interdisciplinary Studies, Other",
+    "family": "30",
+    "graduates": 25757,
+    "median_pay_norm": 0.2507,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1275,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Fine and Studio Arts",
+    "family": "50",
+    "graduates": 25733,
+    "median_pay_norm": 0.1214,
+    "growth_norm": 0.3174,
+    "pay_to_debt_ratio_norm": 0.0585,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Business/Commerce, General",
+    "family": "52",
+    "graduates": 24825,
+    "median_pay_norm": 0.3726,
+    "growth_norm": 0.4928,
+    "pay_to_debt_ratio_norm": 0.1459,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mathematics",
+    "family": "27",
+    "graduates": 22092,
+    "median_pay_norm": 0.4299,
+    "growth_norm": 0.4516,
+    "pay_to_debt_ratio_norm": 0.2306,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Social Work",
+    "family": "44",
+    "graduates": 21856,
+    "median_pay_norm": 0.1899,
+    "growth_norm": 0.5033,
+    "pay_to_debt_ratio_norm": 0.0838,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Teacher Education and Professional Development, Specific Subject Areas",
+    "family": "13",
+    "graduates": 21124,
+    "median_pay_norm": 0.2073,
+    "growth_norm": 0.3703,
+    "pay_to_debt_ratio_norm": 0.0891,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Design and Applied Arts",
+    "family": "50",
+    "graduates": 19679,
+    "median_pay_norm": 0.2312,
+    "growth_norm": 0.4013,
+    "pay_to_debt_ratio_norm": 0.0838,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Public Health",
+    "family": "51",
+    "graduates": 18053,
+    "median_pay_norm": 0.2575,
+    "growth_norm": 0.6527,
+    "pay_to_debt_ratio_norm": 0.1223,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Health and Medical Administrative Services",
+    "family": "51",
+    "graduates": 18033,
+    "median_pay_norm": 0.2556,
+    "growth_norm": 0.6561,
+    "pay_to_debt_ratio_norm": 0.0786,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Electrical, Electronics, and Communications Engineering",
+    "family": "14",
+    "graduates": 17926,
+    "median_pay_norm": 0.6599,
+    "growth_norm": 0.4631,
+    "pay_to_debt_ratio_norm": 0.2917,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Health Services/Allied Health/Health Sciences, General",
+    "family": "51",
+    "graduates": 17660,
+    "median_pay_norm": 0.2645,
+    "growth_norm": 0.5189,
+    "pay_to_debt_ratio_norm": 0.1284,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Natural Resources Conservation and Research",
+    "family": "03",
+    "graduates": 17049,
+    "median_pay_norm": 0.248,
+    "growth_norm": 0.4194,
+    "pay_to_debt_ratio_norm": 0.1293,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Public Relations, Advertising, and Applied Communication",
+    "family": "09",
+    "graduates": 16824,
+    "median_pay_norm": 0.2962,
+    "growth_norm": 0.4911,
+    "pay_to_debt_ratio_norm": 0.1371,
+    "versatility_norm": 0.4545,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Music",
+    "family": "50",
+    "graduates": 15847,
+    "median_pay_norm": 0.1014,
+    "growth_norm": 0.3032,
+    "pay_to_debt_ratio_norm": 0.0402,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Chemistry",
+    "family": "40",
+    "graduates": 15402,
+    "median_pay_norm": 0.309,
+    "growth_norm": 0.4615,
+    "pay_to_debt_ratio_norm": 0.159,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Civil Engineering",
+    "family": "14",
+    "graduates": 15157,
+    "median_pay_norm": 0.5031,
+    "growth_norm": 0.4488,
+    "pay_to_debt_ratio_norm": 0.2262,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Drama/Theatre Arts and Stagecraft",
+    "family": "50",
+    "graduates": 13298,
+    "median_pay_norm": 0.0613,
+    "growth_norm": 0.4044,
+    "pay_to_debt_ratio_norm": 0.0271,
+    "versatility_norm": 0.3182,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Human Development, Family Studies, and Related Services",
+    "family": "19",
+    "graduates": 13297,
+    "median_pay_norm": 0.1587,
+    "growth_norm": 0.3643,
+    "pay_to_debt_ratio_norm": 0.0751,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Research and Experimental Psychology",
+    "family": "42",
+    "graduates": 13012,
+    "median_pay_norm": 0.2472,
+    "growth_norm": 0.5596,
+    "pay_to_debt_ratio_norm": 0.152,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Romance Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 12451,
+    "median_pay_norm": 0.2359,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.1293,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biochemistry, Biophysics and Molecular Biology",
+    "family": "26",
+    "graduates": 12313,
+    "median_pay_norm": 0.3022,
+    "growth_norm": 0.4865,
+    "pay_to_debt_ratio_norm": 0.1607,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Journalism",
+    "family": "09",
+    "graduates": 12189,
+    "median_pay_norm": 0.238,
+    "growth_norm": 0.3817,
+    "pay_to_debt_ratio_norm": 0.1109,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Film/Video and Photographic Arts",
+    "family": "50",
+    "graduates": 11968,
+    "median_pay_norm": 0.1354,
+    "growth_norm": 0.4276,
+    "pay_to_debt_ratio_norm": 0.0568,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Engineering",
+    "family": "14",
+    "graduates": 11531,
+    "median_pay_norm": 0.7203,
+    "growth_norm": 0.5244,
+    "pay_to_debt_ratio_norm": 0.317,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Human Resources Management and Services",
+    "family": "52",
+    "graduates": 11333,
+    "median_pay_norm": 0.346,
+    "growth_norm": 0.4812,
+    "pay_to_debt_ratio_norm": 0.1415,
+    "versatility_norm": 0.4091,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Radio, Television, and Digital Communication",
+    "family": "09",
+    "graduates": 11198,
+    "median_pay_norm": 0.211,
+    "growth_norm": 0.4124,
+    "pay_to_debt_ratio_norm": 0.1013,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Communication Disorders Sciences and Services",
+    "family": "51",
+    "graduates": 11073,
+    "median_pay_norm": 0.265,
+    "growth_norm": 0.6942,
+    "pay_to_debt_ratio_norm": 0.1485,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Chemical Engineering",
+    "family": "14",
+    "graduates": 10860,
+    "median_pay_norm": 0.5988,
+    "growth_norm": 0.438,
+    "pay_to_debt_ratio_norm": 0.2594,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Hospitality Administration/Management",
+    "family": "52",
+    "graduates": 10685,
+    "median_pay_norm": 0.2117,
+    "growth_norm": 0.4731,
+    "pay_to_debt_ratio_norm": 0.11,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Allied Health Diagnostic, Intervention, and Treatment Professions",
+    "family": "51",
+    "graduates": 9987,
+    "median_pay_norm": 0.3609,
+    "growth_norm": 0.6434,
+    "pay_to_debt_ratio_norm": 0.1511,
+    "versatility_norm": 0.4091,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Management Sciences and Quantitative Methods",
+    "family": "52",
+    "graduates": 9956,
+    "median_pay_norm": 0.5203,
+    "growth_norm": 0.655,
+    "pay_to_debt_ratio_norm": 0.2533,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Information Science/Studies",
+    "family": "11",
+    "graduates": 9617,
+    "median_pay_norm": 0.5287,
+    "growth_norm": 0.7125,
+    "pay_to_debt_ratio_norm": 0.2384,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "International Relations and National Security Studies",
+    "family": "45",
+    "graduates": 9569,
+    "median_pay_norm": 0.3346,
+    "growth_norm": 0.2676,
+    "pay_to_debt_ratio_norm": 0.1747,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Management Information Systems and Services",
+    "family": "52",
+    "graduates": 9504,
+    "median_pay_norm": 0.4837,
+    "growth_norm": 0.627,
+    "pay_to_debt_ratio_norm": 0.2175,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Neurobiology and Neurosciences",
+    "family": "26",
+    "graduates": 9341,
+    "median_pay_norm": 0.29,
+    "growth_norm": 0.4893,
+    "pay_to_debt_ratio_norm": 0.1502,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Anthropology",
+    "family": "45",
+    "graduates": 9275,
+    "median_pay_norm": 0.1543,
+    "growth_norm": 0.5644,
+    "pay_to_debt_ratio_norm": 0.0908,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Special Education and Teaching",
+    "family": "13",
+    "graduates": 9073,
+    "median_pay_norm": 0.2073,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.0821,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Criminology",
+    "family": "45",
+    "graduates": 8852,
+    "median_pay_norm": 0.2292,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1205,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer/Information Technology Administration and Management",
+    "family": "11",
+    "graduates": 8575,
+    "median_pay_norm": 0.5057,
+    "growth_norm": 0.5671,
+    "pay_to_debt_ratio_norm": 0.2262,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Physics",
+    "family": "40",
+    "graduates": 8538,
+    "median_pay_norm": 0.4565,
+    "growth_norm": 0.3047,
+    "pay_to_debt_ratio_norm": 0.2253,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Philosophy",
+    "family": "38",
+    "graduates": 8221,
+    "median_pay_norm": 0.239,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1345,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biomedical/Medical Engineering",
+    "family": "14",
+    "graduates": 8218,
+    "median_pay_norm": 0.5738,
+    "growth_norm": 0.4402,
+    "pay_to_debt_ratio_norm": 0.2576,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Multi-/Interdisciplinary Studies, General",
+    "family": "30",
+    "graduates": 7395,
+    "median_pay_norm": 0.1892,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0882,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Rhetoric and Composition/Writing Studies",
+    "family": "23",
+    "graduates": 7169,
+    "median_pay_norm": 0.1841,
+    "growth_norm": 0.3971,
+    "pay_to_debt_ratio_norm": 0.0812,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Animal Sciences",
+    "family": "01",
+    "graduates": 6860,
+    "median_pay_norm": 0.1842,
+    "growth_norm": 0.3163,
+    "pay_to_debt_ratio_norm": 0.1022,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "International Business",
+    "family": "52",
+    "graduates": 6651,
+    "median_pay_norm": 0.4099,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1983,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "International/Globalization Studies",
+    "family": "30",
+    "graduates": 6606,
+    "median_pay_norm": 0.2753,
+    "growth_norm": 0.2676,
+    "pay_to_debt_ratio_norm": 0.1616,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Social Sciences, General",
+    "family": "45",
+    "graduates": 6589,
+    "median_pay_norm": 0.2415,
+    "growth_norm": 0.2919,
+    "pay_to_debt_ratio_norm": 0.117,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Human Services, General",
+    "family": "44",
+    "graduates": 6119,
+    "median_pay_norm": 0.1695,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.0515,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Geological and Earth Sciences/Geosciences",
+    "family": "40",
+    "graduates": 6088,
+    "median_pay_norm": 0.2775,
+    "growth_norm": 0.4289,
+    "pay_to_debt_ratio_norm": 0.1266,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Industrial Engineering",
+    "family": "14",
+    "graduates": 6019,
+    "median_pay_norm": 0.6022,
+    "growth_norm": 0.4976,
+    "pay_to_debt_ratio_norm": 0.2576,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Ethnic, Cultural Minority, Gender, and Group Studies",
+    "family": "05",
+    "graduates": 6006,
+    "median_pay_norm": 0.2129,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.1319,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Religion/Religious Studies",
+    "family": "38",
+    "graduates": 6004,
+    "median_pay_norm": 0.108,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0218,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Business/Managerial Economics",
+    "family": "52",
+    "graduates": 5793,
+    "median_pay_norm": 0.4438,
+    "growth_norm": 0.5538,
+    "pay_to_debt_ratio_norm": 0.2297,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Physiology, Pathology and Related Sciences",
+    "family": "26",
+    "graduates": 5763,
+    "median_pay_norm": 0.2657,
+    "growth_norm": 0.5131,
+    "pay_to_debt_ratio_norm": 0.1371,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Linguistic, Comparative, and Related Language Studies and Services",
+    "family": "16",
+    "graduates": 5735,
+    "median_pay_norm": 0.189,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.1205,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Aerospace, Aeronautical, and Astronautical/Space Engineering",
+    "family": "14",
+    "graduates": 5366,
+    "median_pay_norm": 0.5914,
+    "growth_norm": 0.4529,
+    "pay_to_debt_ratio_norm": 0.2419,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural Business and Management",
+    "family": "01",
+    "graduates": 5242,
+    "median_pay_norm": 0.3479,
+    "growth_norm": 0.3173,
+    "pay_to_debt_ratio_norm": 0.2166,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Statistics",
+    "family": "27",
+    "graduates": 4913,
+    "median_pay_norm": 0.5911,
+    "growth_norm": 0.9277,
+    "pay_to_debt_ratio_norm": 0.3214,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Air Transportation",
+    "family": "49",
+    "graduates": 4847,
+    "median_pay_norm": 0.4274,
+    "growth_norm": 0.5044,
+    "pay_to_debt_ratio_norm": 0.1808,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Education, General",
+    "family": "13",
+    "graduates": 4800,
+    "median_pay_norm": 0.198,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0856,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Area Studies",
+    "family": "05",
+    "graduates": 4789,
+    "median_pay_norm": 0.27,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1659,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Geography and Cartography",
+    "family": "45",
+    "graduates": 4658,
+    "median_pay_norm": 0.2606,
+    "growth_norm": 0.4627,
+    "pay_to_debt_ratio_norm": 0.1406,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Rehabilitation and Therapeutic Professions",
+    "family": "51",
+    "graduates": 4567,
+    "median_pay_norm": 0.2415,
+    "growth_norm": 0.5828,
+    "pay_to_debt_ratio_norm": 0.0943,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Applied Mathematics",
+    "family": "27",
+    "graduates": 4550,
+    "median_pay_norm": 0.6184,
+    "growth_norm": 0.9185,
+    "pay_to_debt_ratio_norm": 0.3755,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Health Professions and Related Clinical Sciences, Other",
+    "family": "51",
+    "graduates": 4547,
+    "median_pay_norm": 0.3123,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1266,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Cell/Cellular Biology and Anatomical Sciences",
+    "family": "26",
+    "graduates": 4502,
+    "median_pay_norm": 0.2984,
+    "growth_norm": 0.4936,
+    "pay_to_debt_ratio_norm": 0.1886,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Ecology, Evolution, Systematics, and Population Biology",
+    "family": "26",
+    "graduates": 4074,
+    "median_pay_norm": 0.17,
+    "growth_norm": 0.4923,
+    "pay_to_debt_ratio_norm": 0.0908,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Clinical/Medical Laboratory Science/Research and Allied Professions",
+    "family": "51",
+    "graduates": 3885,
+    "median_pay_norm": 0.3995,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.1843,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Software and Media Applications",
+    "family": "11",
+    "graduates": 3776,
+    "median_pay_norm": 0.2975,
+    "growth_norm": 0.673,
+    "pay_to_debt_ratio_norm": 0.1188,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Clinical, Counseling and Applied Psychology",
+    "family": "42",
+    "graduates": 3759,
+    "median_pay_norm": 0.2088,
+    "growth_norm": 0.5187,
+    "pay_to_debt_ratio_norm": 0.0943,
+    "versatility_norm": 0.3182,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Architecture",
+    "family": "04",
+    "graduates": 3732,
+    "median_pay_norm": 0.3319,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1275,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Entrepreneurial and Small Business Operations",
+    "family": "52",
+    "graduates": 3704,
+    "median_pay_norm": 0.3103,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1371,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Visual and Performing Arts, General",
+    "family": "50",
+    "graduates": 3699,
+    "median_pay_norm": 0.14,
+    "growth_norm": 0.4001,
+    "pay_to_debt_ratio_norm": 0.0585,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Nutrition Sciences",
+    "family": "30",
+    "graduates": 3518,
+    "median_pay_norm": 0.257,
+    "growth_norm": 0.4606,
+    "pay_to_debt_ratio_norm": 0.1336,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Business, Management, Marketing, and Related Support Services, Other",
+    "family": "52",
+    "graduates": 3378,
+    "median_pay_norm": 0.3542,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1624,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Arts, Entertainment, and Media Management",
+    "family": "50",
+    "graduates": 3298,
+    "median_pay_norm": 0.1748,
+    "growth_norm": 0.4354,
+    "pay_to_debt_ratio_norm": 0.0611,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Microbiological Sciences and Immunology",
+    "family": "26",
+    "graduates": 3259,
+    "median_pay_norm": 0.2461,
+    "growth_norm": 0.744,
+    "pay_to_debt_ratio_norm": 0.152,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Public Administration",
+    "family": "44",
+    "graduates": 3117,
+    "median_pay_norm": 0.2915,
+    "growth_norm": 0.5224,
+    "pay_to_debt_ratio_norm": 0.1424,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Health/Medical Preparatory Programs",
+    "family": "51",
+    "graduates": 3112,
+    "median_pay_norm": 0.2598,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1031,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Graphic Communications",
+    "family": "10",
+    "graduates": 3048,
+    "median_pay_norm": 0.2107,
+    "growth_norm": 0.3619,
+    "pay_to_debt_ratio_norm": 0.0716,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Foods, Nutrition, and Related Services",
+    "family": "19",
+    "graduates": 3038,
+    "median_pay_norm": 0.2212,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.0943,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mental and Social Health Services and Allied Professions",
+    "family": "51",
+    "graduates": 3037,
+    "median_pay_norm": 0.209,
+    "growth_norm": 0.5688,
+    "pay_to_debt_ratio_norm": 0.0751,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering, General",
+    "family": "14",
+    "graduates": 2945,
+    "median_pay_norm": 0.5597,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2253,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Security Science and Technology",
+    "family": "43",
+    "graduates": 2927,
+    "median_pay_norm": 0.2478,
+    "growth_norm": 0.5326,
+    "pay_to_debt_ratio_norm": 0.1127,
+    "versatility_norm": 0.3182,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Dietetics and Clinical Nutrition Services",
+    "family": "51",
+    "graduates": 2882,
+    "median_pay_norm": 0.2247,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.1057,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Non-Professional Legal Studies",
+    "family": "22",
+    "graduates": 2867,
+    "median_pay_norm": 0.2747,
+    "growth_norm": 0.3406,
+    "pay_to_debt_ratio_norm": 0.1284,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Specialized Sales, Merchandising and  Marketing Operations",
+    "family": "52",
+    "graduates": 2867,
+    "median_pay_norm": 0.2729,
+    "growth_norm": 0.4721,
+    "pay_to_debt_ratio_norm": 0.1013,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Parks, Recreation, and Leisure Facilities Management",
+    "family": "31",
+    "graduates": 2839,
+    "median_pay_norm": 0.1684,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0777,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Dance",
+    "family": "50",
+    "graduates": 2826,
+    "median_pay_norm": 0.0655,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0227,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Family and Consumer Sciences/Human Sciences, General",
+    "family": "19",
+    "graduates": 2825,
+    "median_pay_norm": 0.1571,
+    "growth_norm": 0.292,
+    "pay_to_debt_ratio_norm": 0.0812,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mechanical Engineering Related Technologies/Technicians",
+    "family": "15",
+    "graduates": 2804,
+    "median_pay_norm": 0.4541,
+    "growth_norm": 0.4334,
+    "pay_to_debt_ratio_norm": 0.1843,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Industrial Production Technologies/Technicians",
+    "family": "15",
+    "graduates": 2788,
+    "median_pay_norm": 0.4224,
+    "growth_norm": 0.3964,
+    "pay_to_debt_ratio_norm": 0.1913,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Pharmacy, Pharmaceutical Sciences, and Administration",
+    "family": "51",
+    "graduates": 2767,
+    "median_pay_norm": 0.5849,
+    "growth_norm": 0.5863,
+    "pay_to_debt_ratio_norm": 0.2751,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Parks, Recreation, and Leisure Studies",
+    "family": "31",
+    "graduates": 2732,
+    "median_pay_norm": 0.2094,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1083,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Construction Engineering Technology/Technician",
+    "family": "15",
+    "graduates": 2714,
+    "median_pay_norm": 0.5748,
+    "growth_norm": 0.4627,
+    "pay_to_debt_ratio_norm": 0.2541,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biological and Physical Sciences",
+    "family": "30",
+    "graduates": 2649,
+    "median_pay_norm": 0.2663,
+    "growth_norm": 0.3047,
+    "pay_to_debt_ratio_norm": 0.1231,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Apparel and Textiles",
+    "family": "19",
+    "graduates": 2644,
+    "median_pay_norm": 0.2276,
+    "growth_norm": 0.4999,
+    "pay_to_debt_ratio_norm": 0.1039,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Bible/Biblical Studies",
+    "family": "39",
+    "graduates": 2620,
+    "median_pay_norm": 0.1321,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0498,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Construction Management",
+    "family": "52",
+    "graduates": 2601,
+    "median_pay_norm": 0.5478,
+    "growth_norm": 0.5118,
+    "pay_to_debt_ratio_norm": 0.2288,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Zoology/Animal Biology",
+    "family": "26",
+    "graduates": 2576,
+    "median_pay_norm": 0.1331,
+    "growth_norm": 0.4238,
+    "pay_to_debt_ratio_norm": 0.0585,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Cognitive Science",
+    "family": "30",
+    "graduates": 2566,
+    "median_pay_norm": 0.4493,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2865,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Architectural Sciences and Technology",
+    "family": "04",
+    "graduates": 2547,
+    "median_pay_norm": 0.3649,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1223,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "General Sales, Merchandising and Related Marketing Operations",
+    "family": "52",
+    "graduates": 2534,
+    "median_pay_norm": 0.3884,
+    "growth_norm": 0.2701,
+    "pay_to_debt_ratio_norm": 0.214,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Homeland Security",
+    "family": "43",
+    "graduates": 2530,
+    "median_pay_norm": 0.3636,
+    "growth_norm": 0.4136,
+    "pay_to_debt_ratio_norm": 0.1511,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Public Policy Analysis",
+    "family": "44",
+    "graduates": 2517,
+    "median_pay_norm": 0.4252,
+    "growth_norm": 0.8936,
+    "pay_to_debt_ratio_norm": 0.2498,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Theological and Ministerial Studies",
+    "family": "39",
+    "graduates": 2475,
+    "median_pay_norm": 0.1632,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0655,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Dental Support Services and Allied Professions",
+    "family": "51",
+    "graduates": 2213,
+    "median_pay_norm": 0.3091,
+    "growth_norm": 0.4955,
+    "pay_to_debt_ratio_norm": 0.152,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agriculture, General",
+    "family": "01",
+    "graduates": 2082,
+    "median_pay_norm": 0.223,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1258,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Plant Sciences",
+    "family": "01",
+    "graduates": 2058,
+    "median_pay_norm": 0.228,
+    "growth_norm": 0.3163,
+    "pay_to_debt_ratio_norm": 0.1493,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Quality Control and Safety Technologies/Technicians",
+    "family": "15",
+    "graduates": 1982,
+    "median_pay_norm": 0.4936,
+    "growth_norm": 0.3464,
+    "pay_to_debt_ratio_norm": 0.1956,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering-Related Fields",
+    "family": "15",
+    "graduates": 1932,
+    "median_pay_norm": 0.5335,
+    "growth_norm": 0.4859,
+    "pay_to_debt_ratio_norm": 0.2183,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Programming",
+    "family": "11",
+    "graduates": 1897,
+    "median_pay_norm": 0.4925,
+    "growth_norm": 0.1946,
+    "pay_to_debt_ratio_norm": 0.1878,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Community Organization and Advocacy",
+    "family": "44",
+    "graduates": 1863,
+    "median_pay_norm": 0.1963,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.0489,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Social Sciences, Other",
+    "family": "45",
+    "graduates": 1772,
+    "median_pay_norm": 0.3329,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1686,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Environmental/Environmental Health Engineering",
+    "family": "14",
+    "graduates": 1770,
+    "median_pay_norm": 0.445,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1921,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Education, Other",
+    "family": "13",
+    "graduates": 1767,
+    "median_pay_norm": 0.1777,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0795,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering Technologies/Technicians, General",
+    "family": "15",
+    "graduates": 1700,
+    "median_pay_norm": 0.4462,
+    "growth_norm": 0.3843,
+    "pay_to_debt_ratio_norm": 0.1694,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Behavioral Sciences",
+    "family": "30",
+    "graduates": 1648,
+    "median_pay_norm": 0.1416,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.0079,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Real Estate",
+    "family": "52",
+    "graduates": 1645,
+    "median_pay_norm": 0.5138,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2358,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biological and Biomedical Sciences, Other",
+    "family": "26",
+    "graduates": 1630,
+    "median_pay_norm": 0.3041,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1651,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Materials Engineering",
+    "family": "14",
+    "graduates": 1627,
+    "median_pay_norm": 0.5411,
+    "growth_norm": 0.3461,
+    "pay_to_debt_ratio_norm": 0.2507,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Wildlife and Wildlands Science and Management",
+    "family": "03",
+    "graduates": 1626,
+    "median_pay_norm": 0.1436,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.069,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "East Asian Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 1621,
+    "median_pay_norm": 0.2089,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.1162,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Human Biology",
+    "family": "30",
+    "graduates": 1582,
+    "median_pay_norm": 0.3688,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2769,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Insurance",
+    "family": "52",
+    "graduates": 1557,
+    "median_pay_norm": 0.4944,
+    "growth_norm": 0.4124,
+    "pay_to_debt_ratio_norm": 0.2279,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Fire Protection",
+    "family": "43",
+    "graduates": 1552,
+    "median_pay_norm": 0.4994,
+    "growth_norm": 0.4136,
+    "pay_to_debt_ratio_norm": 0.2288,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Electrical/Electronic Engineering Technologies/Technicians",
+    "family": "15",
+    "graduates": 1515,
+    "median_pay_norm": 0.4841,
+    "growth_norm": 0.3883,
+    "pay_to_debt_ratio_norm": 0.1572,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Environmental/Natural Resources Management and Policy",
+    "family": "03",
+    "graduates": 1466,
+    "median_pay_norm": 0.2286,
+    "growth_norm": 0.4125,
+    "pay_to_debt_ratio_norm": 0.0891,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Food Science and Technology",
+    "family": "01",
+    "graduates": 1402,
+    "median_pay_norm": 0.3577,
+    "growth_norm": 0.3163,
+    "pay_to_debt_ratio_norm": 0.186,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Audiovisual Communications Technologies/Technicians",
+    "family": "10",
+    "graduates": 1277,
+    "median_pay_norm": 0.1026,
+    "growth_norm": 0.3406,
+    "pay_to_debt_ratio_norm": 0.0192,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Pastoral Counseling and Specialized Ministries",
+    "family": "39",
+    "graduates": 1257,
+    "median_pay_norm": 0.137,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.055,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Family and Consumer Economics and Related Studies",
+    "family": "19",
+    "graduates": 1241,
+    "median_pay_norm": 0.2212,
+    "growth_norm": 0.5839,
+    "pay_to_debt_ratio_norm": 0.1074,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Forestry",
+    "family": "03",
+    "graduates": 1189,
+    "median_pay_norm": 0.2696,
+    "growth_norm": 0.219,
+    "pay_to_debt_ratio_norm": 0.1371,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Classics and Classical Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 1171,
+    "median_pay_norm": 0.1506,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.062,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural Engineering",
+    "family": "14",
+    "graduates": 1170,
+    "median_pay_norm": 0.4863,
+    "growth_norm": 0.4383,
+    "pay_to_debt_ratio_norm": 0.2131,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Germanic Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 1166,
+    "median_pay_norm": 0.3266,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.1563,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Legal Support Services",
+    "family": "22",
+    "graduates": 1125,
+    "median_pay_norm": 0.1839,
+    "growth_norm": 0.3484,
+    "pay_to_debt_ratio_norm": 0.0515,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Petroleum Engineering",
+    "family": "14",
+    "graduates": 1123,
+    "median_pay_norm": 0.6965,
+    "growth_norm": 0.4318,
+    "pay_to_debt_ratio_norm": 0.2795,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Systems Networking and Telecommunications",
+    "family": "11",
+    "graduates": 1105,
+    "median_pay_norm": 0.3911,
+    "growth_norm": 0.6565,
+    "pay_to_debt_ratio_norm": 0.1118,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Sustainability Studies",
+    "family": "30",
+    "graduates": 1099,
+    "median_pay_norm": 0.2791,
+    "growth_norm": 0.4341,
+    "pay_to_debt_ratio_norm": 0.1651,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Systems Analysis",
+    "family": "11",
+    "graduates": 1098,
+    "median_pay_norm": 0.4803,
+    "growth_norm": 0.5783,
+    "pay_to_debt_ratio_norm": 0.1328,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Urban Studies/Affairs",
+    "family": "45",
+    "graduates": 1039,
+    "median_pay_norm": 0.3439,
+    "growth_norm": 0.4153,
+    "pay_to_debt_ratio_norm": 0.1895,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering, Other",
+    "family": "14",
+    "graduates": 992,
+    "median_pay_norm": 0.5837,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2803,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biotechnology",
+    "family": "26",
+    "graduates": 975,
+    "median_pay_norm": 0.3641,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1948,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer Engineering Technologies/Technicians",
+    "family": "15",
+    "graduates": 959,
+    "median_pay_norm": 0.498,
+    "growth_norm": 0.2689,
+    "pay_to_debt_ratio_norm": 0.2096,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Intelligence, Command Control and Information Operations",
+    "family": "29",
+    "graduates": 947,
+    "median_pay_norm": 0.4267,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.221,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mathematics and Computer Science",
+    "family": "30",
+    "graduates": 935,
+    "median_pay_norm": 0.5002,
+    "growth_norm": 0.7899,
+    "pay_to_debt_ratio_norm": 0.2402,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering/Engineering-Related Technologies/Technicians, Other",
+    "family": "15",
+    "graduates": 886,
+    "median_pay_norm": 0.4826,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.2114,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Astronomy and Astrophysics",
+    "family": "40",
+    "graduates": 877,
+    "median_pay_norm": 0.2541,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1144,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Business/Corporate Communications",
+    "family": "52",
+    "graduates": 876,
+    "median_pay_norm": 0.3393,
+    "growth_norm": 0.4315,
+    "pay_to_debt_ratio_norm": 0.2192,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Systems Engineering",
+    "family": "14",
+    "graduates": 875,
+    "median_pay_norm": 0.6804,
+    "growth_norm": 0.544,
+    "pay_to_debt_ratio_norm": 0.331,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Science, Technology and Society",
+    "family": "30",
+    "graduates": 853,
+    "median_pay_norm": 0.3937,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2253,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural Production Operations",
+    "family": "01",
+    "graduates": 832,
+    "median_pay_norm": 0.1935,
+    "growth_norm": 0.3163,
+    "pay_to_debt_ratio_norm": 0.1039,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Natural Sciences",
+    "family": "30",
+    "graduates": 813,
+    "median_pay_norm": 0.2221,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1197,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Homeland Security, Law Enforcement, Firefighting and Related Protective Services, Other",
+    "family": "43",
+    "graduates": 811,
+    "median_pay_norm": 0.3729,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1721,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "City/Urban, Community, and Regional Planning",
+    "family": "04",
+    "graduates": 793,
+    "median_pay_norm": 0.314,
+    "growth_norm": 0.4337,
+    "pay_to_debt_ratio_norm": 0.1424,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Allied Health and Medical Assisting Services",
+    "family": "51",
+    "graduates": 792,
+    "median_pay_norm": 0.3562,
+    "growth_norm": 0.5776,
+    "pay_to_debt_ratio_norm": 0.1755,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Atmospheric Sciences and Meteorology",
+    "family": "40",
+    "graduates": 739,
+    "median_pay_norm": 0.2702,
+    "growth_norm": 0.4319,
+    "pay_to_debt_ratio_norm": 0.1066,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Educational Assessment, Evaluation, and Research",
+    "family": "13",
+    "graduates": 728,
+    "median_pay_norm": 0.156,
+    "growth_norm": 0.5539,
+    "pay_to_debt_ratio_norm": 0.0585,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Religious Education",
+    "family": "39",
+    "graduates": 692,
+    "median_pay_norm": 0.1275,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0314,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Genetics",
+    "family": "26",
+    "graduates": 685,
+    "median_pay_norm": 0.2947,
+    "growth_norm": 0.4901,
+    "pay_to_debt_ratio_norm": 0.1555,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Architectural Engineering",
+    "family": "14",
+    "graduates": 684,
+    "median_pay_norm": 0.5556,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2079,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Communication, Journalism, and Related Programs, Other",
+    "family": "09",
+    "graduates": 670,
+    "median_pay_norm": 0.2172,
+    "growth_norm": 0.4043,
+    "pay_to_debt_ratio_norm": 0.09,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering Physics",
+    "family": "14",
+    "graduates": 652,
+    "median_pay_norm": 0.573,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2402,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering Science",
+    "family": "14",
+    "graduates": 629,
+    "median_pay_norm": 0.5991,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.3092,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Landscape Architecture",
+    "family": "04",
+    "graduates": 627,
+    "median_pay_norm": 0.355,
+    "growth_norm": 0.4357,
+    "pay_to_debt_ratio_norm": 0.1345,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Human Computer Interaction",
+    "family": "30",
+    "graduates": 625,
+    "median_pay_norm": 0.2138,
+    "growth_norm": 0.7125,
+    "pay_to_debt_ratio_norm": 0.0507,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural Public Services",
+    "family": "01",
+    "graduates": 618,
+    "median_pay_norm": 0.2593,
+    "growth_norm": 0.2433,
+    "pay_to_debt_ratio_norm": 0.1738,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Environmental Design",
+    "family": "04",
+    "graduates": 608,
+    "median_pay_norm": 0.2433,
+    "growth_norm": 0.4303,
+    "pay_to_debt_ratio_norm": 0.1266,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Peace Studies and Conflict Resolution",
+    "family": "30",
+    "graduates": 594,
+    "median_pay_norm": 0.3362,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2009,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Culinary Arts and Related Services",
+    "family": "12",
+    "graduates": 587,
+    "median_pay_norm": 0.1041,
+    "growth_norm": 0.4792,
+    "pay_to_debt_ratio_norm": 0.0288,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Educational Administration and Supervision",
+    "family": "13",
+    "graduates": 585,
+    "median_pay_norm": 0.1422,
+    "growth_norm": 0.4866,
+    "pay_to_debt_ratio_norm": 0.041,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biomathematics, Bioinformatics, and Computational Biology",
+    "family": "26",
+    "graduates": 570,
+    "median_pay_norm": 0.8622,
+    "growth_norm": 0.772,
+    "pay_to_debt_ratio_norm": 0.4934,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Literature",
+    "family": "23",
+    "graduates": 555,
+    "median_pay_norm": 0.1669,
+    "growth_norm": 0.4043,
+    "pay_to_debt_ratio_norm": 0.0655,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Manufacturing Engineering",
+    "family": "14",
+    "graduates": 551,
+    "median_pay_norm": 0.5111,
+    "growth_norm": 0.4592,
+    "pay_to_debt_ratio_norm": 0.2533,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "English Language and Literature/Letters, Other",
+    "family": "23",
+    "graduates": 538,
+    "median_pay_norm": 0.1952,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0847,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Veterinary/Animal Health Technologies/Technicians",
+    "family": "01",
+    "graduates": 537,
+    "median_pay_norm": 0.1126,
+    "growth_norm": 0.5596,
+    "pay_to_debt_ratio_norm": 0.055,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Visual and Performing Arts, Other",
+    "family": "50",
+    "graduates": 529,
+    "median_pay_norm": 0.2107,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0734,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "American Sign Language",
+    "family": "16",
+    "graduates": 528,
+    "median_pay_norm": 0.1455,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.0646,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Construction Engineering",
+    "family": "14",
+    "graduates": 528,
+    "median_pay_norm": 0.6089,
+    "growth_norm": 0.3954,
+    "pay_to_debt_ratio_norm": 0.2393,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Science Technologies/Technicians, Other",
+    "family": "41",
+    "graduates": 508,
+    "median_pay_norm": 0.3513,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1703,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Slavic, Baltic and Albanian Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 501,
+    "median_pay_norm": 0.4026,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Interior Architecture",
+    "family": "04",
+    "graduates": 500,
+    "median_pay_norm": 0.2924,
+    "growth_norm": 0.4309,
+    "pay_to_debt_ratio_norm": 0.1153,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Sociology and Anthropology",
+    "family": "45",
+    "graduates": 499,
+    "median_pay_norm": 0.1767,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.0821,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Electromechanical Technologies/Technicians",
+    "family": "15",
+    "graduates": 496,
+    "median_pay_norm": 0.4356,
+    "growth_norm": 0.4761,
+    "pay_to_debt_ratio_norm": 0.1188,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Marine Transportation",
+    "family": "49",
+    "graduates": 493,
+    "median_pay_norm": 0.7346,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.2847,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mathematics and Statistics, Other",
+    "family": "27",
+    "graduates": 490,
+    "median_pay_norm": 0.7255,
+    "growth_norm": 0.9505,
+    "pay_to_debt_ratio_norm": 0.3476,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Missions/Missionary Studies and Missiology",
+    "family": "39",
+    "graduates": 484,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Nuclear Engineering",
+    "family": "14",
+    "graduates": 477,
+    "median_pay_norm": 0.5839,
+    "growth_norm": 0.4297,
+    "pay_to_debt_ratio_norm": 0.2594,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Operations Research",
+    "family": "14",
+    "graduates": 471,
+    "median_pay_norm": 0.9082,
+    "growth_norm": 0.6522,
+    "pay_to_debt_ratio_norm": 0.5511,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Legal Professions and Studies, Other",
+    "family": "22",
+    "graduates": 469,
+    "median_pay_norm": 0.2427,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0908,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agriculture/Veterinary Preparatory Programs",
+    "family": "01",
+    "graduates": 467,
+    "median_pay_norm": 0.1365,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0515,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mechatronics, Robotics, and Automation Engineering",
+    "family": "14",
+    "graduates": 459,
+    "median_pay_norm": 0.5729,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2044,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Psychology, Other",
+    "family": "42",
+    "graduates": 445,
+    "median_pay_norm": 0.1516,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1362,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Architectural Engineering Technologies/Technicians",
+    "family": "15",
+    "graduates": 419,
+    "median_pay_norm": 0.4809,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.2341,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Systems Science and Theory",
+    "family": "30",
+    "graduates": 419,
+    "median_pay_norm": 0.6707,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.2707,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Naval Architecture and Marine Engineering",
+    "family": "14",
+    "graduates": 407,
+    "median_pay_norm": 0.7773,
+    "growth_norm": 0.4398,
+    "pay_to_debt_ratio_norm": 0.2699,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Teaching English or French as a Second or Foreign Language",
+    "family": "13",
+    "graduates": 402,
+    "median_pay_norm": 0.1021,
+    "growth_norm": 0.3217,
+    "pay_to_debt_ratio_norm": 0.0323,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Business Operations Support and Assistant Services",
+    "family": "52",
+    "graduates": 367,
+    "median_pay_norm": 0.0,
+    "growth_norm": 0.218,
+    "pay_to_debt_ratio_norm": 0.0114,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural/Animal/Plant/Veterinary Science and Related Fields, Other",
+    "family": "01",
+    "graduates": 366,
+    "median_pay_norm": 0.2913,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1467,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Middle/Near Eastern and Semitic Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 355,
+    "median_pay_norm": 0.3112,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.1607,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural and Domestic Animal Services",
+    "family": "01",
+    "graduates": 354,
+    "median_pay_norm": 0.1242,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0463,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Drafting/Design Engineering Technologies/Technicians",
+    "family": "15",
+    "graduates": 353,
+    "median_pay_norm": 0.3942,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0934,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Civil Engineering Technologies/Technicians",
+    "family": "15",
+    "graduates": 352,
+    "median_pay_norm": 0.428,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.1598,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Alternative and Complementary Medicine and Medical Systems",
+    "family": "51",
+    "graduates": 342,
+    "median_pay_norm": 0.0898,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Applied Horticulture and Horticultural Business Services",
+    "family": "01",
+    "graduates": 339,
+    "median_pay_norm": 0.2441,
+    "growth_norm": 0.315,
+    "pay_to_debt_ratio_norm": 0.1293,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Data Analytics",
+    "family": "30",
+    "graduates": 325,
+    "median_pay_norm": null,
+    "growth_norm": 0.6169,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Botany/Plant Biology",
+    "family": "26",
+    "graduates": 324,
+    "median_pay_norm": 0.1698,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.0594,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Fishing and Fisheries Sciences and Management",
+    "family": "03",
+    "graduates": 315,
+    "median_pay_norm": 0.1673,
+    "growth_norm": 0.219,
+    "pay_to_debt_ratio_norm": 0.0681,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Family and Consumer Sciences/Human Sciences Business Services",
+    "family": "19",
+    "graduates": 313,
+    "median_pay_norm": 0.2875,
+    "growth_norm": 0.4802,
+    "pay_to_debt_ratio_norm": 0.1293,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Physical Sciences, Other",
+    "family": "40",
+    "graduates": 311,
+    "median_pay_norm": 0.217,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1214,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural Mechanization",
+    "family": "01",
+    "graduates": 308,
+    "median_pay_norm": 0.3895,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.2061,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Public Administration and Social Service Professions, Other",
+    "family": "44",
+    "graduates": 307,
+    "median_pay_norm": 0.222,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.069,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Theology and Religious Vocations, Other",
+    "family": "39",
+    "graduates": 305,
+    "median_pay_norm": 0.1258,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.048,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Religious Music and Worship",
+    "family": "39",
+    "graduates": 305,
+    "median_pay_norm": 0.1162,
+    "growth_norm": 0.3406,
+    "pay_to_debt_ratio_norm": 0.0463,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Gerontology",
+    "family": "30",
+    "graduates": 301,
+    "median_pay_norm": 0.2504,
+    "growth_norm": 0.5596,
+    "pay_to_debt_ratio_norm": 0.0996,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biological/Biosystems Engineering",
+    "family": "14",
+    "graduates": 300,
+    "median_pay_norm": 0.3756,
+    "growth_norm": 0.4402,
+    "pay_to_debt_ratio_norm": 0.1878,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Practical Nursing, Vocational Nursing and Nursing Assistants",
+    "family": "51",
+    "graduates": 298,
+    "median_pay_norm": 0.0957,
+    "growth_norm": 0.4136,
+    "pay_to_debt_ratio_norm": 0.0218,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Communications Technologies/Technicians",
+    "family": "10",
+    "graduates": 280,
+    "median_pay_norm": 0.0499,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.048,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Health Professions Education, Ethics, and Humanities",
+    "family": "51",
+    "graduates": 277,
+    "median_pay_norm": null,
+    "growth_norm": 0.8611,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.2727,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Physical Sciences, General",
+    "family": "40",
+    "graduates": 261,
+    "median_pay_norm": 0.276,
+    "growth_norm": 0.3047,
+    "pay_to_debt_ratio_norm": 0.1214,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Foreign Languages, Literatures, and Linguistics, Other",
+    "family": "16",
+    "graduates": 249,
+    "median_pay_norm": 0.2284,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": 0.09,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Archeology",
+    "family": "45",
+    "graduates": 231,
+    "median_pay_norm": 0.1101,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.062,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Electrical and Computer Engineering",
+    "family": "14",
+    "graduates": 230,
+    "median_pay_norm": null,
+    "growth_norm": 0.4573,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Pharmacology and Toxicology",
+    "family": "26",
+    "graduates": 227,
+    "median_pay_norm": 0.4024,
+    "growth_norm": 0.4843,
+    "pay_to_debt_ratio_norm": 0.2559,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Vehicle Maintenance and Repair Technologies/Technicians",
+    "family": "47",
+    "graduates": 226,
+    "median_pay_norm": 0.4926,
+    "growth_norm": 0.425,
+    "pay_to_debt_ratio_norm": 0.2105,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Soil Sciences",
+    "family": "01",
+    "graduates": 226,
+    "median_pay_norm": 0.286,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1441,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Materials Sciences",
+    "family": "40",
+    "graduates": 219,
+    "median_pay_norm": 0.5131,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2087,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Classical and Ancient Studies",
+    "family": "30",
+    "graduates": 219,
+    "median_pay_norm": 0.1034,
+    "growth_norm": 0.4244,
+    "pay_to_debt_ratio_norm": 0.0376,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Textile Sciences and Engineering",
+    "family": "14",
+    "graduates": 217,
+    "median_pay_norm": 0.3216,
+    "growth_norm": 0.4427,
+    "pay_to_debt_ratio_norm": 0.1345,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Social and Philosophical Foundations of Education",
+    "family": "13",
+    "graduates": 216,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Geological/Geophysical Engineering",
+    "family": "14",
+    "graduates": 216,
+    "median_pay_norm": 0.458,
+    "growth_norm": 0.4356,
+    "pay_to_debt_ratio_norm": 0.1843,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Cultural Studies/Critical Theory and Analysis",
+    "family": "30",
+    "graduates": 214,
+    "median_pay_norm": 0.1883,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0926,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Nuclear Engineering Technology/Technician",
+    "family": "15",
+    "graduates": 209,
+    "median_pay_norm": 1.0,
+    "growth_norm": 0.146,
+    "pay_to_debt_ratio_norm": 1.0,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Philosophy and Religious Studies, Other",
+    "family": "38",
+    "graduates": 202,
+    "median_pay_norm": 0.1391,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.069,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering-Related Technologies/Technicians",
+    "family": "15",
+    "graduates": 200,
+    "median_pay_norm": null,
+    "growth_norm": 0.4282,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Medical Illustration and Informatics",
+    "family": "51",
+    "graduates": 197,
+    "median_pay_norm": 0.3002,
+    "growth_norm": 0.7652,
+    "pay_to_debt_ratio_norm": 0.1197,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Ocean Engineering",
+    "family": "14",
+    "graduates": 193,
+    "median_pay_norm": 0.5577,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.1886,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mining and Mineral Engineering",
+    "family": "14",
+    "graduates": 193,
+    "median_pay_norm": 0.6149,
+    "growth_norm": 0.4356,
+    "pay_to_debt_ratio_norm": 0.2769,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Funeral Service and Mortuary Science",
+    "family": "12",
+    "graduates": 185,
+    "median_pay_norm": 0.2521,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1537,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Outdoor Education",
+    "family": "31",
+    "graduates": 183,
+    "median_pay_norm": null,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Legal Research and Advanced Professional Studies",
+    "family": "22",
+    "graduates": 176,
+    "median_pay_norm": 0.2862,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.0978,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Building/Construction Finishing, Management, and Inspection",
+    "family": "46",
+    "graduates": 174,
+    "median_pay_norm": 0.5316,
+    "growth_norm": 0.4428,
+    "pay_to_debt_ratio_norm": 0.2725,
+    "versatility_norm": 0.3182,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Polymer/Plastics Engineering",
+    "family": "14",
+    "graduates": 174,
+    "median_pay_norm": 0.554,
+    "growth_norm": 0.4402,
+    "pay_to_debt_ratio_norm": 0.2044,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computational Science",
+    "family": "30",
+    "graduates": 174,
+    "median_pay_norm": null,
+    "growth_norm": 0.7561,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Computer and Information Sciences and Support Services, Other",
+    "family": "11",
+    "graduates": 173,
+    "median_pay_norm": 0.4628,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1459,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Housing and Human Environments",
+    "family": "19",
+    "graduates": 169,
+    "median_pay_norm": 0.2964,
+    "growth_norm": 0.4448,
+    "pay_to_debt_ratio_norm": 0.1135,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Energy Systems Technologies/Technicians",
+    "family": "15",
+    "graduates": 169,
+    "median_pay_norm": 0.4764,
+    "growth_norm": 1.0,
+    "pay_to_debt_ratio_norm": 0.2603,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Data Processing",
+    "family": "11",
+    "graduates": 168,
+    "median_pay_norm": 0.269,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1598,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Metallurgical Engineering",
+    "family": "14",
+    "graduates": 163,
+    "median_pay_norm": 0.5747,
+    "growth_norm": 0.4427,
+    "pay_to_debt_ratio_norm": 0.2148,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biopsychology",
+    "family": "30",
+    "graduates": 162,
+    "median_pay_norm": 0.2086,
+    "growth_norm": 0.5125,
+    "pay_to_debt_ratio_norm": 0.1048,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Environmental Control Technologies/Technicians",
+    "family": "15",
+    "graduates": 159,
+    "median_pay_norm": 0.4336,
+    "growth_norm": 0.4398,
+    "pay_to_debt_ratio_norm": 0.1843,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Marine Sciences",
+    "family": "30",
+    "graduates": 156,
+    "median_pay_norm": 0.1412,
+    "growth_norm": 0.4316,
+    "pay_to_debt_ratio_norm": 0.069,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Bilingual, Multilingual, and Multicultural Education",
+    "family": "13",
+    "graduates": 143,
+    "median_pay_norm": 0.2859,
+    "growth_norm": 0.3217,
+    "pay_to_debt_ratio_norm": 0.1188,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Real Estate Development",
+    "family": "04",
+    "graduates": 141,
+    "median_pay_norm": null,
+    "growth_norm": 0.4358,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Intercultural/Multicultural and Diversity Studies",
+    "family": "30",
+    "graduates": 134,
+    "median_pay_norm": 0.1211,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0454,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Philosophy and Religious Studies, General",
+    "family": "38",
+    "graduates": 128,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Architectural History, Criticism, and Conservation",
+    "family": "04",
+    "graduates": 119,
+    "median_pay_norm": null,
+    "growth_norm": 0.4366,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Library Science and Administration",
+    "family": "25",
+    "graduates": 118,
+    "median_pay_norm": 0.0989,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.0349,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Architecture and Related Services, Other",
+    "family": "04",
+    "graduates": 116,
+    "median_pay_norm": 0.2586,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0891,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Family and Consumer Sciences/Human Sciences, Other",
+    "family": "19",
+    "graduates": 109,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Parks, Recreation, Leisure, Fitness, and Kinesiology, Other",
+    "family": "31",
+    "graduates": 103,
+    "median_pay_norm": 0.1456,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0847,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Historic Preservation and Conservation",
+    "family": "30",
+    "graduates": 103,
+    "median_pay_norm": 0.1696,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": 0.083,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biochemical Engineering",
+    "family": "14",
+    "graduates": 102,
+    "median_pay_norm": 0.5553,
+    "growth_norm": 0.4357,
+    "pay_to_debt_ratio_norm": 0.352,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Agricultural and Food Products Processing",
+    "family": "01",
+    "graduates": 102,
+    "median_pay_norm": 0.4832,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1948,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "International Agriculture",
+    "family": "01",
+    "graduates": 98,
+    "median_pay_norm": 0.2141,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1004,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Natural Resources and Conservation, Other",
+    "family": "03",
+    "graduates": 92,
+    "median_pay_norm": 0.1495,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0498,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Ceramic Sciences and Engineering",
+    "family": "14",
+    "graduates": 92,
+    "median_pay_norm": null,
+    "growth_norm": 0.4402,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering Mechanics",
+    "family": "14",
+    "graduates": 89,
+    "median_pay_norm": 0.5711,
+    "growth_norm": 0.5085,
+    "pay_to_debt_ratio_norm": 0.207,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Data Science",
+    "family": "30",
+    "graduates": 84,
+    "median_pay_norm": null,
+    "growth_norm": 0.7913,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Military Applied Sciences",
+    "family": "29",
+    "graduates": 83,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Educational/Instructional Media Design",
+    "family": "13",
+    "graduates": 83,
+    "median_pay_norm": 0.3832,
+    "growth_norm": 0.5022,
+    "pay_to_debt_ratio_norm": 0.1197,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Crafts/Craft Design, Folk Art and Artisanry",
+    "family": "50",
+    "graduates": 76,
+    "median_pay_norm": 0.0855,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0314,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Military Technologies and Applied Sciences, Other",
+    "family": "29",
+    "graduates": 66,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Military Systems and Maintenance Technology",
+    "family": "29",
+    "graduates": 65,
+    "median_pay_norm": null,
+    "growth_norm": 0.5353,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Biology/Biotechnology Technologies/Technicians",
+    "family": "41",
+    "graduates": 59,
+    "median_pay_norm": null,
+    "growth_norm": 0.4136,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Veterinary Biomedical and Clinical Sciences",
+    "family": "51",
+    "graduates": 57,
+    "median_pay_norm": 0.3085,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.1013,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Veterinary Biomedical and Clinical Sciences",
+    "family": "01",
+    "graduates": 57,
+    "median_pay_norm": 0.3085,
+    "growth_norm": 0.5839,
+    "pay_to_debt_ratio_norm": 0.1013,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Publishing",
+    "family": "09",
+    "graduates": 57,
+    "median_pay_norm": null,
+    "growth_norm": 0.3649,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Movement and Mind-Body Therapies and Education",
+    "family": "51",
+    "graduates": 54,
+    "median_pay_norm": 0.1415,
+    "growth_norm": 0.6326,
+    "pay_to_debt_ratio_norm": 0.062,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Forest Engineering",
+    "family": "14",
+    "graduates": 53,
+    "median_pay_norm": 0.4212,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": 0.2253,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Communications Technologies/Technicians and Support Services, Other",
+    "family": "10",
+    "graduates": 52,
+    "median_pay_norm": 0.2068,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0777,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Philosophy, Politics, and Economics",
+    "family": "30",
+    "graduates": 48,
+    "median_pay_norm": null,
+    "growth_norm": 0.3387,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Physical Science Technologies/Technicians",
+    "family": "41",
+    "graduates": 47,
+    "median_pay_norm": null,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Museology/Museum Studies",
+    "family": "30",
+    "graduates": 47,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Veterinary Administrative Services",
+    "family": "01",
+    "graduates": 45,
+    "median_pay_norm": null,
+    "growth_norm": 0.553,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Medieval and Renaissance Studies",
+    "family": "30",
+    "graduates": 40,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mining and Petroleum Technologies/Technicians",
+    "family": "15",
+    "graduates": 40,
+    "median_pay_norm": 0.4193,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.2559,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "International and Comparative Education",
+    "family": "13",
+    "graduates": 36,
+    "median_pay_norm": 0.3163,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.5389,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Woodworking",
+    "family": "48",
+    "graduates": 36,
+    "median_pay_norm": 0.2636,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": 0.0821,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Maritime Studies",
+    "family": "30",
+    "graduates": 36,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Applied Statistics",
+    "family": "27",
+    "graduates": 36,
+    "median_pay_norm": null,
+    "growth_norm": 0.658,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Paper Science and Engineering",
+    "family": "14",
+    "graduates": 35,
+    "median_pay_norm": null,
+    "growth_norm": 0.4357,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Electrical/Electronics Maintenance and Repair Technologies/Technicians",
+    "family": "47",
+    "graduates": 32,
+    "median_pay_norm": null,
+    "growth_norm": 0.6082,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Surveying Engineering",
+    "family": "14",
+    "graduates": 31,
+    "median_pay_norm": null,
+    "growth_norm": 0.4403,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "History and Political Science",
+    "family": "30",
+    "graduates": 31,
+    "median_pay_norm": null,
+    "growth_norm": 0.3094,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Curriculum and Instruction",
+    "family": "13",
+    "graduates": 28,
+    "median_pay_norm": 0.2134,
+    "growth_norm": 0.3649,
+    "pay_to_debt_ratio_norm": 0.0664,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Geography and Environmental Studies",
+    "family": "30",
+    "graduates": 25,
+    "median_pay_norm": null,
+    "growth_norm": 0.4369,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1818,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Electromechanical Engineering",
+    "family": "14",
+    "graduates": 23,
+    "median_pay_norm": 0.564,
+    "growth_norm": 0.5085,
+    "pay_to_debt_ratio_norm": 0.1502,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Military Technology and Applied Sciences Management",
+    "family": "29",
+    "graduates": 19,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Alternative and Complementary Medical Support Services",
+    "family": "51",
+    "graduates": 18,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Holocaust and Related Studies",
+    "family": "30",
+    "graduates": 17,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Heavy/Industrial Equipment Maintenance Technologies/Technicians",
+    "family": "47",
+    "graduates": 13,
+    "median_pay_norm": 0.4393,
+    "growth_norm": 0.8562,
+    "pay_to_debt_ratio_norm": 0.1782,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Cultural Studies and Comparative Literature",
+    "family": "30",
+    "graduates": 13,
+    "median_pay_norm": null,
+    "growth_norm": 0.292,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Physics and Astronomy",
+    "family": "40",
+    "graduates": 13,
+    "median_pay_norm": null,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Earth Systems Science",
+    "family": "30",
+    "graduates": 12,
+    "median_pay_norm": null,
+    "growth_norm": 0.307,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.2273,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Nanotechnology",
+    "family": "15",
+    "graduates": 11,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Mathematical Economics",
+    "family": "30",
+    "graduates": 11,
+    "median_pay_norm": null,
+    "growth_norm": 0.4274,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Environmental Geosciences",
+    "family": "30",
+    "graduates": 11,
+    "median_pay_norm": null,
+    "growth_norm": 0.3417,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.3636,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Somatic Bodywork and Related Therapeutic Services",
+    "family": "51",
+    "graduates": 10,
+    "median_pay_norm": null,
+    "growth_norm": 0.7056,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Energy and Biologically Based Therapies",
+    "family": "51",
+    "graduates": 9,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Anthrozoology",
+    "family": "30",
+    "graduates": 9,
+    "median_pay_norm": null,
+    "growth_norm": 0.3298,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Accounting and Computer Science",
+    "family": "30",
+    "graduates": 7,
+    "median_pay_norm": null,
+    "growth_norm": 0.5822,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Engineering Chemistry",
+    "family": "14",
+    "graduates": 5,
+    "median_pay_norm": null,
+    "growth_norm": 0.4357,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Student Counseling and Personnel Services",
+    "family": "13",
+    "graduates": 5,
+    "median_pay_norm": null,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "American Indian/Native American Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 4,
+    "median_pay_norm": null,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Taxation",
+    "family": "52",
+    "graduates": 4,
+    "median_pay_norm": null,
+    "growth_norm": 0.4695,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Turkic, Uralic-Altaic, Caucasian, and Central Asian Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 4,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Energy Systems Engineering",
+    "family": "14",
+    "graduates": 4,
+    "median_pay_norm": null,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Southeast Asian and Australasian/Pacific Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 4,
+    "median_pay_norm": null,
+    "growth_norm": 0.2982,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Science Technologies/Technicians, General",
+    "family": "41",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Telecommunications Management",
+    "family": "52",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": 0.7056,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Celtic Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "South Asian Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Community/Environmental/Socially-Engaged Art",
+    "family": "50",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Precision Metal Working",
+    "family": "48",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Iranian/Persian Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 3,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Transportation and Materials Moving, Other",
+    "family": "49",
+    "graduates": 2,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Ophthalmic and Optometric Support Services and Allied Professions",
+    "family": "51",
+    "graduates": 2,
+    "median_pay_norm": null,
+    "growth_norm": 0.4136,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "African Languages, Literatures, and Linguistics",
+    "family": "16",
+    "graduates": 2,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Modern Greek Language and Literature",
+    "family": "16",
+    "graduates": 2,
+    "median_pay_norm": null,
+    "growth_norm": 0.3893,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Teaching Assistants/Aides",
+    "family": "13",
+    "graduates": 2,
+    "median_pay_norm": null,
+    "growth_norm": 0.0,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Demography",
+    "family": "45",
+    "graduates": 2,
+    "median_pay_norm": null,
+    "growth_norm": 0.4379,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Economics and Computer Science",
+    "family": "30",
+    "graduates": 1,
+    "median_pay_norm": null,
+    "growth_norm": 0.8213,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Religious Institution Administration and Law",
+    "family": "39",
+    "graduates": 1,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "History and Language/Literature",
+    "family": "30",
+    "graduates": 1,
+    "median_pay_norm": null,
+    "growth_norm": 0.2985,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.1364,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Nuclear and Industrial Radiologic Technologies/Technicians",
+    "family": "41",
+    "graduates": 1,
+    "median_pay_norm": null,
+    "growth_norm": 0.146,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0455,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Dispute Resolution",
+    "family": "30",
+    "graduates": 1,
+    "median_pay_norm": null,
+    "growth_norm": 0.3525,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0909,
+    "ai_exposure_norm": null
+  },
+  {
+    "major": "Digital Humanities and Textual Studies",
+    "family": "30",
+    "graduates": 1,
+    "median_pay_norm": null,
+    "growth_norm": null,
+    "pay_to_debt_ratio_norm": null,
+    "versatility_norm": 0.0,
+    "ai_exposure_norm": null
+  }
+]

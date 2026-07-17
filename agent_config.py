@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from google.adk import Agent
 from google.adk.tools.agent_tool import AgentTool
+from google.adk.tools import google_search
 
 from tools import BQ_DATASET, BQ_PROJECT, bigquery_toolset
 
@@ -22,11 +23,9 @@ class MajorAnalysisSchema(BaseModel):
     query_context: str = Field(..., description="User question regarding job market shifts.")
 
 
-# --- data_agent: has direct, read-only BigQuery access via bigquery_toolset.
-# Rather than being limited to one hardcoded query shape, it can inspect the
-# schema and write its own SQL — so it can answer both "get me Computer
-# Science's data" and open-ended questions like "which majors have the
-# fastest pay growth" without a new Python function for each shape of ask.
+# -----------------------------------------------------------------------------
+# Data Agent: has direct, read-only BigQuery access via bigquery_toolset
+# -----------------------------------------------------------------------------
 data_agent = Agent(
     name="data_agent",
     model="gemini-3.5-flash",
@@ -63,9 +62,38 @@ Rules:
 )
 
 
-# --- root_agent: the advisor. It's the one making the call on whether it
-# needs data_agent, and it's the one writing the final advice — no separate
-# agent downstream of it.
+# -----------------------------------------------------------------------------
+# News Agent: searches for recent news on majors/careers
+# -----------------------------------------------------------------------------
+news_agent = Agent(
+    name="news_researcher",
+    model="gemini-3.5-flash",
+    description="Fetches recent, relevant news for a given topic or career field.",
+    instruction="""You are a news researcher specializing in education and career trends.
+
+Given a topic (college major, occupation, or career field), search for the most
+recent and relevant news articles.
+
+Rules:
+- Use Google Search to find recent news (prefer last 30 days)
+- Focus on credible sources (news outlets, official reports, industry publications)
+- Return concise bullet points with: title, source, date, and 1-sentence summary
+- Include the URL/link for each article
+- Stay factual - do not editorialize or add opinions
+- If no recent/relevant news is found, say so clearly
+- Limit to 3-5 most relevant articles
+""",
+    tools=[google_search],
+)
+
+# Wrap agents as tools for the root agent
+data_tool = AgentTool(agent=data_agent)
+news_tool = AgentTool(agent=news_agent)
+
+
+# -----------------------------------------------------------------------------
+# Root Agent: college advisor with data and news tools
+# -----------------------------------------------------------------------------
 root_agent = Agent(
     name="college_advisor",
     model="gemini-3.5-flash",
@@ -81,10 +109,8 @@ Step 1 — figure out what you're missing:
   question needs; you don't need to reduce the question to "one major's name" first.
 - If data_agent's result indicates the major or data wasn't found, say so plainly instead of
   guessing at numbers.
-- You do not currently have a news_agent — recent-news lookup for a major (layoffs, hiring
-  trends, new tools/models affecting the field) is not implemented yet. If a student's
-  question depends on that, say plainly that you don't have current news access yet.
-  Do not guess at or invent recent events.
+- For questions about recent news, trends, or current events related to a major or career
+  field, use the news_researcher tool.
 
 Step 2 — once you have what you need (inline data, and/or tool results), write the advice
 yourself:
@@ -94,5 +120,5 @@ yourself:
 - Reference the specific occupations listed, not generic career advice.
 - Keep responses to 3-5 short, conversational paragraphs.
 """,
-    tools=[AgentTool(agent=data_agent)],
+    tools=[data_tool, news_tool],
 )
