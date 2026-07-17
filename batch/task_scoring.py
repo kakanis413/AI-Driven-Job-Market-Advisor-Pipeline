@@ -152,13 +152,30 @@ def get_pending_requests(run_id: str, limit: int | None) -> list[dict]:
 
 
 def write_scores(results: list[dict]) -> None:
-    """Bulk-writes a batch of scored rows into task_ai_scores."""
+    """
+    Bulk-writes a batch of scored rows into task_ai_scores via a LOAD JOB,
+    not a streaming insert.
+
+    Why a load job and not insert_rows_json: this is a periodic batch
+    write (a few hundred rows at a time), not real-time row-by-row
+    ingestion -- a load job is the more correct tool for that shape of
+    work. It also writes directly into the base table with NO streaming
+    buffer delay, so rows are immediately UPDATE/DELETE-able (streaming
+    inserts hold rows in a buffer for up to ~90 minutes during which
+    BigQuery refuses UPDATE/DELETE/MERGE against them -- this bit us
+    during testing and would bite anyone re-running/correcting a batch).
+    """
     if not results:
         return
     table_ref = f"{PROJECT_DATASET}.task_ai_scores"
-    errors = bq_client.insert_rows_json(table_ref, results)
-    if errors:
-        raise RuntimeError(f"BigQuery insert errors: {errors}")
+    job_config = bigquery.LoadJobConfig(
+        source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+        # schema already exists on the table -- don't let autodetect guess
+        autodetect=False,
+    )
+    load_job = bq_client.load_table_from_json(results, table_ref, job_config=job_config)
+    load_job.result()  # blocks until the load finishes, raises on failure
 
 
 async def score_one(

@@ -163,12 +163,22 @@ def get_supporting_evidence(cip4_code: str) -> dict:
 
 
 def write_rationales(results: list[dict]) -> None:
+    """
+    Bulk-writes rationales via a LOAD JOB, not a streaming insert -- same
+    reasoning as write_scores() in task_scoring.py: this is a periodic
+    batch write, and load jobs avoid the streaming-buffer delay that
+    blocks UPDATE/DELETE on recently-streamed rows for up to ~90 minutes.
+    """
     if not results:
         return
     table_ref = f"{PROJECT_DATASET}.major_ai_rationales"
-    errors = bq_client.insert_rows_json(table_ref, results)
-    if errors:
-        raise RuntimeError(f"BigQuery insert errors: {errors}")
+    job_config = bigquery.LoadJobConfig(
+        source_format=bigquery.SourceFormat.NEWLINE_DELIMITED_JSON,
+        write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
+        autodetect=False,
+    )
+    load_job = bq_client.load_table_from_json(results, table_ref, job_config=job_config)
+    load_job.result()
 
 
 async def write_one(
