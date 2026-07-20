@@ -89,7 +89,7 @@ class AdvisorRequest(BaseModel):
 class RouteInfo(BaseModel):
     """Observability: which specialists actually ran, so routing is auditable."""
 
-    path: Literal["multi_agent", "single_agent"] = "multi_agent"
+    path: str = "root_agent"
     agents_called: list[str] = Field(default_factory=list)
     used_search: bool = False
     latency_ms: int = 0
@@ -97,10 +97,9 @@ class RouteInfo(BaseModel):
 
 class AdvisorResponse(BaseModel):
     agent_node: str = "college_advisor"
-    status: Literal["active_reasoning", "degraded"] = "active_reasoning"
+    status: Literal["active_reasoning"] = "active_reasoning"
     generated_guidance: str
     route: RouteInfo = Field(default_factory=RouteInfo)
-    degraded: bool = False
 
 
 class ErrorResponse(BaseModel):

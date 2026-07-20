@@ -1,7 +1,7 @@
-"""Tools the data agent calls. Real lookups against the served data — no mocks.
+"""Tools for the data agent: local lookups (fast, free) + BigQuery (flexible, dynamic SQL).
 
-Every tool returns a dict with an explicit `status`, so a miss is a fact the model can
-report ("I don't have that major") rather than an invitation to invent one.
+Local tools (get_major_data, compare_majors) use the in-memory data_source for instant lookups.
+BigQuery toolset lets Gemini write SQL for complex queries the local data can't answer.
 """
 
 from __future__ import annotations
@@ -9,12 +9,36 @@ from __future__ import annotations
 import logging
 from typing import Any
 
+import google.auth
+from google.adk.integrations.bigquery import BigQueryCredentialsConfig, BigQueryToolset
+from google.adk.integrations.bigquery.config import BigQueryToolConfig, WriteMode
+
 from advisor import data_source
 from advisor.config import settings
 
 log = logging.getLogger(__name__)
 
+# -----------------------------------------------------------------------------
+# BigQuery toolset (for complex/dynamic queries)
+# -----------------------------------------------------------------------------
+BQ_PROJECT = settings.project
+BQ_DATASET = settings.bigquery_dataset
 
+_credentials, _ = google.auth.default()
+_credentials_config = BigQueryCredentialsConfig(credentials=_credentials)
+_tool_config = BigQueryToolConfig(write_mode=WriteMode.BLOCKED)  # READ-ONLY
+
+bigquery_toolset = BigQueryToolset(
+    credentials_config=_credentials_config,
+    bigquery_tool_config=_tool_config,
+)
+
+log.info("BigQuery toolset initialized (project=%s, dataset=%s)", BQ_PROJECT, BQ_DATASET)
+
+
+# -----------------------------------------------------------------------------
+# Local tools (fast, free, always available)
+# -----------------------------------------------------------------------------
 def get_major_data(major_name: str) -> dict[str, Any]:
     """Look up AI exposure, median pay, growth, and occupations for one college major.
 
@@ -34,11 +58,11 @@ def get_major_data(major_name: str) -> dict[str, Any]:
         return {
             "status": "not_found",
             "requested": major_name,
-            "message": "That major is not in the dataset. Do not invent numbers for it.",
+            "message": "That major is not in the local dataset. You may try BigQuery for more data.",
             "did_you_mean": near,
         }
     log.info("tool get_major_data: HIT for %r", major_name)
-    return {"status": "success", "source": "data.json", **data_source.summarize(row)}
+    return {"status": "success", "source": "local_cache", **data_source.summarize(row)}
 
 
 def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
@@ -59,7 +83,7 @@ def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
         return {
             "status": "not_found",
             "missing": missing,
-            "message": "At least one major is not in the dataset. Do not invent its numbers.",
+            "message": "At least one major is not in the local dataset. Try BigQuery for more data.",
         }
 
     sa, sb = data_source.summarize(a), data_source.summarize(b)
@@ -72,38 +96,9 @@ def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
     log.info("tool compare_majors: %r vs %r", major_a, major_b)
     return {
         "status": "success",
-        "source": "data.json",
+        "source": "local_cache",
         "major_a": sa,
         "major_b": sb,
         "more_exposed": more,
         "exposure_gap": delta,
     }
-
-
-def build_bigquery_toolset() -> list[Any]:
-    """Optional BigQuery grounding, off unless ADVISOR_ENABLE_BIGQUERY=true.
-
-    Org IAM currently returns USER_PROJECT_DENIED for this project, so the service must
-    run fine without it. Import is deliberately lazy: when the flag is off, the
-    google-cloud-bigquery dependency is never touched.
-    """
-    if not settings.enable_bigquery:
-        return []
-    try:
-        # 2.5.0: google.adk.tools.bigquery is deprecated -> use integrations.
-        from google.adk.integrations.bigquery import (
-            BigQueryCredentialsConfig,
-            BigQueryToolset,
-        )
-        import google.auth
-
-        creds, _ = google.auth.default()
-        toolset = BigQueryToolset(
-            credentials_config=BigQueryCredentialsConfig(credentials=creds)
-        )
-        log.info("BigQuery grounding ENABLED (dataset=%s)", settings.bigquery_dataset)
-        return [toolset]
-    except Exception as exc:  # pragma: no cover - depends on cloud IAM
-        # Never let an optional grounding source take the service down.
-        log.warning("BigQuery grounding requested but unavailable (%s); continuing without it", exc)
-        return []
