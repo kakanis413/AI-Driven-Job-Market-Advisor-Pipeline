@@ -160,6 +160,21 @@ CSS custom properties on `:root` / `.dark`.
 | Hairline border | `rgba(25,24,23,.10)` | `rgba(244,243,239,.10)` |
 | Accent (interactive, focus) | `#2a78d6` | `#5598e7` |
 
+**Glass** (`GLASS` in `tokens.ts`, `.glass` utility in `index.css`) — for
+surfaces that **float over content**: the app header, the sticky Explore
+toolbar, the chat panel, the tooltip, the detail card. `backdrop-filter:
+blur(16px) saturate(1.4)` — the `saturate` keeps the violet ramp from going
+muddy behind the blur. Always ships an `@supports not (backdrop-filter…)`
+opaque fallback so text never lands on a transparent background; text on glass
+must clear 4.5:1 against the **lightest** possible backdrop, not the average.
+One hairline border, no glow, no inner shadow, at most **two** stacked glass
+layers (header + one panel). Never on tiles, cells, or anything encoding data.
+
+| Role | Light | Dark |
+|---|---|---|
+| Glass surface | `rgba(250,249,246,.72)` | `rgba(20,19,18,.68)` |
+| Glass border | `rgba(25,24,23,.08)` | `rgba(244,243,239,.10)` |
+
 ### Color ramps (data)
 
 Both ramps interpolate through fixed stops in OKLab (hand-rolled in
@@ -167,18 +182,23 @@ Both ramps interpolate through fixed stops in OKLab (hand-rolled in
 stops**, never a CSS filter or auto-flip. Contrast figures below are computed,
 not eyeballed.
 
-**Exposure ramp** — "ember": pale sand (low) → gold → copper → oxblood (high),
-domain 0–10. A single warm heat ramp — no green, so low exposure reads as
-"cool", not "safe" (see the pinned caveat). Luminance is monotonic, so the
-ramp survives color-vision deficiency without relying on hue:
+**Exposure ramp** — "violet depth": pale lilac (low) → deep violet (high),
+domain 0–10. Violet is deliberate: exposure is a MAGNITUDE, not a verdict — red
+would read as danger (contradicting the pinned caveat that high exposure does
+NOT mean the job disappears) and green as "safe". Violet carries neither
+valence, reading as intensity, and stays clearly distinct from the
+sequential-blue pay ramp so the layer toggle is unmistakable. Luminance is
+monotonic, so the ramp survives color-vision deficiency without relying on hue.
+The five stops sit at domain positions `[0, 0.42, 0.6, 0.76, 1]`
+(`EXPOSURE_POSITIONS`), widening the hot 5–8 band where most majors fall:
 
-| t | Light | Dark |
+| Stop (low→high) | Light | Dark |
 |---|---|---|
-| 0.00 | `#ecd79f` | `#564834` |
-| 0.25 | `#dcae5e` | `#8a6a38` |
-| 0.50 | `#c97c3d` | `#bb7f42` |
-| 0.75 | `#ad4c2e` | `#d9764b` |
-| 1.00 | `#7f2d2a` | `#ee5b4c` |
+| 0 | `#efe9f3` | `#2b2338` |
+| 1 | `#d5c8e4` | `#463862` |
+| 2 | `#b09ccc` | `#69538f` |
+| 3 | `#8567ab` | `#9078bb` |
+| 4 | `#432c63` | `#c3b2dd` |
 
 **Pay ramp** — sequential blue, domain = min→max `median_pay`. Light mode runs
 light→dark `#cde2fb → #9ec5f4 → #5598e7 → #2a78d6 → #1c5cab → #0d366b`; dark
@@ -188,8 +208,8 @@ mode flips the anchor (near-zero recedes into the surface):
 **Tile ink is computed, never fixed.** No single text color survives either
 ramp. `scales.ts` exports `inkFor(fill)`: compute WCAG contrast of ink-light
 (`#ffffff`) and ink-dark (`#191817`) against the fill and return the winner
-(verified ≥ 4.5:1 at every ramp stop, e.g. near-black on `#dcae5e` = 8.66,
-white on `#ad4c2e` = 5.45).
+(verified ≥ 4.5:1 at every ramp stop, e.g. near-black on `#d5c8e4` = 11.15,
+white on `#8567ab` = 4.64).
 
 ### Typography
 
@@ -224,6 +244,10 @@ Motion **teaches** — it shows where things went, never decorates.
   treemap ⇄ heatmap morph (tiles travel to their grid cells; never a crossfade).
 - **Load reveal**: tiles animate in with a 14ms stagger ordered by area
   (biggest first), opacity + 0.96→1 scale. Total stagger capped at 450ms.
+- **Sequence teaches order**: background settles before foreground. On the
+  landing the ambient map (the product itself) fades in first, *then* the copy
+  rises over it — the headline is one calm fade+rise (~600ms), never a
+  per-word/slot-machine reveal (decoration with no informational purpose).
 - **`prefers-reduced-motion`**: every layout animation collapses to a ≤ 150ms
   opacity crossfade. This is a hard requirement, not a nice-to-have.
 
@@ -248,5 +272,15 @@ ramp, ink, and hover state has a selected dark value in `tokens.ts`. Never
    (`figure`/`img` roles + labels on viz, live region for chat).
 4. **The caveat is always visible:** *"High exposure does NOT mean the job
    disappears — it means the mix of tasks is likely to change."* Pinned in the
-   app shell (footer bar) and repeated in the advisor panel header. It must
+   app shell (footer bar). The advisor panel may land it once per session then
+   collapse to an ⓘ — the footer copy is what satisfies this rule, so it must
    never be hidden behind a tooltip, scroll, or dismissal.
+5. **Glass is for floating surfaces only.** Header, sticky toolbar, chat panel,
+   tooltip, detail card — surfaces that float over content. **Never** on tiles,
+   heatmap cells, or any element that encodes data: translucency corrupts the
+   color encoding. Body-text surfaces don't get it either (a legibility tax
+   with no upside).
+6. **Advisor voice: lead with the answer.** No preamble, no restating the
+   question, no "great question / it is wonderful". The first sentence carries
+   the number or the verdict; 2–3 tight paragraphs, ≤3 sentences each. Keep the
+   exposure-≠-job-loss framing present but not as the opener every time.

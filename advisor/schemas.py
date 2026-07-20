@@ -112,6 +112,11 @@ class NewsItem(BaseModel):
     url: str = Field(..., min_length=8, max_length=2000)
     published: str | None = Field(default=None, max_length=20)
     summary: str = Field(default="", max_length=600)
+    # Enriched server-side from the REAL article page (og:image) and the source
+    # domain (favicon). Both nullable — never invented; a card renders without
+    # them when the page has none. See advisor/news.py:_enrich.
+    image: str | None = Field(default=None, max_length=2000)
+    favicon: str | None = Field(default=None, max_length=2000)
 
 
 class NewsFeed(BaseModel):

@@ -25,7 +25,7 @@ export default function Tooltip({ tip, mode }: { tip: TipData | null; mode: Mode
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
           transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="pointer-events-none fixed z-50 rounded-card border border-line bg-raised p-4 shadow-xl"
+          className="glass pointer-events-none fixed z-50 rounded-card p-4 shadow-xl"
           style={{ left, top, width: W }}
           role="status"
         >

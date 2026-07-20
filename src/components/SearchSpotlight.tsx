@@ -10,9 +10,11 @@ interface Props {
   query: string
   onQuery: (q: string) => void
   onPick: (m: Major) => void
+  /** Toolbar variant: shorter, pill-shaped, no "/" hint — matches the toggles. */
+  compact?: boolean
 }
 
-export default function SearchSpotlight({ majors, mode, query, onQuery, onPick }: Props) {
+export default function SearchSpotlight({ majors, mode, query, onQuery, onPick, compact }: Props) {
   const [open, setOpen] = useState(false)
   const [active, setActive] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -49,7 +51,11 @@ export default function SearchSpotlight({ majors, mode, query, onQuery, onPick }
 
   return (
     <div className="relative">
-      <div className="flex h-12 items-center gap-3 rounded-xl border border-line bg-surface px-4 shadow-sm transition-shadow focus-within:border-accent focus-within:shadow-md">
+      <div
+        className={`flex items-center gap-2.5 border border-line bg-surface transition-shadow focus-within:border-accent focus-within:shadow-md ${
+          compact ? 'h-9 rounded-full px-3.5' : 'h-12 rounded-xl px-4 shadow-sm'
+        }`}
+      >
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden className="shrink-0 text-ink3">
           <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.6" />
           <path d="M11 11l3.2 3.2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -87,9 +93,11 @@ export default function SearchSpotlight({ majors, mode, query, onQuery, onPick }
             }
           }}
         />
-        <kbd className="micro hidden rounded border border-line px-1.5 py-0.5 text-ink3 sm:block" aria-hidden>
-          /
-        </kbd>
+        {!compact && (
+          <kbd className="micro hidden rounded border border-line px-1.5 py-0.5 text-ink3 sm:block" aria-hidden>
+            /
+          </kbd>
+        )}
       </div>
 
       <AnimatePresence>
