@@ -1,9 +1,41 @@
+import logging
+from typing import Any
+
 from pydantic import BaseModel, Field
 from google.adk import Agent
 from google.adk.tools.agent_tool import AgentTool
+from google.adk.tools.tool_context import ToolContext
 from google.adk.tools import google_search
 
 from tools import BQ_DATASET, BQ_PROJECT, bigquery_toolset
+
+log = logging.getLogger(__name__)
+
+
+# -----------------------------------------------------------------------------
+# ResilientAgentTool: wraps an agent so failures degrade gracefully
+# -----------------------------------------------------------------------------
+class ResilientAgentTool(AgentTool):
+    """AgentTool that catches errors and returns 'unavailable' instead of crashing.
+
+    If the wrapped agent fails (e.g., google_search rate limit), this returns
+    a structured response so the calling agent can continue without it.
+    """
+
+    async def run_async(self, *, args: dict[str, Any], tool_context: ToolContext) -> Any:
+        try:
+            return await super().run_async(args=args, tool_context=tool_context)
+        except Exception as exc:
+            name = getattr(self.agent, "name", "agent")
+            log.warning("Agent tool %s failed; continuing without it: %s", name, exc)
+            return {
+                "status": "unavailable",
+                "agent": name,
+                "message": (
+                    f"{name} could not complete (transient error). "
+                    "Answer without its input and do not invent what it would have said."
+                ),
+            }
 
 
 class OccupationInfo(BaseModel):
@@ -88,7 +120,7 @@ Rules:
 
 # Wrap agents as tools for the root agent
 data_tool = AgentTool(agent=data_agent)
-news_tool = AgentTool(agent=news_agent)
+news_tool = ResilientAgentTool(agent=news_agent)  # Resilient: degrades gracefully if search fails
 
 
 # -----------------------------------------------------------------------------
@@ -111,6 +143,9 @@ Step 1 — figure out what you're missing:
   guessing at numbers.
 - For questions about recent news, trends, or current events related to a major or career
   field, use the news_researcher tool.
+- If news_researcher returns status 'unavailable', continue WITHOUT news: answer from the
+  verified data, note briefly that live news could not be fetched, and never invent
+  headlines or trends.
 
 Step 2 — once you have what you need (inline data, and/or tool results), write the advice
 yourself:
@@ -119,6 +154,17 @@ yourself:
   *work* is, not whether the job disappears. Make this distinction explicit.
 - Reference the specific occupations listed, not generic career advice.
 - Keep responses to 3-5 short, conversational paragraphs.
+
+Step 3 — if the student asks about AI skills they should learn:
+Recommend relevant Google Skills courses. Match the course to their question:
+- Generative AI → https://www.cloudskillsboost.google/paths/118
+- Introduction to AI/ML → https://www.cloudskillsboost.google/paths/17
+- Data Analytics → https://www.cloudskillsboost.google/paths/18
+- Cloud Computing → https://www.cloudskillsboost.google/paths/9
+- Browse all courses → https://www.cloudskillsboost.google/catalog
+
+Include the direct link in your response. If no specific course matches, provide the
+"Browse all courses" link and suggest they explore based on their interests.
 """,
     tools=[data_tool, news_tool],
 )
