@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
-import { fmtExposure } from '../design/scales'
+import { fmtExposure, fmtPay, growthOf } from '../design/scales'
 import { askAdvisor } from '../lib/advisor'
 import type { Major } from '../types'
 
@@ -71,9 +71,27 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
   const lastSentRef = useRef('')
   const logRef = useRef<HTMLDivElement>(null)
 
+  // Soft fade masks at whichever edge has hidden content, so overflow is never
+  // silent. Recomputed on scroll and whenever the thread changes.
+  const [fade, setFade] = useState({ top: false, bottom: false })
+  const onScroll = () => {
+    const el = logRef.current
+    if (!el) return
+    setFade({
+      top: el.scrollTop > 8,
+      bottom: el.scrollTop + el.clientHeight < el.scrollHeight - 8,
+    })
+  }
+  const maskImage = `linear-gradient(to bottom, ${
+    fade.top ? 'transparent, #000 22px' : '#000 0'
+  }, ${fade.bottom ? '#000 calc(100% - 22px), transparent' : '#000 100%'})`
+
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' })
+    onScroll()
   }, [messages, pending])
+
+  const started = messages.length > 0
 
   const push = (role: Msg['role'], text: string) =>
     setMessages((ms) => [...ms, { id: idRef.current++, role, text }])
@@ -93,74 +111,97 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
       .finally(() => setPending(false))
   }
 
+  const answered = major && messages.some((m) => m.role === 'advisor')
+
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <div ref={logRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 py-3" aria-live="polite">
-        {messages.length === 0 && (
-          <div className="rounded-card border border-dashed border-line p-3 text-[12.5px] leading-relaxed text-ink2">
-            {major ? (
-              <>
-                Exploring <b className="font-semibold text-ink">{major.major}</b>. Send the drafted
-                question below, or try:
-              </>
-            ) : (
-              <>Pick a major on the map for grounded context — or ask anything. Try:</>
-            )}
-            <div className="mt-2 flex flex-wrap gap-1.5">
-              {(major
-                ? ['Which skills stay valuable here?', 'What adjacent majors are less exposed?']
-                : ['Which majors are least exposed?', 'How is exposure scored?']
-              ).map(
-                (s) => (
-                  <button
-                    key={s}
-                    onClick={() => setInput(s)}
-                    className="rounded-full border border-line bg-raised px-2.5 py-1 text-[12px] text-ink2 hover:border-accent hover:text-ink"
-                  >
-                    {s}
-                  </button>
-                ),
+      <div
+        ref={logRef}
+        onScroll={onScroll}
+        className="min-h-0 flex-1 overflow-y-auto px-4 py-3"
+        aria-live="polite"
+        style={{ WebkitMaskImage: maskImage, maskImage }}
+      >
+        {/* Bottom-anchored, like every messaging UI: a short thread sits above
+            the input, new messages rise into view. */}
+        <div className="flex min-h-full flex-col justify-end gap-3">
+          {!started && (
+            <div className="text-[12.5px] leading-relaxed text-ink3">
+              {major ? (
+                <>
+                  Exploring <b className="font-semibold text-ink">{major.major}</b>. Send the drafted
+                  question, or pick a suggestion below.
+                </>
+              ) : (
+                <>Pick a major on the map for grounded context — or ask anything below.</>
               )}
             </div>
-          </div>
-        )}
-        {messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`max-w-[88%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed ${
-              msg.role === 'user'
-                ? 'ml-auto rounded-br-md bg-ink text-page'
-                : msg.role === 'advisor'
-                  ? 'mr-auto rounded-bl-md border border-line bg-raised text-ink'
-                  : 'mr-auto rounded-bl-md border border-line bg-raised text-ink2'
-            }`}
-          >
-            {msg.text}
-            {msg.role === 'error' && (
-              <button
-                onClick={() => send(lastSentRef.current)}
-                className="mt-1.5 block text-[12.5px] font-semibold text-accent hover:underline"
-              >
-                Retry
-              </button>
-            )}
-          </div>
-        ))}
-        {pending && <ThinkingIndicator />}
-        {/* Hand-off to the News tab. Built by the frontend from the selected
-            major's family — never by the model (NEWS_TAB.md hard rule 2). */}
-        {major && messages.some((m) => m.role === 'advisor') && (
-          <a
-            href={`#/news/${encodeURIComponent(major.family)}`}
-            className="block pt-1 text-[12.5px] font-semibold text-accent hover:underline"
-          >
-            More news for {major.family} →
-          </a>
-        )}
+          )}
+          {messages.map((msg) => (
+            <div
+              key={msg.id}
+              className={`max-w-[88%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed ${
+                msg.role === 'user'
+                  ? 'ml-auto rounded-br-md bg-ink text-page'
+                  : msg.role === 'advisor'
+                    ? 'mr-auto rounded-bl-md border border-line bg-raised text-ink'
+                    : 'mr-auto rounded-bl-md border border-line bg-raised text-ink2'
+              }`}
+            >
+              {msg.text}
+              {msg.role === 'error' && (
+                <button
+                  onClick={() => send(lastSentRef.current)}
+                  className="mt-1.5 block text-[12.5px] font-semibold text-accent hover:underline"
+                >
+                  Retry
+                </button>
+              )}
+            </div>
+          ))}
+          {pending && <ThinkingIndicator />}
+          {/* Grounded stat strip — the numbers, scannable, after the prose. */}
+          {answered && (
+            <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-line">
+              <StatCell label="Exposure" value={`${fmtExposure(major.exposure)} / 10`} />
+              <StatCell label="Median pay" value={fmtPay(major.median_pay)} divider />
+              <StatCell label="Growth" value={growthOf(major.growth).label} divider />
+            </div>
+          )}
+          {/* Hand-off to the News tab. Built by the frontend from the selected
+              major's family — never by the model (NEWS_TAB.md hard rule 2). */}
+          {answered && (
+            <a
+              href={`#/news/${encodeURIComponent(major.family)}`}
+              className="text-[12.5px] font-semibold text-accent hover:underline"
+            >
+              More news for {major.family} →
+            </a>
+          )}
+        </div>
       </div>
 
+      {/* Suggestions live above the input as outlined chips — never as sent
+          messages — so it's always clear the user hasn't asked them yet. */}
+      {!started && (
+        <div className="flex flex-wrap gap-1.5 px-3 pt-2">
+          {(major
+            ? ['Which skills stay valuable here?', 'What adjacent majors are less exposed?']
+            : ['Which majors are least exposed?', 'How is exposure scored?']
+          ).map((s) => (
+            <button
+              key={s}
+              onClick={() => setInput(s)}
+              className="rounded-full border border-line bg-transparent px-3 py-1 text-[12px] text-ink2 transition-colors hover:border-accent hover:text-ink"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+      )}
+
       <form
-        className="flex gap-2 border-t border-line p-3"
+        className="flex gap-2 p-3"
         onSubmit={(e) => {
           e.preventDefault()
           send(input)
@@ -190,6 +231,26 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
           </svg>
         </button>
       </form>
+    </div>
+  )
+}
+
+/** One cell of the grounded stat strip under an advisor reply. */
+function StatCell({
+  label,
+  value,
+  divider,
+}: {
+  label: string
+  value: string
+  divider?: boolean
+}) {
+  return (
+    <div className={`bg-raised px-2.5 py-1.5 ${divider ? 'border-l border-line' : ''}`}>
+      <div className="micro text-ink3">{label}</div>
+      <div className="mt-0.5 text-[13px] font-semibold text-ink" style={{ fontVariantNumeric: 'tabular-nums' }}>
+        {value}
+      </div>
     </div>
   )
 }
