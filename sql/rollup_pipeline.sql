@@ -41,7 +41,7 @@
 --   bq show --schema --format=prettyjson <project>:<dataset>.ai_scoring_runs
 -- (task_ai_scores column names below ARE verified, as of 2026-07-16.)
 --
--- Replace `PROJECT.majors` below with your actual project.dataset.
+-- Project/dataset is sprinternship-sea-2026.majors throughout this file.
 
 -- Every downstream step needs to know WHICH scoring run counts as
 -- production truth. Pulling this once into a variable means all three
@@ -51,7 +51,7 @@
 DECLARE approved_run_id STRING;
 SET approved_run_id = (
   SELECT scoring_run_id
-  FROM `PROJECT.majors.ai_scoring_runs`
+  FROM `sprinternship-sea-2026.majors.ai_scoring_runs`
   WHERE is_approved = TRUE
   ORDER BY approved_at DESC
   LIMIT 1
@@ -63,7 +63,7 @@ SET approved_run_id = (
 -- OUTPUT: one row per O*NET occupation
 -- METHOD: importance-weighted average of that occupation's task scores
 -- ============================================================
-CREATE OR REPLACE TABLE `PROJECT.majors.onet_occupation_ai_scores` AS
+CREATE OR REPLACE TABLE `sprinternship-sea-2026.majors.onet_occupation_ai_scores` AS
 WITH eligible_tasks AS (
   -- "Eligible" = every filter here exists to keep a task's score OUT of
   -- the average unless we can actually trust it. Getting any one of
@@ -73,12 +73,12 @@ WITH eligible_tasks AS (
     s.onet_soc_code,
     s.task_id,
     s.ai_exposure_score,
-    r.importance_value AS importance
-  FROM `PROJECT.majors.task_ai_scores` AS s
-  JOIN `PROJECT.majors.onet_task_ratings_clean` AS r
+    r.importance AS importance
+  FROM `sprinternship-sea-2026.majors.task_ai_scores` AS s
+  JOIN `sprinternship-sea-2026.majors.onet_task_ratings_clean` AS r
     ON s.task_id = r.task_id
    AND s.onet_soc_code = r.onet_soc_code
-  JOIN `PROJECT.majors.soc_onet_mapping_clean` AS m
+  JOIN `sprinternship-sea-2026.majors.soc_onet_mapping_clean` AS m
     ON s.onet_soc_code = m.onet_soc_code
   WHERE m.include_in_ai_scoring = TRUE
     -- only the run marked "approved" counts as production truth --
@@ -92,7 +92,7 @@ WITH eligible_tasks AS (
     -- purpose -- respecting that flag is a direct methodology requirement,
     -- not an assumption
     AND r.importance_recommend_suppress IS NOT TRUE
-    AND r.importance_value IS NOT NULL
+    AND r.importance IS NOT NULL
     AND s.ai_exposure_score IS NOT NULL
 ),
 total_tasks AS (
@@ -102,7 +102,7 @@ total_tasks AS (
   -- a confident-looking average with no way to tell it's built on
   -- almost nothing.
   SELECT onet_soc_code, COUNT(*) AS total_task_count
-  FROM `PROJECT.majors.task_scoring_input_clean`
+  FROM `sprinternship-sea-2026.majors.task_scoring_input_clean`
   GROUP BY onet_soc_code
 )
 SELECT
@@ -140,7 +140,7 @@ HAVING task_coverage_pct >= 0.50;
 -- variant to the SOC" number to weight by -- so equal weight isn't a
 -- shortcut, it's the only honest option given what data actually exists.
 -- ============================================================
-CREATE OR REPLACE TABLE `PROJECT.majors.soc_ai_scores` AS
+CREATE OR REPLACE TABLE `sprinternship-sea-2026.majors.soc_ai_scores` AS
 SELECT
   m.soc_code,
   -- AVG() ignores NULLs automatically -- this IS the "exclude missing,
@@ -148,14 +148,18 @@ SELECT
   -- row (failed coverage, or genuinely unscored) contributes nothing to
   -- either the numerator or the count AVG() divides by.
   ROUND(AVG(o.occupation_exposure_score), 1) AS soc_exposure_score,
-  COUNT(o.onet_soc_code) AS onet_occupations_used,
+  -- same fix as Step 3: count by real score presence, not matched-row
+  -- presence. Less likely to bite here since Step 1's output already
+  -- passed a coverage gate, but keeping the counting logic consistent
+  -- across steps rather than relying on that being permanently true.
+  COUNT(o.occupation_exposure_score) AS onet_occupations_used,
   COUNT(m.onet_soc_code) AS onet_occupations_total,
-  SAFE_DIVIDE(COUNT(o.onet_soc_code), COUNT(m.onet_soc_code)) AS onet_coverage_pct
-FROM `PROJECT.majors.soc_onet_mapping_clean` AS m
+  SAFE_DIVIDE(COUNT(o.occupation_exposure_score), COUNT(m.onet_soc_code)) AS onet_coverage_pct
+FROM `sprinternship-sea-2026.majors.soc_onet_mapping_clean` AS m
 -- LEFT JOIN, not INNER JOIN, is deliberate: we want every O*NET occupation
 -- that's SUPPOSED to map to this SOC to show up in the denominator
 -- (onet_occupations_total), even the ones that didn't make it into Step 1
-LEFT JOIN `PROJECT.majors.onet_occupation_ai_scores` AS o
+LEFT JOIN `sprinternship-sea-2026.majors.onet_occupation_ai_scores` AS o
   ON m.onet_soc_code = o.onet_soc_code
 WHERE m.include_in_ai_scoring = TRUE
 GROUP BY m.soc_code;
@@ -169,26 +173,53 @@ GROUP BY m.soc_code;
 -- METHOD: equal-weight average across that major's related SOCs, via the
 --         canonical crosswalk (never joining a major straight to
 --         anything else -- the crosswalk is the only trusted CIP<->SOC path)
+--
+-- IMPORTANT: this anchors on dim_major_cip4_clean, NOT the crosswalk
+-- table directly. cip4_to_soc_crosswalk_clean was found (2026-07-17) to
+-- still contain cip4_codes that don't exist in the canonical 392-major
+-- table -- leftover/junk codes from before the major-cleanup process
+-- documented in the handoff doc. Starting from the crosswalk would
+-- publish exposure scores for majors that don't actually exist.
 -- ============================================================
-CREATE OR REPLACE TABLE `PROJECT.majors.major_ai_scores` AS
+CREATE OR REPLACE TABLE `sprinternship-sea-2026.majors.major_ai_scores` AS
 SELECT
-  x.cip4_code,
+  d.cip4_code,
   ROUND(AVG(s.soc_exposure_score), 1) AS major_exposure_score,
-  COUNT(s.soc_code) AS socs_used,
+  -- COUNT(s.soc_exposure_score), not COUNT(s.soc_code) -- a SOC can match
+  -- a row in soc_ai_scores but still carry a NULL score (found 2026-07-17:
+  -- soc_ai_scores has no coverage gate of its own, so it always emits a
+  -- row per eligible SOC even when nothing usable existed underneath).
+  -- Counting by soc_code alone would call that SOC "used" and inflate
+  -- coverage_pct even though it contributed nothing to the average.
+  COUNT(s.soc_exposure_score) AS socs_used,
   COUNT(x.soc_code) AS socs_total,
-  SAFE_DIVIDE(COUNT(s.soc_code), COUNT(x.soc_code)) AS soc_coverage_pct,
+  SAFE_DIVIDE(COUNT(s.soc_exposure_score), COUNT(x.soc_code)) AS soc_coverage_pct,
   approved_run_id AS scoring_run_id
-FROM `PROJECT.majors.cip4_to_soc_crosswalk_clean` AS x
+-- start from the canonical majors table, not the crosswalk -- this is
+-- what guarantees every row in the output corresponds to a real major
+FROM `sprinternship-sea-2026.majors.dim_major_cip4_clean` AS d
+JOIN `sprinternship-sea-2026.majors.cip4_to_soc_crosswalk_clean` AS x
+  ON d.cip4_code = x.cip4_code
 -- same LEFT JOIN logic as Step 2: every SOC the crosswalk says belongs to
 -- this major counts toward the coverage denominator, whether or not it
 -- made it through Steps 1-2
-LEFT JOIN `PROJECT.majors.soc_ai_scores` AS s
+LEFT JOIN `sprinternship-sea-2026.majors.soc_ai_scores` AS s
   ON x.soc_code = s.soc_code
-GROUP BY x.cip4_code
--- same >=50% coverage rule as Step 1, now applied at the major level --
--- a major weakly connected to mostly-unscored SOCs doesn't get a
--- confident-looking number built on a thin slice of its real occupations
-HAVING soc_coverage_pct >= 0.50;
+GROUP BY d.cip4_code
+-- Two independent requirements, both must pass:
+-- 1. >=50% coverage (methodology doc) -- protects against publishing a
+--    score built on a small FRACTION of a major's real occupations
+-- 2. >=3 SOCs actually used (added 2026-07-17, evidence-based) -- protects
+--    against publishing a score built on a small ABSOLUTE COUNT, even at
+--    100% coverage. Found via real data: several 1-2 SOC majors (e.g.
+--    "Data Processing", 1/1) outranked Computer Science (13/13) in
+--    exposure score, and cross-checking against the broad SOC-category
+--    averages (Computer/Mathematical genuinely scores highest, ~6.86
+--    avg across 716 tasks) confirmed those top rankings were sample-size
+--    noise, not a real signal -- a single occupation's score has nothing
+--    to average against, so it can land anywhere.
+HAVING soc_coverage_pct >= 0.50
+   AND socs_used >= 3;
 
 -- Majors that fail the coverage threshold, or have no crosswalk rows at
 -- all (the 21 majors flagged in the handoff doc), simply won't appear in
