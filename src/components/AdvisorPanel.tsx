@@ -10,6 +10,53 @@ interface Msg {
   text: string
 }
 
+/** Staged status text for the ~11s multi-agent round trip: rotate through what
+ *  the backend is plausibly doing, and after 5s add an elapsed hint so a long
+ *  wait reads as working, not frozen. Timing is presentational only — it does
+ *  not observe the real agent route. */
+const THINKING_STAGES = [
+  'Checking the data…',
+  'Looking up occupations…',
+  'Writing your guidance…',
+] as const
+const STAGE_MS = 3500
+const ELAPSED_HINT_AFTER_S = 5
+
+function ThinkingIndicator() {
+  const [seconds, setSeconds] = useState(0)
+
+  useEffect(() => {
+    const t = setInterval(() => setSeconds((s) => s + 1), 1000)
+    return () => clearInterval(t)
+  }, [])
+
+  const stage =
+    THINKING_STAGES[
+      Math.min(Math.floor((seconds * 1000) / STAGE_MS), THINKING_STAGES.length - 1)
+    ]
+
+  return (
+    <div className="mr-auto flex items-center gap-2 rounded-2xl rounded-bl-md border border-line bg-raised px-3.5 py-2.5">
+      <span className="flex items-center gap-1" aria-hidden>
+        {[0, 1, 2].map((i) => (
+          <motion.span
+            key={i}
+            className="size-1.5 rounded-full bg-ink3"
+            animate={{ opacity: [0.25, 1, 0.25] }}
+            transition={{ repeat: Infinity, duration: 1.1, delay: i * 0.18 }}
+          />
+        ))}
+      </span>
+      <span className="text-[12.5px] text-ink2" role="status">
+        {stage}
+        {seconds >= ELAPSED_HINT_AFTER_S && (
+          <span className="text-ink3"> · {seconds}s</span>
+        )}
+      </span>
+    </div>
+  )
+}
+
 /** Advisor chat, pre-seeded with the selected major (or generic when none).
  *  Remounted per major via key in Explore, so state resets naturally. */
 export default function AdvisorPanel({ major }: { major: Major | null }) {
@@ -38,7 +85,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
     push('user', text)
     setInput('')
     setPending(true)
-    askAdvisor({ major: major?.major ?? 'General', cip: major?.cip ?? '—', message: text })
+    askAdvisor({ major: major ?? null, message: text })
       .then((reply) => push('advisor', reply))
       .catch((e: unknown) =>
         push('error', `Couldn’t reach the advisor (${e instanceof Error ? e.message : String(e)}).`),
@@ -99,18 +146,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
             )}
           </div>
         ))}
-        {pending && (
-          <div className="mr-auto flex w-14 items-center justify-center gap-1 rounded-2xl rounded-bl-md border border-line bg-raised px-3.5 py-3">
-            {[0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                className="size-1.5 rounded-full bg-ink3"
-                animate={{ opacity: [0.25, 1, 0.25] }}
-                transition={{ repeat: Infinity, duration: 1.1, delay: i * 0.18 }}
-              />
-            ))}
-          </div>
-        )}
+        {pending && <ThinkingIndicator />}
       </div>
 
       <form

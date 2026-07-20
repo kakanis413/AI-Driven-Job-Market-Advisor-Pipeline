@@ -32,6 +32,36 @@ def pytest_collection_modifyitems(config, items):
 
 
 @pytest.fixture
+def client():
+    """FastAPI test client. Used as a context manager so lifespan (data load) runs."""
+    from fastapi.testclient import TestClient
+
+    import main
+
+    with TestClient(main.app) as c:
+        yield c
+
+
+@pytest.fixture
+def mock_agent_response(monkeypatch):
+    """Fakes ONLY the LLM boundary so the fast suite never calls Vertex/Gemini.
+
+    Everything around it is still exercised for real: request validation, the response
+    contract, error handling and status codes. Nothing here fakes product data.
+    """
+    from advisor import runtime as runtime_mod
+    from advisor.schemas import AdvisorResponse
+
+    text = "This is a mocked advisor response."
+
+    async def _fake_advise(self, req):
+        return AdvisorResponse(generated_guidance=text)
+
+    monkeypatch.setattr(runtime_mod.AdvisorRuntime, "advise", _fake_advise)
+    return text
+
+
+@pytest.fixture
 def rich_payload() -> dict:
     return {
         "major_name": "Computer science",

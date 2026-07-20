@@ -295,9 +295,19 @@ export default function Explore({ majors, status, url, retry, mode, initialView 
                 <AdvisorPanel key={selected?.cip ?? 'general'} major={selected} />
               </div>
             ) : (
-              <div className="min-h-0 flex-1 overflow-y-auto p-3">
-                <MajorDetailCard major={selected} mode={mode} />
-              </div>
+              <>
+                <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                  <MajorDetailCard major={selected} mode={mode} />
+                </div>
+                <div className="border-t border-line p-3">
+                  <button
+                    onClick={() => setShowChat(true)}
+                    className="w-full rounded-md bg-ink px-4 py-2 text-sm font-semibold text-surface transition-opacity hover:opacity-90"
+                  >
+                    Ask the advisor about this major
+                  </button>
+                </div>
+              </>
             )}
           </motion.div>
         )}

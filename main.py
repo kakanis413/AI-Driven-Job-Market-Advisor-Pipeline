@@ -1,114 +1,105 @@
-from fastapi import FastAPI
+"""FastAPI serving layer for the production multi-agent advisor.
+
+Thin by design: validation + structured errors here, all orchestration in advisor.runtime.
+Keeps the existing POST /api/v1/analyze-major contract so the current React app (which
+already posts there via src/lib/advisor.ts) works with zero frontend changes.
+"""
+
+from __future__ import annotations
+
+import logging
+from contextlib import asynccontextmanager
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from google.genai import types
-from pydantic import BaseModel
+from fastapi.responses import JSONResponse
 
-from agent_config import root_agent, MajorAnalysisSchema
+from advisor import data_source, errors
+from advisor.config import apply_vertex_env, settings
+from advisor.runtime import get_runtime
+from advisor.schemas import AdvisorRequest, AdvisorResponse, ErrorResponse
+
+logging.basicConfig(
+    level=getattr(logging, settings.log_level.upper(), logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+)
+log = logging.getLogger("advisor.main")
 
 
-class MajorQuestion(BaseModel):
-    major_name: str
-    query_context: str
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    apply_vertex_env()
+    n = len(data_source.majors())
+    get_runtime()  # build agents/runners once at startup
+    log.info(
+        "advisor ready | model=%s vertex=%s project=%s | majors=%d | "
+        "multi_agent=%s news=%s bigquery=%s fallback=%s",
+        settings.model, settings.use_vertex, settings.project, n,
+        settings.enable_multi_agent, settings.enable_news,
+        settings.enable_bigquery, settings.enable_fallback,
+    )
+    yield
 
 
-app = FastAPI(title="AI-Driven Job Market Advisor Pipeline")
+app = FastAPI(title="AI-Driven Job Market Advisor", version="2.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # tighten this before the real demo
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=settings.cors_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type"],
 )
 
-session_service = InMemorySessionService()
-runner = Runner(
-    agent=root_agent,
-    app_name="college_advisor",
-    session_service=session_service,
-)
+
+def _error_json(exc: errors.AdvisorError, status_code: int) -> JSONResponse:
+    body = ErrorResponse(
+        error=exc.detail, error_code=exc.error_code, retryable=exc.retryable
+    )
+    return JSONResponse(status_code=status_code, content=body.model_dump())
+
+
+@app.exception_handler(errors.AdvisorError)
+async def _advisor_error_handler(_: Request, exc: errors.AdvisorError) -> JSONResponse:
+    # 503 for transient/retryable, 502 for the rest — never a raw 500 stack trace.
+    return _error_json(exc, 503 if exc.retryable else 502)
 
 
 @app.get("/")
-async def root():
-    return {"status": "ok", "service": "college_advisor"}
+async def root() -> dict:
+    return {"status": "ok", "service": settings.app_name, "version": "2.0.0"}
 
 
-@app.post("/api/v1/analyze-major")
-async def analyze_major(data: MajorAnalysisSchema):
-    session_id = f"session-{data.major_name.replace(' ', '_').lower()}"
-
-    await session_service.create_session(
-        app_name="college_advisor",
-        user_id="demo",
-        session_id=session_id,
-    )
-
-    prompt = f"MAJOR DATA: {data.model_dump_json()}\n\nSTUDENT QUESTION: {data.query_context}"
-    content = types.Content(role="user", parts=[types.Part(text=prompt)])
-
-    reply = ""
-    async for event in runner.run_async(
-        user_id="demo", session_id=session_id, new_message=content
-    ):
-        if event.is_final_response():
-            reply = event.content.parts[0].text
-
+@app.get("/healthz")
+async def healthz() -> dict:
     return {
-        "agent_node": "college_advisor",
-        "status": "active_reasoning",
-        "generated_guidance": reply,
+        "status": "ok",
+        "model": settings.model,
+        "vertex": settings.use_vertex,
+        "majors_loaded": len(data_source.majors()),
+        "multi_agent": settings.enable_multi_agent,
+        "news_enabled": settings.enable_news,
+        "bigquery_enabled": settings.enable_bigquery,
     }
 
-@app.post("/api/v1/ask-major")
-async def ask_major(data: MajorQuestion):
-    session_id = (
-        f"tool-session-{data.major_name.replace(' ', '_').lower()}"
+
+@app.post("/api/v1/analyze-major", response_model=AdvisorResponse)
+async def analyze_major(req: AdvisorRequest) -> AdvisorResponse:
+    """Primary endpoint the React AdvisorPanel calls. Returns grounded guidance."""
+    log.info("request | major=%r q=%r", req.major_name, req.query_context[:80])
+    try:
+        resp = await get_runtime().advise(req)
+    except errors.AdvisorError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - classify anything unexpected
+        raise errors.classify(exc) from exc
+    log.info(
+        "response | path=%s agents=%s search=%s latency=%dms degraded=%s",
+        resp.route.path, resp.route.agents_called, resp.route.used_search,
+        resp.route.latency_ms, resp.degraded,
     )
-
-    await session_service.create_session(
-        app_name="college_advisor",
-        user_id="demo",
-        session_id=session_id,
-    )
-
-    prompt = (
-        f"The student is asking about the college major "
-        f"'{data.major_name}'.\n"
-        f"Question: {data.query_context}\n"
-        f"Use the available tool to retrieve the major data."
-    )
-
-    content = types.Content(
-        role="user",
-        parts=[types.Part(text=prompt)],
-    )
-
-    reply = ""
-
-    async for event in runner.run_async(
-        user_id="demo",
-        session_id=session_id,
-        new_message=content,
-    ):
-        if (
-            event.is_final_response()
-            and event.content is not None
-            and event.content.parts
-        ):
-            reply = event.content.parts[0].text or ""
-
-    if not reply:
-        return {
-            "agent_node": "college_advisor",
-            "status": "unavailable",
-            "generated_guidance": "",
-            "error": "The AI model is not configured or returned no response.",
-        }
-
-    return {
-        "agent_node": "college_advisor",
-        "status": "active_reasoning",
-        "generated_guidance": reply,
-    }
+    return resp
