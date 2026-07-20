@@ -103,6 +103,26 @@ class AdvisorResponse(BaseModel):
     degraded: bool = False
 
 
+class NewsItem(BaseModel):
+    """One cited news item. `url` MUST come from search grounding metadata —
+    an item whose URL cannot be matched to a grounding chunk is dropped, not
+    rendered (NEWS_TAB.md hard rule 1)."""
+
+    title: str = Field(..., min_length=1, max_length=300)
+    source: str = Field(..., min_length=1, max_length=120)
+    url: str = Field(..., min_length=8, max_length=2000)
+    published: str | None = Field(default=None, max_length=20)
+    summary: str = Field(default="", max_length=600)
+
+
+class NewsFeed(BaseModel):
+    """GET /api/v1/news response — the one shape shared by tab and chat."""
+
+    family: str
+    fetched_at: str
+    items: list[NewsItem] = Field(default_factory=list)
+
+
 class ErrorResponse(BaseModel):
     """Structured error envelope — never a raw stack trace."""
 

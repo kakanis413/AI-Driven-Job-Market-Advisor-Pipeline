@@ -60,6 +60,8 @@ class Settings:
     enable_bigquery: bool = _env_bool("ADVISOR_ENABLE_BIGQUERY", False)
     enable_news: bool = _env_bool("ADVISOR_ENABLE_NEWS", True)
     bigquery_dataset: str = os.getenv("ADVISOR_BQ_DATASET", "major_visualizer")
+    # Per-family news feed cache (GET /api/v1/news). NEWS_TAB.md §6.
+    news_ttl_s: float = _env_float("ADVISOR_NEWS_TTL_S", 6 * 3600.0)
 
     # --- web ---
     cors_origins: list[str] = field(

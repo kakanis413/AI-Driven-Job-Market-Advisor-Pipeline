@@ -18,10 +18,10 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from advisor import data_source, errors
+from advisor import data_source, errors, news
 from advisor.config import apply_vertex_env, settings
 from advisor.runtime import get_runtime
-from advisor.schemas import AdvisorRequest, AdvisorResponse, ErrorResponse
+from advisor.schemas import AdvisorRequest, AdvisorResponse, ErrorResponse, NewsFeed
 
 logging.basicConfig(
     level=getattr(logging, settings.log_level.upper(), logging.INFO),
@@ -103,3 +103,17 @@ async def analyze_major(req: AdvisorRequest) -> AdvisorResponse:
         resp.route.latency_ms, resp.degraded,
     )
     return resp
+
+
+@app.get("/api/v1/news", response_model=NewsFeed)
+async def news_feed(family: str) -> NewsFeed:
+    """Per-family news digest, search-grounded and cached (NEWS_TAB.md §6)."""
+    canon = news.canonical_family(family)
+    if canon is None:
+        return JSONResponse(  # type: ignore[return-value]
+            status_code=422,
+            content={"error": f"unknown family {family!r}", "families": news.FAMILIES},
+        )
+    feed = await news.get_news_runtime().get_feed(canon)
+    log.info("news | family=%s items=%d fetched_at=%s", canon, len(feed.items), feed.fetched_at)
+    return feed

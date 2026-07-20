@@ -147,6 +147,16 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
           </div>
         ))}
         {pending && <ThinkingIndicator />}
+        {/* Hand-off to the News tab. Built by the frontend from the selected
+            major's family — never by the model (NEWS_TAB.md hard rule 2). */}
+        {major && messages.some((m) => m.role === 'advisor') && (
+          <a
+            href={`#/news/${encodeURIComponent(major.family)}`}
+            className="block pt-1 text-[12.5px] font-semibold text-accent hover:underline"
+          >
+            More news for {major.family} →
+          </a>
+        )}
       </div>
 
       <form

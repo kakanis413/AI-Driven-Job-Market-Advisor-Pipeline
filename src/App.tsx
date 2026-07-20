@@ -1,7 +1,12 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import Landing from './pages/Landing'
 import Explore from './pages/Explore'
-import { EXPOSURE_STOPS, type Mode } from './design/tokens'
+import News from './pages/News'
+import { EXPOSURE_STOPS, FAMILY_ORDER, type Mode } from './design/tokens'
+import type { Family } from './types'
+
+const isFamily = (s: string | null): s is Family =>
+  s !== null && (FAMILY_ORDER as string[]).includes(s)
 import { useMajors } from './hooks/useMajors'
 import { useRoute } from './hooks/useRoute'
 import { useTheme } from './hooks/useTheme'
@@ -28,12 +33,20 @@ export default function App() {
           </span>
         </button>
         <div className="flex items-center gap-2">
-          {page === 'landing' && (
+          {page !== 'explore' && (
             <button
               onClick={() => nav('explore')}
               className="hidden h-9 items-center rounded-[10px] border border-line bg-surface px-3.5 text-[13px] font-medium text-ink2 transition-colors hover:text-ink sm:flex"
             >
               Explore
+            </button>
+          )}
+          {page !== 'news' && (
+            <button
+              onClick={() => nav('news')}
+              className="hidden h-9 items-center rounded-[10px] border border-line bg-surface px-3.5 text-[13px] font-medium text-ink2 transition-colors hover:text-ink sm:flex"
+            >
+              News
             </button>
           )}
           <button
@@ -54,6 +67,19 @@ export default function App() {
             transition={{ duration: 0.28, ease: EASE }}
           >
             <Landing majors={majors} mode={mode} onExplore={(s) => nav('explore', s)} />
+          </motion.div>
+        ) : page === 'news' ? (
+          <motion.div
+            key="news"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32, ease: EASE }}
+          >
+            <News
+              family={isFamily(sub) ? sub : 'STEM'}
+              onFamily={(f) => nav('news', f)}
+            />
           </motion.div>
         ) : (
           <motion.div
