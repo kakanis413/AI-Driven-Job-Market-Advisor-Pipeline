@@ -17,6 +17,55 @@ award-winning frontend — every view must look designed, not generated.
    SOC codes, IPEDS-style completions, BLS-style pay/growth); every score ships
    with a human-readable `rationale`.
 
+## Agent architecture
+
+The AI advisor backend uses Google's ADK (Agent Development Kit) with a simple,
+resilient architecture defined in `agent_config.py`:
+
+```
+root_agent (college_advisor)
+    │
+    ├── data_tool (AgentTool)
+    │       └── data_agent
+    │               └── bigquery_toolset → Gemini writes SQL, queries BigQuery
+    │
+    └── news_tool (ResilientAgentTool)
+            └── news_agent
+                    └── google_search → searches web for recent news
+```
+
+### Agents
+
+| Agent | Role | Tools |
+|-------|------|-------|
+| `root_agent` | The advisor. Talks to students, writes the final response. | `data_tool`, `news_tool` |
+| `data_agent` | Facts only. Queries BigQuery for exposure, pay, growth data. | `bigquery_toolset` |
+| `news_agent` | News researcher. Searches for recent articles about majors/careers. | `google_search` |
+
+### Key design decisions
+
+- **Agents as tools, not sub-agents.** Using `AgentTool` keeps the root agent in
+  control. It calls specialists like functions and gets results back, rather than
+  delegating control entirely.
+
+- **ResilientAgentTool for graceful degradation.** The `news_tool` is wrapped in
+  `ResilientAgentTool`, which catches any errors (rate limits, network failures)
+  and returns `{"status": "unavailable"}` instead of crashing. The root agent's
+  instructions tell it to continue without news if this happens.
+
+- **Gemini writes the SQL.** The `data_agent` doesn't have hardcoded queries.
+  Instead, its instructions describe the BigQuery schema, and Gemini generates
+  appropriate SQL on the fly. This allows open-ended questions like "compare two
+  majors" or "top 5 highest-paying majors" without new code.
+
+### Files
+
+| File | Purpose |
+|------|---------|
+| `agent_config.py` | Defines all agents, tools, and the `ResilientAgentTool` wrapper |
+| `tools.py` | BigQuery toolset setup and credentials |
+| `main.py` | FastAPI server that runs the agents |
+
 ## Data contract
 
 The app reads an array of majors from `VITE_DATA_URL` (default `/data.json`):
