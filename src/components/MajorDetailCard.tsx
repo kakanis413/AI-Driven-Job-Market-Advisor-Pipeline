@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { REDUCED_TWEEN, SPRING, type Mode } from '../design/tokens'
-import { exposureColor, fmtCount, fmtExposure, fmtPay, growthOf } from '../design/scales'
+import { bandOf, exposureColor, fmtCount, fmtExposure, fmtPay, fmtRatio, growthOf } from '../design/scales'
 import type { Major } from '../types'
 
 export default function MajorDetailCard({ major, mode }: { major: Major; mode: Mode }) {
@@ -9,6 +9,7 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
   const expC = useMemo(() => exposureColor(mode), [mode])
   // "99-9999 / NO MATCH" is the source's placeholder for unmapped employment.
   const occupations = major.occupations.filter((o) => o.soc !== '99-9999')
+  const hasRoi = major.payToDebt != null || major.versatility != null
 
   return (
     <div className="rounded-card border border-line bg-surface p-5">
@@ -35,6 +36,27 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
           tone={growth.tone?.[mode]}
         />
       </dl>
+
+      {hasRoi && (
+        <div className="mt-4 space-y-3">
+          {major.payToDebt != null && (
+            <Meter
+              label="Pay vs. debt"
+              value={fmtRatio(major.payToDebt)}
+              fill={major.payToDebtRank ?? 0}
+              caption="early-career pay per $1 of typical student debt"
+            />
+          )}
+          {major.versatility != null && (
+            <Meter
+              label="Career versatility"
+              value={bandOf(major.versatilityRank ?? 0)}
+              fill={major.versatilityRank ?? 0}
+              caption={`maps to ${major.versatility} related occupation${major.versatility === 1 ? '' : 's'}`}
+            />
+          )}
+        </div>
+      )}
 
       <p className="mt-4 text-[13px] leading-relaxed text-ink2">{major.rationale}</p>
 
@@ -84,6 +106,42 @@ function Stat({
       >
         {value}
       </dd>
+    </div>
+  )
+}
+
+/* A labeled 0–1 meter for non-exposure metrics (pay-to-debt, versatility).
+   Neutral ink fill — deliberately NOT the exposure/pay ramps, so it never reads
+   as an AI-exposure or pay score. Value text always accompanies the bar. */
+function Meter({
+  label,
+  value,
+  fill,
+  caption,
+}: {
+  label: string
+  value: string
+  fill: number
+  caption: string
+}) {
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="micro text-ink3">{label}</span>
+        <span
+          className="text-[13px] font-semibold text-ink"
+          style={{ fontVariantNumeric: 'tabular-nums' }}
+        >
+          {value}
+        </span>
+      </div>
+      <div className="mt-1.5 h-1.5 w-full overflow-hidden rounded-full bg-line" aria-hidden>
+        <div
+          className="h-full rounded-full bg-ink2"
+          style={{ width: `${Math.max(0, Math.min(1, fill)) * 100}%` }}
+        />
+      </div>
+      <p className="micro mt-1 normal-case tracking-normal text-ink3">{caption}</p>
     </div>
   )
 }

@@ -1,0 +1,4397 @@
+[
+  {
+    "cip": "",
+    "major": "Business Administration, Management and Operations",
+    "family": "Business",
+    "completions": 169790,
+    "exposure": 5.0,
+    "median_pay": 60202,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Business Administration, Management and Operations."
+  },
+  {
+    "cip": "",
+    "major": "Registered Nursing, Nursing Administration, Nursing Research and Clinical Nursing",
+    "family": "Health",
+    "completions": 149272,
+    "exposure": 5.0,
+    "median_pay": 76828,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Registered Nursing, Nursing Administration, Nursing Research and Clinical Nursing."
+  },
+  {
+    "cip": "",
+    "major": "Psychology, General",
+    "family": "Social sci",
+    "completions": 110091,
+    "exposure": 5.0,
+    "median_pay": 43757,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Psychology, General."
+  },
+  {
+    "cip": "",
+    "major": "Biology, General",
+    "family": "STEM",
+    "completions": 85877,
+    "exposure": 5.0,
+    "median_pay": 48883,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biology, General."
+  },
+  {
+    "cip": "",
+    "major": "Communication and Media Studies",
+    "family": "Humanities",
+    "completions": 54850,
+    "exposure": 5.0,
+    "median_pay": 49735,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Communication and Media Studies."
+  },
+  {
+    "cip": "",
+    "major": "Accounting and Related Services",
+    "family": "Business",
+    "completions": 52433,
+    "exposure": 5.0,
+    "median_pay": 66373,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Accounting and Related Services."
+  },
+  {
+    "cip": "",
+    "major": "Criminal Justice and Corrections",
+    "family": "Social sci",
+    "completions": 51953,
+    "exposure": 5.0,
+    "median_pay": 48241,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Criminal Justice and Corrections."
+  },
+  {
+    "cip": "",
+    "major": "Teacher Education and Professional Development, Specific Levels and Methods",
+    "family": "Social sci",
+    "completions": 51287,
+    "exposure": 5.0,
+    "median_pay": 41894,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Teacher Education and Professional Development, Specific Levels and Methods."
+  },
+  {
+    "cip": "",
+    "major": "Sports, Kinesiology, and Physical Education/Fitness",
+    "family": "Health",
+    "completions": 48743,
+    "exposure": 5.0,
+    "median_pay": 47223,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Sports, Kinesiology, and Physical Education/Fitness."
+  },
+  {
+    "cip": "",
+    "major": "Finance and Financial Management Services",
+    "family": "Business",
+    "completions": 48026,
+    "exposure": 5.0,
+    "median_pay": 76360,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Finance and Financial Management Services."
+  },
+  {
+    "cip": "52.1401",
+    "major": "Marketing",
+    "family": "Business",
+    "completions": 155000,
+    "exposure": 7.5,
+    "median_pay": 58000,
+    "growth": "slower",
+    "occupations": [
+      {
+        "soc": "13-1161",
+        "title": "Market research analysts",
+        "exposure": 8
+      },
+      {
+        "soc": "11-2011",
+        "title": "Advertising & promotions managers",
+        "exposure": 7
+      }
+    ],
+    "rationale": "Copy, creative variants, and campaign analytics are already AI-generated at scale."
+  },
+  {
+    "cip": "",
+    "major": "Liberal Arts and Sciences, General Studies and Humanities",
+    "family": "Humanities",
+    "completions": 44225,
+    "exposure": 5.0,
+    "median_pay": 45054,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Liberal Arts and Sciences, General Studies and Humanities."
+  },
+  {
+    "cip": "",
+    "major": "Political Science and Government",
+    "family": "Social sci",
+    "completions": 43388,
+    "exposure": 5.0,
+    "median_pay": 56443,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Political Science and Government."
+  },
+  {
+    "cip": "45.0601",
+    "major": "Economics",
+    "family": "Social sci",
+    "completions": 40000,
+    "exposure": 7.0,
+    "median_pay": 70000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "19-3011",
+        "title": "Economists",
+        "exposure": 7
+      },
+      {
+        "soc": "13-2051",
+        "title": "Financial analysts",
+        "exposure": 8
+      }
+    ],
+    "rationale": "Data assembly, econometrics, and forecasting are increasingly one prompt away."
+  },
+  {
+    "cip": "",
+    "major": "Computer and Information Sciences, General",
+    "family": "STEM",
+    "completions": 39126,
+    "exposure": 5.0,
+    "median_pay": 88819,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer and Information Sciences, General."
+  },
+  {
+    "cip": "14.1901",
+    "major": "Mechanical engineering",
+    "family": "STEM",
+    "completions": 32000,
+    "exposure": 5.0,
+    "median_pay": 78000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "17-2141",
+        "title": "Mechanical engineers",
+        "exposure": 5
+      },
+      {
+        "soc": "17-2112",
+        "title": "Industrial engineers",
+        "exposure": 5
+      }
+    ],
+    "rationale": "Design and simulation are increasingly AI-assisted, but physical prototyping and testing anchor the work."
+  },
+  {
+    "cip": "11.0701",
+    "major": "Computer science",
+    "family": "STEM",
+    "completions": 112000,
+    "exposure": 9.0,
+    "median_pay": 99000,
+    "growth": "faster",
+    "occupations": [
+      {
+        "soc": "15-1252",
+        "title": "Software developers",
+        "exposure": 9
+      },
+      {
+        "soc": "15-2051",
+        "title": "Data scientists",
+        "exposure": 8
+      },
+      {
+        "soc": "15-1211",
+        "title": "Computer systems analysts",
+        "exposure": 8
+      }
+    ],
+    "rationale": "Core tasks like coding and analysis are where AI advances fastest."
+  },
+  {
+    "cip": "",
+    "major": "English Language and Literature, General",
+    "family": "Humanities",
+    "completions": 33267,
+    "exposure": 5.0,
+    "median_pay": 42754,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in English Language and Literature, General."
+  },
+  {
+    "cip": "",
+    "major": "Sociology",
+    "family": "Social sci",
+    "completions": 29514,
+    "exposure": 5.0,
+    "median_pay": 46633,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Sociology."
+  },
+  {
+    "cip": "54.0101",
+    "major": "History",
+    "family": "Humanities",
+    "completions": 23000,
+    "exposure": 6.0,
+    "median_pay": 44000,
+    "growth": "declining",
+    "occupations": [
+      {
+        "soc": "25-4022",
+        "title": "Librarians & media specialists",
+        "exposure": 6
+      },
+      {
+        "soc": "19-3093",
+        "title": "Historians",
+        "exposure": 6
+      }
+    ],
+    "rationale": "Synthesis and summarization of sources automate; archival judgment and teaching endure longer."
+  },
+  {
+    "cip": "",
+    "major": "Multi/Interdisciplinary Studies, Other",
+    "family": "Humanities",
+    "completions": 25757,
+    "exposure": 5.0,
+    "median_pay": 50206,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Multi/Interdisciplinary Studies, Other."
+  },
+  {
+    "cip": "",
+    "major": "Fine and Studio Arts",
+    "family": "Arts",
+    "completions": 25733,
+    "exposure": 5.0,
+    "median_pay": 36184,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Fine and Studio Arts."
+  },
+  {
+    "cip": "",
+    "major": "Business/Commerce, General",
+    "family": "Business",
+    "completions": 24825,
+    "exposure": 5.0,
+    "median_pay": 63419,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Business/Commerce, General."
+  },
+  {
+    "cip": "",
+    "major": "Mathematics",
+    "family": "STEM",
+    "completions": 22092,
+    "exposure": 5.0,
+    "median_pay": 69636,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mathematics."
+  },
+  {
+    "cip": "",
+    "major": "Social Work",
+    "family": "Social sci",
+    "completions": 21856,
+    "exposure": 5.0,
+    "median_pay": 43610,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Social Work."
+  },
+  {
+    "cip": "",
+    "major": "Teacher Education and Professional Development, Specific Subject Areas",
+    "family": "Social sci",
+    "completions": 21124,
+    "exposure": 5.0,
+    "median_pay": 45495,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Teacher Education and Professional Development, Specific Subject Areas."
+  },
+  {
+    "cip": "",
+    "major": "Design and Applied Arts",
+    "family": "Arts",
+    "completions": 19679,
+    "exposure": 5.0,
+    "median_pay": 48086,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Design and Applied Arts."
+  },
+  {
+    "cip": "51.2201",
+    "major": "Public health",
+    "family": "Health",
+    "completions": 25000,
+    "exposure": 4.0,
+    "median_pay": 52000,
+    "growth": "faster",
+    "occupations": [
+      {
+        "soc": "19-5011",
+        "title": "Epidemiologists",
+        "exposure": 5
+      },
+      {
+        "soc": "21-1091",
+        "title": "Health education specialists",
+        "exposure": 3
+      }
+    ],
+    "rationale": "Surveillance analytics gain AI leverage, while community fieldwork and policy negotiation stay human."
+  },
+  {
+    "cip": "",
+    "major": "Health and Medical Administrative Services",
+    "family": "Health",
+    "completions": 18033,
+    "exposure": 5.0,
+    "median_pay": 50739,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Health and Medical Administrative Services."
+  },
+  {
+    "cip": "",
+    "major": "Electrical, Electronics, and Communications Engineering",
+    "family": "STEM",
+    "completions": 17926,
+    "exposure": 5.0,
+    "median_pay": 94573,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Electrical, Electronics, and Communications Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Health Services/Allied Health/Health Sciences, General",
+    "family": "Health",
+    "completions": 17660,
+    "exposure": 5.0,
+    "median_pay": 51704,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Health Services/Allied Health/Health Sciences, General."
+  },
+  {
+    "cip": "",
+    "major": "Natural Resources Conservation and Research",
+    "family": "STEM",
+    "completions": 17049,
+    "exposure": 5.0,
+    "median_pay": 49911,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Natural Resources Conservation and Research."
+  },
+  {
+    "cip": "",
+    "major": "Public Relations, Advertising, and Applied Communication",
+    "family": "Humanities",
+    "completions": 16824,
+    "exposure": 5.0,
+    "median_pay": 55141,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Public Relations, Advertising, and Applied Communication."
+  },
+  {
+    "cip": "50.0901",
+    "major": "Music",
+    "family": "Arts",
+    "completions": 12000,
+    "exposure": 5.5,
+    "median_pay": 42000,
+    "growth": "slower",
+    "occupations": [
+      {
+        "soc": "27-2042",
+        "title": "Musicians & singers",
+        "exposure": 5
+      },
+      {
+        "soc": "27-4014",
+        "title": "Sound engineering technicians",
+        "exposure": 6
+      }
+    ],
+    "rationale": "Stock composition and mixing automate; live performance and fandom economics resist it."
+  },
+  {
+    "cip": "",
+    "major": "Chemistry",
+    "family": "STEM",
+    "completions": 15402,
+    "exposure": 5.0,
+    "median_pay": 56529,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Chemistry."
+  },
+  {
+    "cip": "",
+    "major": "Civil Engineering",
+    "family": "STEM",
+    "completions": 15157,
+    "exposure": 5.0,
+    "median_pay": 77578,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Civil Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Drama/Theatre Arts and Stagecraft",
+    "family": "Arts",
+    "completions": 13298,
+    "exposure": 5.0,
+    "median_pay": 29670,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Drama/Theatre Arts and Stagecraft."
+  },
+  {
+    "cip": "",
+    "major": "Human Development, Family Studies, and Related Services",
+    "family": "Social sci",
+    "completions": 13297,
+    "exposure": 5.0,
+    "median_pay": 40227,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Human Development, Family Studies, and Related Services."
+  },
+  {
+    "cip": "",
+    "major": "Research and Experimental Psychology",
+    "family": "Social sci",
+    "completions": 13012,
+    "exposure": 5.0,
+    "median_pay": 49828,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Research and Experimental Psychology."
+  },
+  {
+    "cip": "",
+    "major": "Romance Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 12451,
+    "exposure": 5.0,
+    "median_pay": 48597,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Romance Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Biochemistry, Biophysics and Molecular Biology",
+    "family": "STEM",
+    "completions": 12313,
+    "exposure": 5.0,
+    "median_pay": 55785,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biochemistry, Biophysics and Molecular Biology."
+  },
+  {
+    "cip": "",
+    "major": "Journalism",
+    "family": "Humanities",
+    "completions": 12189,
+    "exposure": 5.0,
+    "median_pay": 48826,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Journalism."
+  },
+  {
+    "cip": "",
+    "major": "Film/Video and Photographic Arts",
+    "family": "Arts",
+    "completions": 11968,
+    "exposure": 5.0,
+    "median_pay": 37700,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Film/Video and Photographic Arts."
+  },
+  {
+    "cip": "",
+    "major": "Computer Engineering",
+    "family": "STEM",
+    "completions": 11531,
+    "exposure": 5.0,
+    "median_pay": 101120,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Human Resources Management and Services",
+    "family": "Business",
+    "completions": 11333,
+    "exposure": 5.0,
+    "median_pay": 60539,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Human Resources Management and Services."
+  },
+  {
+    "cip": "",
+    "major": "Radio, Television, and Digital Communication",
+    "family": "Humanities",
+    "completions": 11198,
+    "exposure": 5.0,
+    "median_pay": 45899,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Radio, Television, and Digital Communication."
+  },
+  {
+    "cip": "",
+    "major": "Communication Disorders Sciences and Services",
+    "family": "Health",
+    "completions": 11073,
+    "exposure": 5.0,
+    "median_pay": 51755,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Communication Disorders Sciences and Services."
+  },
+  {
+    "cip": "",
+    "major": "Chemical Engineering",
+    "family": "STEM",
+    "completions": 10860,
+    "exposure": 5.0,
+    "median_pay": 87953,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Chemical Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Hospitality Administration/Management",
+    "family": "Business",
+    "completions": 10685,
+    "exposure": 5.0,
+    "median_pay": 45976,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Hospitality Administration/Management."
+  },
+  {
+    "cip": "",
+    "major": "Allied Health Diagnostic, Intervention, and Treatment Professions",
+    "family": "Health",
+    "completions": 9987,
+    "exposure": 5.0,
+    "median_pay": 62157,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Allied Health Diagnostic, Intervention, and Treatment Professions."
+  },
+  {
+    "cip": "",
+    "major": "Management Sciences and Quantitative Methods",
+    "family": "Business",
+    "completions": 9956,
+    "exposure": 5.0,
+    "median_pay": 79443,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Management Sciences and Quantitative Methods."
+  },
+  {
+    "cip": "",
+    "major": "Information Science/Studies",
+    "family": "STEM",
+    "completions": 9617,
+    "exposure": 5.0,
+    "median_pay": 80347,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Information Science/Studies."
+  },
+  {
+    "cip": "",
+    "major": "International Relations and National Security Studies",
+    "family": "Social sci",
+    "completions": 9569,
+    "exposure": 5.0,
+    "median_pay": 59301,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in International Relations and National Security Studies."
+  },
+  {
+    "cip": "",
+    "major": "Management Information Systems and Services",
+    "family": "Business",
+    "completions": 9504,
+    "exposure": 5.0,
+    "median_pay": 75464,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Management Information Systems and Services."
+  },
+  {
+    "cip": "",
+    "major": "Neurobiology and Neurosciences",
+    "family": "STEM",
+    "completions": 9341,
+    "exposure": 5.0,
+    "median_pay": 54465,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Neurobiology and Neurosciences."
+  },
+  {
+    "cip": "",
+    "major": "Anthropology",
+    "family": "Social sci",
+    "completions": 9275,
+    "exposure": 5.0,
+    "median_pay": 39754,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Anthropology."
+  },
+  {
+    "cip": "",
+    "major": "Special Education and Teaching",
+    "family": "Social sci",
+    "completions": 9073,
+    "exposure": 5.0,
+    "median_pay": 45494,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Special Education and Teaching."
+  },
+  {
+    "cip": "",
+    "major": "Criminology",
+    "family": "Social sci",
+    "completions": 8852,
+    "exposure": 5.0,
+    "median_pay": 47868,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Criminology."
+  },
+  {
+    "cip": "",
+    "major": "Computer/Information Technology Administration and Management",
+    "family": "STEM",
+    "completions": 8575,
+    "exposure": 5.0,
+    "median_pay": 77860,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer/Information Technology Administration and Management."
+  },
+  {
+    "cip": "",
+    "major": "Physics",
+    "family": "STEM",
+    "completions": 8538,
+    "exposure": 5.0,
+    "median_pay": 72516,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Physics."
+  },
+  {
+    "cip": "",
+    "major": "Philosophy",
+    "family": "Humanities",
+    "completions": 8221,
+    "exposure": 5.0,
+    "median_pay": 48936,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Philosophy."
+  },
+  {
+    "cip": "",
+    "major": "Biomedical/Medical Engineering",
+    "family": "STEM",
+    "completions": 8218,
+    "exposure": 5.0,
+    "median_pay": 85241,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biomedical/Medical Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Multi-/Interdisciplinary Studies, General",
+    "family": "Humanities",
+    "completions": 7395,
+    "exposure": 5.0,
+    "median_pay": 43531,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Multi-/Interdisciplinary Studies, General."
+  },
+  {
+    "cip": "",
+    "major": "Rhetoric and Composition/Writing Studies",
+    "family": "Humanities",
+    "completions": 7169,
+    "exposure": 5.0,
+    "median_pay": 42983,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Rhetoric and Composition/Writing Studies."
+  },
+  {
+    "cip": "",
+    "major": "Animal Sciences",
+    "family": "STEM",
+    "completions": 6860,
+    "exposure": 5.0,
+    "median_pay": 42988,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Animal Sciences."
+  },
+  {
+    "cip": "",
+    "major": "International Business",
+    "family": "Business",
+    "completions": 6651,
+    "exposure": 5.0,
+    "median_pay": 67470,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in International Business."
+  },
+  {
+    "cip": "",
+    "major": "International/Globalization Studies",
+    "family": "Humanities",
+    "completions": 6606,
+    "exposure": 5.0,
+    "median_pay": 52868,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in International/Globalization Studies."
+  },
+  {
+    "cip": "",
+    "major": "Social Sciences, General",
+    "family": "Social sci",
+    "completions": 6589,
+    "exposure": 5.0,
+    "median_pay": 49203,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Social Sciences, General."
+  },
+  {
+    "cip": "",
+    "major": "Human Services, General",
+    "family": "Social sci",
+    "completions": 6119,
+    "exposure": 5.0,
+    "median_pay": 41404,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Human Services, General."
+  },
+  {
+    "cip": "",
+    "major": "Geological and Earth Sciences/Geosciences",
+    "family": "STEM",
+    "completions": 6088,
+    "exposure": 5.0,
+    "median_pay": 53108,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Geological and Earth Sciences/Geosciences."
+  },
+  {
+    "cip": "",
+    "major": "Industrial Engineering",
+    "family": "STEM",
+    "completions": 6019,
+    "exposure": 5.0,
+    "median_pay": 88320,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Industrial Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Ethnic, Cultural Minority, Gender, and Group Studies",
+    "family": "Social sci",
+    "completions": 6006,
+    "exposure": 5.0,
+    "median_pay": 46102,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Ethnic, Cultural Minority, Gender, and Group Studies."
+  },
+  {
+    "cip": "",
+    "major": "Religion/Religious Studies",
+    "family": "Humanities",
+    "completions": 6004,
+    "exposure": 5.0,
+    "median_pay": 34725,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Religion/Religious Studies."
+  },
+  {
+    "cip": "",
+    "major": "Business/Managerial Economics",
+    "family": "Business",
+    "completions": 5793,
+    "exposure": 5.0,
+    "median_pay": 71139,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Business/Managerial Economics."
+  },
+  {
+    "cip": "",
+    "major": "Physiology, Pathology and Related Sciences",
+    "family": "STEM",
+    "completions": 5763,
+    "exposure": 5.0,
+    "median_pay": 51830,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Physiology, Pathology and Related Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Linguistic, Comparative, and Related Language Studies and Services",
+    "family": "Humanities",
+    "completions": 5735,
+    "exposure": 5.0,
+    "median_pay": 43511,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Linguistic, Comparative, and Related Language Studies and Services."
+  },
+  {
+    "cip": "",
+    "major": "Aerospace, Aeronautical, and Astronautical/Space Engineering",
+    "family": "STEM",
+    "completions": 5366,
+    "exposure": 5.0,
+    "median_pay": 87146,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Aerospace, Aeronautical, and Astronautical/Space Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural Business and Management",
+    "family": "STEM",
+    "completions": 5242,
+    "exposure": 5.0,
+    "median_pay": 60743,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural Business and Management."
+  },
+  {
+    "cip": "",
+    "major": "Statistics",
+    "family": "STEM",
+    "completions": 4913,
+    "exposure": 5.0,
+    "median_pay": 87120,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Statistics."
+  },
+  {
+    "cip": "",
+    "major": "Air Transportation",
+    "family": "Trades",
+    "completions": 4847,
+    "exposure": 5.0,
+    "median_pay": 69364,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Air Transportation."
+  },
+  {
+    "cip": "",
+    "major": "Education, General",
+    "family": "Social sci",
+    "completions": 4800,
+    "exposure": 5.0,
+    "median_pay": 44484,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Education, General."
+  },
+  {
+    "cip": "",
+    "major": "Area Studies",
+    "family": "Social sci",
+    "completions": 4789,
+    "exposure": 5.0,
+    "median_pay": 52292,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Area Studies."
+  },
+  {
+    "cip": "",
+    "major": "Geography and Cartography",
+    "family": "Social sci",
+    "completions": 4658,
+    "exposure": 5.0,
+    "median_pay": 51273,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Geography and Cartography."
+  },
+  {
+    "cip": "",
+    "major": "Rehabilitation and Therapeutic Professions",
+    "family": "Health",
+    "completions": 4567,
+    "exposure": 5.0,
+    "median_pay": 49201,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Rehabilitation and Therapeutic Professions."
+  },
+  {
+    "cip": "",
+    "major": "Applied Mathematics",
+    "family": "STEM",
+    "completions": 4550,
+    "exposure": 5.0,
+    "median_pay": 90074,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Applied Mathematics."
+  },
+  {
+    "cip": "",
+    "major": "Health Professions and Related Clinical Sciences, Other",
+    "family": "Health",
+    "completions": 4547,
+    "exposure": 5.0,
+    "median_pay": 56882,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Health Professions and Related Clinical Sciences, Other."
+  },
+  {
+    "cip": "",
+    "major": "Cell/Cellular Biology and Anatomical Sciences",
+    "family": "STEM",
+    "completions": 4502,
+    "exposure": 5.0,
+    "median_pay": 55380,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Cell/Cellular Biology and Anatomical Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Ecology, Evolution, Systematics, and Population Biology",
+    "family": "STEM",
+    "completions": 4074,
+    "exposure": 5.0,
+    "median_pay": 41454,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Ecology, Evolution, Systematics, and Population Biology."
+  },
+  {
+    "cip": "",
+    "major": "Clinical/Medical Laboratory Science/Research and Allied Professions",
+    "family": "Health",
+    "completions": 3885,
+    "exposure": 5.0,
+    "median_pay": 66335,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Clinical/Medical Laboratory Science/Research and Allied Professions."
+  },
+  {
+    "cip": "",
+    "major": "Computer Software and Media Applications",
+    "family": "STEM",
+    "completions": 3776,
+    "exposure": 5.0,
+    "median_pay": 55278,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer Software and Media Applications."
+  },
+  {
+    "cip": "",
+    "major": "Clinical, Counseling and Applied Psychology",
+    "family": "Social sci",
+    "completions": 3759,
+    "exposure": 5.0,
+    "median_pay": 45660,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Clinical, Counseling and Applied Psychology."
+  },
+  {
+    "cip": "",
+    "major": "Architecture",
+    "family": "STEM",
+    "completions": 3732,
+    "exposure": 5.0,
+    "median_pay": 59006,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Architecture."
+  },
+  {
+    "cip": "",
+    "major": "Entrepreneurial and Small Business Operations",
+    "family": "Business",
+    "completions": 3704,
+    "exposure": 5.0,
+    "median_pay": 56663,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Entrepreneurial and Small Business Operations."
+  },
+  {
+    "cip": "",
+    "major": "Visual and Performing Arts, General",
+    "family": "Arts",
+    "completions": 3699,
+    "exposure": 5.0,
+    "median_pay": 38199,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Visual and Performing Arts, General."
+  },
+  {
+    "cip": "",
+    "major": "Nutrition Sciences",
+    "family": "Humanities",
+    "completions": 3518,
+    "exposure": 5.0,
+    "median_pay": 50886,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Nutrition Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Business, Management, Marketing, and Related Support Services, Other",
+    "family": "Business",
+    "completions": 3378,
+    "exposure": 5.0,
+    "median_pay": 61429,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Business, Management, Marketing, and Related Support Services, Other."
+  },
+  {
+    "cip": "",
+    "major": "Arts, Entertainment, and Media Management",
+    "family": "Arts",
+    "completions": 3298,
+    "exposure": 5.0,
+    "median_pay": 41969,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Arts, Entertainment, and Media Management."
+  },
+  {
+    "cip": "",
+    "major": "Microbiological Sciences and Immunology",
+    "family": "STEM",
+    "completions": 3259,
+    "exposure": 5.0,
+    "median_pay": 49706,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Microbiological Sciences and Immunology."
+  },
+  {
+    "cip": "",
+    "major": "Public Administration",
+    "family": "Social sci",
+    "completions": 3117,
+    "exposure": 5.0,
+    "median_pay": 54633,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Public Administration."
+  },
+  {
+    "cip": "",
+    "major": "Health/Medical Preparatory Programs",
+    "family": "Health",
+    "completions": 3112,
+    "exposure": 5.0,
+    "median_pay": 51195,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Health/Medical Preparatory Programs."
+  },
+  {
+    "cip": "",
+    "major": "Graphic Communications",
+    "family": "Arts",
+    "completions": 3048,
+    "exposure": 5.0,
+    "median_pay": 45869,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Graphic Communications."
+  },
+  {
+    "cip": "",
+    "major": "Foods, Nutrition, and Related Services",
+    "family": "Social sci",
+    "completions": 3038,
+    "exposure": 5.0,
+    "median_pay": 47002,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Foods, Nutrition, and Related Services."
+  },
+  {
+    "cip": "",
+    "major": "Mental and Social Health Services and Allied Professions",
+    "family": "Health",
+    "completions": 3037,
+    "exposure": 5.0,
+    "median_pay": 45679,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mental and Social Health Services and Allied Professions."
+  },
+  {
+    "cip": "",
+    "major": "Engineering, General",
+    "family": "STEM",
+    "completions": 2945,
+    "exposure": 5.0,
+    "median_pay": 83706,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering, General."
+  },
+  {
+    "cip": "",
+    "major": "Security Science and Technology",
+    "family": "Social sci",
+    "completions": 2927,
+    "exposure": 5.0,
+    "median_pay": 49886,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Security Science and Technology."
+  },
+  {
+    "cip": "",
+    "major": "Dietetics and Clinical Nutrition Services",
+    "family": "Health",
+    "completions": 2882,
+    "exposure": 5.0,
+    "median_pay": 47386,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Dietetics and Clinical Nutrition Services."
+  },
+  {
+    "cip": "",
+    "major": "Non-Professional Legal Studies",
+    "family": "Social sci",
+    "completions": 2867,
+    "exposure": 5.0,
+    "median_pay": 52807,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Non-Professional Legal Studies."
+  },
+  {
+    "cip": "",
+    "major": "Specialized Sales, Merchandising and  Marketing Operations",
+    "family": "Business",
+    "completions": 2867,
+    "exposure": 5.0,
+    "median_pay": 52609,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Specialized Sales, Merchandising and  Marketing Operations."
+  },
+  {
+    "cip": "",
+    "major": "Parks, Recreation, and Leisure Facilities Management",
+    "family": "Health",
+    "completions": 2839,
+    "exposure": 5.0,
+    "median_pay": 41282,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Parks, Recreation, and Leisure Facilities Management."
+  },
+  {
+    "cip": "",
+    "major": "Dance",
+    "family": "Arts",
+    "completions": 2826,
+    "exposure": 5.0,
+    "median_pay": 30121,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Dance."
+  },
+  {
+    "cip": "",
+    "major": "Family and Consumer Sciences/Human Sciences, General",
+    "family": "Social sci",
+    "completions": 2825,
+    "exposure": 5.0,
+    "median_pay": 40051,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Family and Consumer Sciences/Human Sciences, General."
+  },
+  {
+    "cip": "",
+    "major": "Mechanical Engineering Related Technologies/Technicians",
+    "family": "STEM",
+    "completions": 2804,
+    "exposure": 5.0,
+    "median_pay": 72260,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mechanical Engineering Related Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Industrial Production Technologies/Technicians",
+    "family": "STEM",
+    "completions": 2788,
+    "exposure": 5.0,
+    "median_pay": 68821,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Industrial Production Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Pharmacy, Pharmaceutical Sciences, and Administration",
+    "family": "Health",
+    "completions": 2767,
+    "exposure": 5.0,
+    "median_pay": 86439,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Pharmacy, Pharmaceutical Sciences, and Administration."
+  },
+  {
+    "cip": "",
+    "major": "Parks, Recreation, and Leisure Studies",
+    "family": "Health",
+    "completions": 2732,
+    "exposure": 5.0,
+    "median_pay": 45729,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Parks, Recreation, and Leisure Studies."
+  },
+  {
+    "cip": "",
+    "major": "Construction Engineering Technology/Technician",
+    "family": "STEM",
+    "completions": 2714,
+    "exposure": 5.0,
+    "median_pay": 85352,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Construction Engineering Technology/Technician."
+  },
+  {
+    "cip": "",
+    "major": "Biological and Physical Sciences",
+    "family": "Humanities",
+    "completions": 2649,
+    "exposure": 5.0,
+    "median_pay": 51896,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biological and Physical Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Apparel and Textiles",
+    "family": "Social sci",
+    "completions": 2644,
+    "exposure": 5.0,
+    "median_pay": 47702,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Apparel and Textiles."
+  },
+  {
+    "cip": "",
+    "major": "Bible/Biblical Studies",
+    "family": "Other",
+    "completions": 2620,
+    "exposure": 5.0,
+    "median_pay": 37348,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Bible/Biblical Studies."
+  },
+  {
+    "cip": "52.2001",
+    "major": "Construction management",
+    "family": "Trades",
+    "completions": 15000,
+    "exposure": 3.0,
+    "median_pay": 75000,
+    "growth": "faster",
+    "occupations": [
+      {
+        "soc": "11-9021",
+        "title": "Construction managers",
+        "exposure": 3
+      },
+      {
+        "soc": "13-1051",
+        "title": "Cost estimators",
+        "exposure": 6
+      }
+    ],
+    "rationale": "Estimating and scheduling get AI help, but coordinating crews on a live site stays physical."
+  },
+  {
+    "cip": "",
+    "major": "Zoology/Animal Biology",
+    "family": "STEM",
+    "completions": 2576,
+    "exposure": 5.0,
+    "median_pay": 37448,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Zoology/Animal Biology."
+  },
+  {
+    "cip": "",
+    "major": "Cognitive Science",
+    "family": "Humanities",
+    "completions": 2566,
+    "exposure": 5.0,
+    "median_pay": 71743,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Cognitive Science."
+  },
+  {
+    "cip": "",
+    "major": "Architectural Sciences and Technology",
+    "family": "STEM",
+    "completions": 2547,
+    "exposure": 5.0,
+    "median_pay": 62592,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Architectural Sciences and Technology."
+  },
+  {
+    "cip": "",
+    "major": "General Sales, Merchandising and Related Marketing Operations",
+    "family": "Business",
+    "completions": 2534,
+    "exposure": 5.0,
+    "median_pay": 65133,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in General Sales, Merchandising and Related Marketing Operations."
+  },
+  {
+    "cip": "",
+    "major": "Homeland Security",
+    "family": "Social sci",
+    "completions": 2530,
+    "exposure": 5.0,
+    "median_pay": 62445,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Homeland Security."
+  },
+  {
+    "cip": "",
+    "major": "Public Policy Analysis",
+    "family": "Social sci",
+    "completions": 2517,
+    "exposure": 5.0,
+    "median_pay": 69125,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Public Policy Analysis."
+  },
+  {
+    "cip": "",
+    "major": "Theological and Ministerial Studies",
+    "family": "Other",
+    "completions": 2475,
+    "exposure": 5.0,
+    "median_pay": 40712,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Theological and Ministerial Studies."
+  },
+  {
+    "cip": "",
+    "major": "Dental Support Services and Allied Professions",
+    "family": "Health",
+    "completions": 2213,
+    "exposure": 5.0,
+    "median_pay": 56531,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Dental Support Services and Allied Professions."
+  },
+  {
+    "cip": "",
+    "major": "Agriculture, General",
+    "family": "STEM",
+    "completions": 2082,
+    "exposure": 5.0,
+    "median_pay": 47196,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agriculture, General."
+  },
+  {
+    "cip": "",
+    "major": "Plant Sciences",
+    "family": "STEM",
+    "completions": 2058,
+    "exposure": 5.0,
+    "median_pay": 47747,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Plant Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Quality Control and Safety Technologies/Technicians",
+    "family": "STEM",
+    "completions": 1982,
+    "exposure": 5.0,
+    "median_pay": 76541,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Quality Control and Safety Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Engineering-Related Fields",
+    "family": "STEM",
+    "completions": 1932,
+    "exposure": 5.0,
+    "median_pay": 80869,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering-Related Fields."
+  },
+  {
+    "cip": "",
+    "major": "Computer Programming",
+    "family": "STEM",
+    "completions": 1897,
+    "exposure": 5.0,
+    "median_pay": 76423,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer Programming."
+  },
+  {
+    "cip": "",
+    "major": "Community Organization and Advocacy",
+    "family": "Social sci",
+    "completions": 1863,
+    "exposure": 5.0,
+    "median_pay": 44310,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Community Organization and Advocacy."
+  },
+  {
+    "cip": "",
+    "major": "Social Sciences, Other",
+    "family": "Social sci",
+    "completions": 1772,
+    "exposure": 5.0,
+    "median_pay": 59118,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Social Sciences, Other."
+  },
+  {
+    "cip": "",
+    "major": "Environmental/Environmental Health Engineering",
+    "family": "STEM",
+    "completions": 1770,
+    "exposure": 5.0,
+    "median_pay": 71268,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Environmental/Environmental Health Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Education, Other",
+    "family": "Social sci",
+    "completions": 1767,
+    "exposure": 5.0,
+    "median_pay": 42286,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Education, Other."
+  },
+  {
+    "cip": "",
+    "major": "Engineering Technologies/Technicians, General",
+    "family": "STEM",
+    "completions": 1700,
+    "exposure": 5.0,
+    "median_pay": 71407,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering Technologies/Technicians, General."
+  },
+  {
+    "cip": "",
+    "major": "Behavioral Sciences",
+    "family": "Humanities",
+    "completions": 1648,
+    "exposure": 5.0,
+    "median_pay": 38369,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Behavioral Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Real Estate",
+    "family": "Business",
+    "completions": 1645,
+    "exposure": 5.0,
+    "median_pay": 78731,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Real Estate."
+  },
+  {
+    "cip": "",
+    "major": "Biological and Biomedical Sciences, Other",
+    "family": "STEM",
+    "completions": 1630,
+    "exposure": 5.0,
+    "median_pay": 55990,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biological and Biomedical Sciences, Other."
+  },
+  {
+    "cip": "",
+    "major": "Materials Engineering",
+    "family": "STEM",
+    "completions": 1627,
+    "exposure": 5.0,
+    "median_pay": 81688,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Materials Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Wildlife and Wildlands Science and Management",
+    "family": "STEM",
+    "completions": 1626,
+    "exposure": 5.0,
+    "median_pay": 38586,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Wildlife and Wildlands Science and Management."
+  },
+  {
+    "cip": "",
+    "major": "East Asian Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 1621,
+    "exposure": 5.0,
+    "median_pay": 45667,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in East Asian Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Human Biology",
+    "family": "Humanities",
+    "completions": 1582,
+    "exposure": 5.0,
+    "median_pay": 63011,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Human Biology."
+  },
+  {
+    "cip": "",
+    "major": "Insurance",
+    "family": "Business",
+    "completions": 1557,
+    "exposure": 5.0,
+    "median_pay": 76634,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Insurance."
+  },
+  {
+    "cip": "",
+    "major": "Fire Protection",
+    "family": "Social sci",
+    "completions": 1552,
+    "exposure": 5.0,
+    "median_pay": 77172,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Fire Protection."
+  },
+  {
+    "cip": "",
+    "major": "Electrical/Electronic Engineering Technologies/Technicians",
+    "family": "STEM",
+    "completions": 1515,
+    "exposure": 5.0,
+    "median_pay": 75512,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Electrical/Electronic Engineering Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Environmental/Natural Resources Management and Policy",
+    "family": "STEM",
+    "completions": 1466,
+    "exposure": 5.0,
+    "median_pay": 47804,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Environmental/Natural Resources Management and Policy."
+  },
+  {
+    "cip": "",
+    "major": "Food Science and Technology",
+    "family": "STEM",
+    "completions": 1402,
+    "exposure": 5.0,
+    "median_pay": 61806,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Food Science and Technology."
+  },
+  {
+    "cip": "",
+    "major": "Audiovisual Communications Technologies/Technicians",
+    "family": "Arts",
+    "completions": 1277,
+    "exposure": 5.0,
+    "median_pay": 34147,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Audiovisual Communications Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Pastoral Counseling and Specialized Ministries",
+    "family": "Other",
+    "completions": 1257,
+    "exposure": 5.0,
+    "median_pay": 37875,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Pastoral Counseling and Specialized Ministries."
+  },
+  {
+    "cip": "",
+    "major": "Family and Consumer Economics and Related Studies",
+    "family": "Social sci",
+    "completions": 1241,
+    "exposure": 5.0,
+    "median_pay": 47003,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Family and Consumer Economics and Related Studies."
+  },
+  {
+    "cip": "",
+    "major": "Forestry",
+    "family": "STEM",
+    "completions": 1189,
+    "exposure": 5.0,
+    "median_pay": 52254,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Forestry."
+  },
+  {
+    "cip": "",
+    "major": "Classics and Classical Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 1171,
+    "exposure": 5.0,
+    "median_pay": 39347,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Classics and Classical Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural Engineering",
+    "family": "STEM",
+    "completions": 1170,
+    "exposure": 5.0,
+    "median_pay": 75751,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Germanic Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 1166,
+    "exposure": 5.0,
+    "median_pay": 58433,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Germanic Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Legal Support Services",
+    "family": "Social sci",
+    "completions": 1125,
+    "exposure": 5.0,
+    "median_pay": 42957,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Legal Support Services."
+  },
+  {
+    "cip": "",
+    "major": "Petroleum Engineering",
+    "family": "STEM",
+    "completions": 1123,
+    "exposure": 5.0,
+    "median_pay": 98548,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Petroleum Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Computer Systems Networking and Telecommunications",
+    "family": "STEM",
+    "completions": 1105,
+    "exposure": 5.0,
+    "median_pay": 65432,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer Systems Networking and Telecommunications."
+  },
+  {
+    "cip": "",
+    "major": "Sustainability Studies",
+    "family": "Humanities",
+    "completions": 1099,
+    "exposure": 5.0,
+    "median_pay": 53278,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Sustainability Studies."
+  },
+  {
+    "cip": "",
+    "major": "Computer Systems Analysis",
+    "family": "STEM",
+    "completions": 1098,
+    "exposure": 5.0,
+    "median_pay": 75101,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer Systems Analysis."
+  },
+  {
+    "cip": "",
+    "major": "Urban Studies/Affairs",
+    "family": "Social sci",
+    "completions": 1039,
+    "exposure": 5.0,
+    "median_pay": 60310,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Urban Studies/Affairs."
+  },
+  {
+    "cip": "",
+    "major": "Engineering, Other",
+    "family": "STEM",
+    "completions": 992,
+    "exposure": 5.0,
+    "median_pay": 86310,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering, Other."
+  },
+  {
+    "cip": "",
+    "major": "Biotechnology",
+    "family": "STEM",
+    "completions": 975,
+    "exposure": 5.0,
+    "median_pay": 62498,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biotechnology."
+  },
+  {
+    "cip": "",
+    "major": "Computer Engineering Technologies/Technicians",
+    "family": "STEM",
+    "completions": 959,
+    "exposure": 5.0,
+    "median_pay": 77015,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer Engineering Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Intelligence, Command Control and Information Operations",
+    "family": "Other",
+    "completions": 947,
+    "exposure": 5.0,
+    "median_pay": 69289,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Intelligence, Command Control and Information Operations."
+  },
+  {
+    "cip": "",
+    "major": "Mathematics and Computer Science",
+    "family": "Humanities",
+    "completions": 935,
+    "exposure": 5.0,
+    "median_pay": 77263,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mathematics and Computer Science."
+  },
+  {
+    "cip": "",
+    "major": "Engineering/Engineering-Related Technologies/Technicians, Other",
+    "family": "STEM",
+    "completions": 886,
+    "exposure": 5.0,
+    "median_pay": 75352,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering/Engineering-Related Technologies/Technicians, Other."
+  },
+  {
+    "cip": "",
+    "major": "Astronomy and Astrophysics",
+    "family": "STEM",
+    "completions": 877,
+    "exposure": 5.0,
+    "median_pay": 50573,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Astronomy and Astrophysics."
+  },
+  {
+    "cip": "",
+    "major": "Business/Corporate Communications",
+    "family": "Business",
+    "completions": 876,
+    "exposure": 5.0,
+    "median_pay": 59816,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Business/Corporate Communications."
+  },
+  {
+    "cip": "",
+    "major": "Systems Engineering",
+    "family": "STEM",
+    "completions": 875,
+    "exposure": 5.0,
+    "median_pay": 96794,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Systems Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Science, Technology and Society",
+    "family": "Humanities",
+    "completions": 853,
+    "exposure": 5.0,
+    "median_pay": 65711,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Science, Technology and Society."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural Production Operations",
+    "family": "STEM",
+    "completions": 832,
+    "exposure": 5.0,
+    "median_pay": 44006,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural Production Operations."
+  },
+  {
+    "cip": "",
+    "major": "Natural Sciences",
+    "family": "Humanities",
+    "completions": 813,
+    "exposure": 5.0,
+    "median_pay": 47100,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Natural Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Homeland Security, Law Enforcement, Firefighting and Related Protective Services, Other",
+    "family": "Social sci",
+    "completions": 811,
+    "exposure": 5.0,
+    "median_pay": 63455,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Homeland Security, Law Enforcement, Firefighting and Related Protective Services, Other."
+  },
+  {
+    "cip": "",
+    "major": "City/Urban, Community, and Regional Planning",
+    "family": "STEM",
+    "completions": 793,
+    "exposure": 5.0,
+    "median_pay": 57066,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in City/Urban, Community, and Regional Planning."
+  },
+  {
+    "cip": "",
+    "major": "Allied Health and Medical Assisting Services",
+    "family": "Health",
+    "completions": 792,
+    "exposure": 5.0,
+    "median_pay": 61639,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Allied Health and Medical Assisting Services."
+  },
+  {
+    "cip": "",
+    "major": "Atmospheric Sciences and Meteorology",
+    "family": "STEM",
+    "completions": 739,
+    "exposure": 5.0,
+    "median_pay": 52315,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Atmospheric Sciences and Meteorology."
+  },
+  {
+    "cip": "",
+    "major": "Educational Assessment, Evaluation, and Research",
+    "family": "Social sci",
+    "completions": 728,
+    "exposure": 5.0,
+    "median_pay": 39937,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Educational Assessment, Evaluation, and Research."
+  },
+  {
+    "cip": "",
+    "major": "Religious Education",
+    "family": "Other",
+    "completions": 692,
+    "exposure": 5.0,
+    "median_pay": 36844,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Religious Education."
+  },
+  {
+    "cip": "",
+    "major": "Genetics",
+    "family": "STEM",
+    "completions": 685,
+    "exposure": 5.0,
+    "median_pay": 54973,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Genetics."
+  },
+  {
+    "cip": "",
+    "major": "Architectural Engineering",
+    "family": "STEM",
+    "completions": 684,
+    "exposure": 5.0,
+    "median_pay": 83265,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Architectural Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Communication, Journalism, and Related Programs, Other",
+    "family": "Humanities",
+    "completions": 670,
+    "exposure": 5.0,
+    "median_pay": 46567,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Communication, Journalism, and Related Programs, Other."
+  },
+  {
+    "cip": "",
+    "major": "Engineering Physics",
+    "family": "STEM",
+    "completions": 652,
+    "exposure": 5.0,
+    "median_pay": 85151,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering Physics."
+  },
+  {
+    "cip": "",
+    "major": "Engineering Science",
+    "family": "STEM",
+    "completions": 629,
+    "exposure": 5.0,
+    "median_pay": 87979,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering Science."
+  },
+  {
+    "cip": "",
+    "major": "Landscape Architecture",
+    "family": "STEM",
+    "completions": 627,
+    "exposure": 5.0,
+    "median_pay": 61518,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Landscape Architecture."
+  },
+  {
+    "cip": "",
+    "major": "Human Computer Interaction",
+    "family": "Humanities",
+    "completions": 625,
+    "exposure": 5.0,
+    "median_pay": 46199,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Human Computer Interaction."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural Public Services",
+    "family": "STEM",
+    "completions": 618,
+    "exposure": 5.0,
+    "median_pay": 51139,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural Public Services."
+  },
+  {
+    "cip": "",
+    "major": "Environmental Design",
+    "family": "STEM",
+    "completions": 608,
+    "exposure": 5.0,
+    "median_pay": 49397,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Environmental Design."
+  },
+  {
+    "cip": "",
+    "major": "Peace Studies and Conflict Resolution",
+    "family": "Humanities",
+    "completions": 594,
+    "exposure": 5.0,
+    "median_pay": 59473,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Peace Studies and Conflict Resolution."
+  },
+  {
+    "cip": "",
+    "major": "Culinary Arts and Related Services",
+    "family": "Trades",
+    "completions": 587,
+    "exposure": 5.0,
+    "median_pay": 34303,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Culinary Arts and Related Services."
+  },
+  {
+    "cip": "",
+    "major": "Educational Administration and Supervision",
+    "family": "Social sci",
+    "completions": 585,
+    "exposure": 5.0,
+    "median_pay": 38441,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Educational Administration and Supervision."
+  },
+  {
+    "cip": "",
+    "major": "Biomathematics, Bioinformatics, and Computational Biology",
+    "family": "STEM",
+    "completions": 570,
+    "exposure": 5.0,
+    "median_pay": 116516,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biomathematics, Bioinformatics, and Computational Biology."
+  },
+  {
+    "cip": "",
+    "major": "Literature",
+    "family": "Humanities",
+    "completions": 555,
+    "exposure": 5.0,
+    "median_pay": 41120,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Literature."
+  },
+  {
+    "cip": "",
+    "major": "Manufacturing Engineering",
+    "family": "STEM",
+    "completions": 551,
+    "exposure": 5.0,
+    "median_pay": 78445,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Manufacturing Engineering."
+  },
+  {
+    "cip": "",
+    "major": "English Language and Literature/Letters, Other",
+    "family": "Humanities",
+    "completions": 538,
+    "exposure": 5.0,
+    "median_pay": 44187,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in English Language and Literature/Letters, Other."
+  },
+  {
+    "cip": "",
+    "major": "Veterinary/Animal Health Technologies/Technicians",
+    "family": "STEM",
+    "completions": 537,
+    "exposure": 5.0,
+    "median_pay": 35225,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Veterinary/Animal Health Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Visual and Performing Arts, Other",
+    "family": "Arts",
+    "completions": 529,
+    "exposure": 5.0,
+    "median_pay": 45863,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Visual and Performing Arts, Other."
+  },
+  {
+    "cip": "",
+    "major": "American Sign Language",
+    "family": "Humanities",
+    "completions": 528,
+    "exposure": 5.0,
+    "median_pay": 38801,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in American Sign Language."
+  },
+  {
+    "cip": "",
+    "major": "Construction Engineering",
+    "family": "STEM",
+    "completions": 528,
+    "exposure": 5.0,
+    "median_pay": 89045,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Construction Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Science Technologies/Technicians, Other",
+    "family": "STEM",
+    "completions": 508,
+    "exposure": 5.0,
+    "median_pay": 61108,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Science Technologies/Technicians, Other."
+  },
+  {
+    "cip": "",
+    "major": "Slavic, Baltic and Albanian Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 501,
+    "exposure": 5.0,
+    "median_pay": 66679,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Slavic, Baltic and Albanian Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Interior Architecture",
+    "family": "STEM",
+    "completions": 500,
+    "exposure": 5.0,
+    "median_pay": 54727,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Interior Architecture."
+  },
+  {
+    "cip": "",
+    "major": "Sociology and Anthropology",
+    "family": "Social sci",
+    "completions": 499,
+    "exposure": 5.0,
+    "median_pay": 42180,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Sociology and Anthropology."
+  },
+  {
+    "cip": "",
+    "major": "Electromechanical Technologies/Technicians",
+    "family": "STEM",
+    "completions": 496,
+    "exposure": 5.0,
+    "median_pay": 70253,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Electromechanical Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Marine Transportation",
+    "family": "Trades",
+    "completions": 493,
+    "exposure": 5.0,
+    "median_pay": 102679,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Marine Transportation."
+  },
+  {
+    "cip": "",
+    "major": "Mathematics and Statistics, Other",
+    "family": "STEM",
+    "completions": 490,
+    "exposure": 5.0,
+    "median_pay": 101689,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mathematics and Statistics, Other."
+  },
+  {
+    "cip": "",
+    "major": "Missions/Missionary Studies and Missiology",
+    "family": "Other",
+    "completions": 484,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Missions/Missionary Studies and Missiology."
+  },
+  {
+    "cip": "",
+    "major": "Nuclear Engineering",
+    "family": "STEM",
+    "completions": 477,
+    "exposure": 5.0,
+    "median_pay": 86330,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Nuclear Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Operations Research",
+    "family": "STEM",
+    "completions": 471,
+    "exposure": 5.0,
+    "median_pay": 121495,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Operations Research."
+  },
+  {
+    "cip": "",
+    "major": "Legal Professions and Studies, Other",
+    "family": "Social sci",
+    "completions": 469,
+    "exposure": 5.0,
+    "median_pay": 49340,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Legal Professions and Studies, Other."
+  },
+  {
+    "cip": "",
+    "major": "Agriculture/Veterinary Preparatory Programs",
+    "family": "STEM",
+    "completions": 467,
+    "exposure": 5.0,
+    "median_pay": 37824,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agriculture/Veterinary Preparatory Programs."
+  },
+  {
+    "cip": "",
+    "major": "Mechatronics, Robotics, and Automation Engineering",
+    "family": "STEM",
+    "completions": 459,
+    "exposure": 5.0,
+    "median_pay": 85139,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mechatronics, Robotics, and Automation Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Psychology, Other",
+    "family": "Social sci",
+    "completions": 445,
+    "exposure": 5.0,
+    "median_pay": 39458,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Psychology, Other."
+  },
+  {
+    "cip": "",
+    "major": "Architectural Engineering Technologies/Technicians",
+    "family": "STEM",
+    "completions": 419,
+    "exposure": 5.0,
+    "median_pay": 75160,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Architectural Engineering Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Systems Science and Theory",
+    "family": "Humanities",
+    "completions": 419,
+    "exposure": 5.0,
+    "median_pay": 95746,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Systems Science and Theory."
+  },
+  {
+    "cip": "",
+    "major": "Naval Architecture and Marine Engineering",
+    "family": "STEM",
+    "completions": 407,
+    "exposure": 5.0,
+    "median_pay": 107308,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Naval Architecture and Marine Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Teaching English or French as a Second or Foreign Language",
+    "family": "Social sci",
+    "completions": 402,
+    "exposure": 5.0,
+    "median_pay": 34091,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Teaching English or French as a Second or Foreign Language."
+  },
+  {
+    "cip": "",
+    "major": "Business Operations Support and Assistant Services",
+    "family": "Business",
+    "completions": 367,
+    "exposure": 5.0,
+    "median_pay": 23019,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Business Operations Support and Assistant Services."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural/Animal/Plant/Veterinary Science and Related Fields, Other",
+    "family": "STEM",
+    "completions": 366,
+    "exposure": 5.0,
+    "median_pay": 54606,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural/Animal/Plant/Veterinary Science and Related Fields, Other."
+  },
+  {
+    "cip": "",
+    "major": "Middle/Near Eastern and Semitic Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 355,
+    "exposure": 5.0,
+    "median_pay": 56767,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Middle/Near Eastern and Semitic Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural and Domestic Animal Services",
+    "family": "STEM",
+    "completions": 354,
+    "exposure": 5.0,
+    "median_pay": 36489,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural and Domestic Animal Services."
+  },
+  {
+    "cip": "",
+    "major": "Drafting/Design Engineering Technologies/Technicians",
+    "family": "STEM",
+    "completions": 353,
+    "exposure": 5.0,
+    "median_pay": 65763,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Drafting/Design Engineering Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Civil Engineering Technologies/Technicians",
+    "family": "STEM",
+    "completions": 352,
+    "exposure": 5.0,
+    "median_pay": 69428,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Civil Engineering Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Alternative and Complementary Medicine and Medical Systems",
+    "family": "Health",
+    "completions": 342,
+    "exposure": 5.0,
+    "median_pay": 32757,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Alternative and Complementary Medicine and Medical Systems."
+  },
+  {
+    "cip": "",
+    "major": "Applied Horticulture and Horticultural Business Services",
+    "family": "STEM",
+    "completions": 339,
+    "exposure": 5.0,
+    "median_pay": 49487,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Applied Horticulture and Horticultural Business Services."
+  },
+  {
+    "cip": "",
+    "major": "Data Analytics",
+    "family": "Humanities",
+    "completions": 325,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Data Analytics."
+  },
+  {
+    "cip": "",
+    "major": "Botany/Plant Biology",
+    "family": "STEM",
+    "completions": 324,
+    "exposure": 5.0,
+    "median_pay": 41431,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Botany/Plant Biology."
+  },
+  {
+    "cip": "",
+    "major": "Fishing and Fisheries Sciences and Management",
+    "family": "STEM",
+    "completions": 315,
+    "exposure": 5.0,
+    "median_pay": 41163,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Fishing and Fisheries Sciences and Management."
+  },
+  {
+    "cip": "",
+    "major": "Family and Consumer Sciences/Human Sciences Business Services",
+    "family": "Social sci",
+    "completions": 313,
+    "exposure": 5.0,
+    "median_pay": 54193,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Family and Consumer Sciences/Human Sciences Business Services."
+  },
+  {
+    "cip": "",
+    "major": "Physical Sciences, Other",
+    "family": "STEM",
+    "completions": 311,
+    "exposure": 5.0,
+    "median_pay": 46552,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Physical Sciences, Other."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural Mechanization",
+    "family": "STEM",
+    "completions": 308,
+    "exposure": 5.0,
+    "median_pay": 65258,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural Mechanization."
+  },
+  {
+    "cip": "",
+    "major": "Public Administration and Social Service Professions, Other",
+    "family": "Social sci",
+    "completions": 307,
+    "exposure": 5.0,
+    "median_pay": 47087,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Public Administration and Social Service Professions, Other."
+  },
+  {
+    "cip": "",
+    "major": "Theology and Religious Vocations, Other",
+    "family": "Other",
+    "completions": 305,
+    "exposure": 5.0,
+    "median_pay": 36664,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Theology and Religious Vocations, Other."
+  },
+  {
+    "cip": "",
+    "major": "Religious Music and Worship",
+    "family": "Other",
+    "completions": 305,
+    "exposure": 5.0,
+    "median_pay": 35619,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Religious Music and Worship."
+  },
+  {
+    "cip": "",
+    "major": "Gerontology",
+    "family": "Humanities",
+    "completions": 301,
+    "exposure": 5.0,
+    "median_pay": 50171,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Gerontology."
+  },
+  {
+    "cip": "",
+    "major": "Biological/Biosystems Engineering",
+    "family": "STEM",
+    "completions": 300,
+    "exposure": 5.0,
+    "median_pay": 63742,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biological/Biosystems Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Practical Nursing, Vocational Nursing and Nursing Assistants",
+    "family": "Health",
+    "completions": 298,
+    "exposure": 5.0,
+    "median_pay": 33398,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Practical Nursing, Vocational Nursing and Nursing Assistants."
+  },
+  {
+    "cip": "",
+    "major": "Communications Technologies/Technicians",
+    "family": "Arts",
+    "completions": 280,
+    "exposure": 5.0,
+    "median_pay": 28430,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Communications Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Health Professions Education, Ethics, and Humanities",
+    "family": "Health",
+    "completions": 277,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Health Professions Education, Ethics, and Humanities."
+  },
+  {
+    "cip": "",
+    "major": "Physical Sciences, General",
+    "family": "STEM",
+    "completions": 261,
+    "exposure": 5.0,
+    "median_pay": 52946,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Physical Sciences, General."
+  },
+  {
+    "cip": "",
+    "major": "Foreign Languages, Literatures, and Linguistics, Other",
+    "family": "Humanities",
+    "completions": 249,
+    "exposure": 5.0,
+    "median_pay": 47782,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Foreign Languages, Literatures, and Linguistics, Other."
+  },
+  {
+    "cip": "",
+    "major": "Archeology",
+    "family": "Social sci",
+    "completions": 231,
+    "exposure": 5.0,
+    "median_pay": 34960,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Archeology."
+  },
+  {
+    "cip": "",
+    "major": "Electrical and Computer Engineering",
+    "family": "STEM",
+    "completions": 230,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Electrical and Computer Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Pharmacology and Toxicology",
+    "family": "STEM",
+    "completions": 227,
+    "exposure": 5.0,
+    "median_pay": 66653,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Pharmacology and Toxicology."
+  },
+  {
+    "cip": "",
+    "major": "Vehicle Maintenance and Repair Technologies/Technicians",
+    "family": "Trades",
+    "completions": 226,
+    "exposure": 5.0,
+    "median_pay": 76438,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Vehicle Maintenance and Repair Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Soil Sciences",
+    "family": "STEM",
+    "completions": 226,
+    "exposure": 5.0,
+    "median_pay": 54030,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Soil Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Materials Sciences",
+    "family": "STEM",
+    "completions": 219,
+    "exposure": 5.0,
+    "median_pay": 78656,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Materials Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Classical and Ancient Studies",
+    "family": "Humanities",
+    "completions": 219,
+    "exposure": 5.0,
+    "median_pay": 34228,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Classical and Ancient Studies."
+  },
+  {
+    "cip": "",
+    "major": "Textile Sciences and Engineering",
+    "family": "STEM",
+    "completions": 217,
+    "exposure": 5.0,
+    "median_pay": 57894,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Textile Sciences and Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Social and Philosophical Foundations of Education",
+    "family": "Social sci",
+    "completions": 216,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Social and Philosophical Foundations of Education."
+  },
+  {
+    "cip": "",
+    "major": "Geological/Geophysical Engineering",
+    "family": "STEM",
+    "completions": 216,
+    "exposure": 5.0,
+    "median_pay": 72684,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Geological/Geophysical Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Cultural Studies/Critical Theory and Analysis",
+    "family": "Humanities",
+    "completions": 214,
+    "exposure": 5.0,
+    "median_pay": 43434,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Cultural Studies/Critical Theory and Analysis."
+  },
+  {
+    "cip": "",
+    "major": "Nuclear Engineering Technology/Technician",
+    "family": "STEM",
+    "completions": 209,
+    "exposure": 5.0,
+    "median_pay": 131454,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Nuclear Engineering Technology/Technician."
+  },
+  {
+    "cip": "",
+    "major": "Philosophy and Religious Studies, Other",
+    "family": "Humanities",
+    "completions": 202,
+    "exposure": 5.0,
+    "median_pay": 38102,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Philosophy and Religious Studies, Other."
+  },
+  {
+    "cip": "",
+    "major": "Engineering-Related Technologies/Technicians",
+    "family": "STEM",
+    "completions": 200,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering-Related Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Medical Illustration and Informatics",
+    "family": "Health",
+    "completions": 197,
+    "exposure": 5.0,
+    "median_pay": 55574,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Medical Illustration and Informatics."
+  },
+  {
+    "cip": "",
+    "major": "Ocean Engineering",
+    "family": "STEM",
+    "completions": 193,
+    "exposure": 5.0,
+    "median_pay": 83495,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Ocean Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Mining and Mineral Engineering",
+    "family": "STEM",
+    "completions": 193,
+    "exposure": 5.0,
+    "median_pay": 89700,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mining and Mineral Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Funeral Service and Mortuary Science",
+    "family": "Trades",
+    "completions": 185,
+    "exposure": 5.0,
+    "median_pay": 50357,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Funeral Service and Mortuary Science."
+  },
+  {
+    "cip": "",
+    "major": "Outdoor Education",
+    "family": "Health",
+    "completions": 183,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Outdoor Education."
+  },
+  {
+    "cip": "",
+    "major": "Legal Research and Advanced Professional Studies",
+    "family": "Social sci",
+    "completions": 176,
+    "exposure": 5.0,
+    "median_pay": 54058,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Legal Research and Advanced Professional Studies."
+  },
+  {
+    "cip": "",
+    "major": "Building/Construction Finishing, Management, and Inspection",
+    "family": "Trades",
+    "completions": 174,
+    "exposure": 5.0,
+    "median_pay": 80668,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Building/Construction Finishing, Management, and Inspection."
+  },
+  {
+    "cip": "",
+    "major": "Polymer/Plastics Engineering",
+    "family": "STEM",
+    "completions": 174,
+    "exposure": 5.0,
+    "median_pay": 83093,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Polymer/Plastics Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Computational Science",
+    "family": "Humanities",
+    "completions": 174,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computational Science."
+  },
+  {
+    "cip": "",
+    "major": "Computer and Information Sciences and Support Services, Other",
+    "family": "STEM",
+    "completions": 173,
+    "exposure": 5.0,
+    "median_pay": 73199,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Computer and Information Sciences and Support Services, Other."
+  },
+  {
+    "cip": "",
+    "major": "Housing and Human Environments",
+    "family": "Social sci",
+    "completions": 169,
+    "exposure": 5.0,
+    "median_pay": 55164,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Housing and Human Environments."
+  },
+  {
+    "cip": "",
+    "major": "Energy Systems Technologies/Technicians",
+    "family": "STEM",
+    "completions": 169,
+    "exposure": 5.0,
+    "median_pay": 74675,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Energy Systems Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Data Processing",
+    "family": "STEM",
+    "completions": 168,
+    "exposure": 5.0,
+    "median_pay": 52187,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Data Processing."
+  },
+  {
+    "cip": "",
+    "major": "Metallurgical Engineering",
+    "family": "STEM",
+    "completions": 163,
+    "exposure": 5.0,
+    "median_pay": 85341,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Metallurgical Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Biopsychology",
+    "family": "Humanities",
+    "completions": 162,
+    "exposure": 5.0,
+    "median_pay": 45640,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biopsychology."
+  },
+  {
+    "cip": "",
+    "major": "Environmental Control Technologies/Technicians",
+    "family": "STEM",
+    "completions": 159,
+    "exposure": 5.0,
+    "median_pay": 70036,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Environmental Control Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Marine Sciences",
+    "family": "Humanities",
+    "completions": 156,
+    "exposure": 5.0,
+    "median_pay": 38329,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Marine Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Bilingual, Multilingual, and Multicultural Education",
+    "family": "Social sci",
+    "completions": 143,
+    "exposure": 5.0,
+    "median_pay": 54023,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Bilingual, Multilingual, and Multicultural Education."
+  },
+  {
+    "cip": "",
+    "major": "Real Estate Development",
+    "family": "STEM",
+    "completions": 141,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Real Estate Development."
+  },
+  {
+    "cip": "",
+    "major": "Intercultural/Multicultural and Diversity Studies",
+    "family": "Humanities",
+    "completions": 134,
+    "exposure": 5.0,
+    "median_pay": 36150,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Intercultural/Multicultural and Diversity Studies."
+  },
+  {
+    "cip": "",
+    "major": "Philosophy and Religious Studies, General",
+    "family": "Humanities",
+    "completions": 128,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Philosophy and Religious Studies, General."
+  },
+  {
+    "cip": "",
+    "major": "Architectural History, Criticism, and Conservation",
+    "family": "STEM",
+    "completions": 119,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Architectural History, Criticism, and Conservation."
+  },
+  {
+    "cip": "",
+    "major": "Library Science and Administration",
+    "family": "Other",
+    "completions": 118,
+    "exposure": 5.0,
+    "median_pay": 33738,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Library Science and Administration."
+  },
+  {
+    "cip": "",
+    "major": "Architecture and Related Services, Other",
+    "family": "STEM",
+    "completions": 116,
+    "exposure": 5.0,
+    "median_pay": 51063,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Architecture and Related Services, Other."
+  },
+  {
+    "cip": "",
+    "major": "Family and Consumer Sciences/Human Sciences, Other",
+    "family": "Social sci",
+    "completions": 109,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Family and Consumer Sciences/Human Sciences, Other."
+  },
+  {
+    "cip": "",
+    "major": "Parks, Recreation, Leisure, Fitness, and Kinesiology, Other",
+    "family": "Health",
+    "completions": 103,
+    "exposure": 5.0,
+    "median_pay": 38803,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Parks, Recreation, Leisure, Fitness, and Kinesiology, Other."
+  },
+  {
+    "cip": "",
+    "major": "Historic Preservation and Conservation",
+    "family": "Humanities",
+    "completions": 103,
+    "exposure": 5.0,
+    "median_pay": 41410,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Historic Preservation and Conservation."
+  },
+  {
+    "cip": "",
+    "major": "Biochemical Engineering",
+    "family": "STEM",
+    "completions": 102,
+    "exposure": 5.0,
+    "median_pay": 83236,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biochemical Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Agricultural and Food Products Processing",
+    "family": "STEM",
+    "completions": 102,
+    "exposure": 5.0,
+    "median_pay": 75411,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Agricultural and Food Products Processing."
+  },
+  {
+    "cip": "",
+    "major": "International Agriculture",
+    "family": "STEM",
+    "completions": 98,
+    "exposure": 5.0,
+    "median_pay": 46231,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in International Agriculture."
+  },
+  {
+    "cip": "",
+    "major": "Natural Resources and Conservation, Other",
+    "family": "STEM",
+    "completions": 92,
+    "exposure": 5.0,
+    "median_pay": 39234,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Natural Resources and Conservation, Other."
+  },
+  {
+    "cip": "",
+    "major": "Ceramic Sciences and Engineering",
+    "family": "STEM",
+    "completions": 92,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Ceramic Sciences and Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Engineering Mechanics",
+    "family": "STEM",
+    "completions": 89,
+    "exposure": 5.0,
+    "median_pay": 84945,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering Mechanics."
+  },
+  {
+    "cip": "",
+    "major": "Data Science",
+    "family": "Humanities",
+    "completions": 84,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Data Science."
+  },
+  {
+    "cip": "",
+    "major": "Military Applied Sciences",
+    "family": "Other",
+    "completions": 83,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Military Applied Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Educational/Instructional Media Design",
+    "family": "Social sci",
+    "completions": 83,
+    "exposure": 5.0,
+    "median_pay": 64574,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Educational/Instructional Media Design."
+  },
+  {
+    "cip": "",
+    "major": "Crafts/Craft Design, Folk Art and Artisanry",
+    "family": "Arts",
+    "completions": 76,
+    "exposure": 5.0,
+    "median_pay": 32291,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Crafts/Craft Design, Folk Art and Artisanry."
+  },
+  {
+    "cip": "",
+    "major": "Military Technologies and Applied Sciences, Other",
+    "family": "Other",
+    "completions": 66,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Military Technologies and Applied Sciences, Other."
+  },
+  {
+    "cip": "",
+    "major": "Military Systems and Maintenance Technology",
+    "family": "Other",
+    "completions": 65,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Military Systems and Maintenance Technology."
+  },
+  {
+    "cip": "",
+    "major": "Biology/Biotechnology Technologies/Technicians",
+    "family": "STEM",
+    "completions": 59,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Biology/Biotechnology Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Veterinary Biomedical and Clinical Sciences",
+    "family": "Health",
+    "completions": 57,
+    "exposure": 5.0,
+    "median_pay": 56476,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Veterinary Biomedical and Clinical Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Veterinary Biomedical and Clinical Sciences",
+    "family": "STEM",
+    "completions": 57,
+    "exposure": 5.0,
+    "median_pay": 56476,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Veterinary Biomedical and Clinical Sciences."
+  },
+  {
+    "cip": "",
+    "major": "Publishing",
+    "family": "Humanities",
+    "completions": 57,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Publishing."
+  },
+  {
+    "cip": "",
+    "major": "Movement and Mind-Body Therapies and Education",
+    "family": "Health",
+    "completions": 54,
+    "exposure": 5.0,
+    "median_pay": 38364,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Movement and Mind-Body Therapies and Education."
+  },
+  {
+    "cip": "",
+    "major": "Forest Engineering",
+    "family": "STEM",
+    "completions": 53,
+    "exposure": 5.0,
+    "median_pay": 68687,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Forest Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Communications Technologies/Technicians and Support Services, Other",
+    "family": "Arts",
+    "completions": 52,
+    "exposure": 5.0,
+    "median_pay": 45444,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Communications Technologies/Technicians and Support Services, Other."
+  },
+  {
+    "cip": "",
+    "major": "Philosophy, Politics, and Economics",
+    "family": "Humanities",
+    "completions": 48,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Philosophy, Politics, and Economics."
+  },
+  {
+    "cip": "",
+    "major": "Physical Science Technologies/Technicians",
+    "family": "STEM",
+    "completions": 47,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Physical Science Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Museology/Museum Studies",
+    "family": "Humanities",
+    "completions": 47,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Museology/Museum Studies."
+  },
+  {
+    "cip": "",
+    "major": "Veterinary Administrative Services",
+    "family": "STEM",
+    "completions": 45,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Veterinary Administrative Services."
+  },
+  {
+    "cip": "",
+    "major": "Medieval and Renaissance Studies",
+    "family": "Humanities",
+    "completions": 40,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Medieval and Renaissance Studies."
+  },
+  {
+    "cip": "",
+    "major": "Mining and Petroleum Technologies/Technicians",
+    "family": "STEM",
+    "completions": 40,
+    "exposure": 5.0,
+    "median_pay": 68486,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mining and Petroleum Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "International and Comparative Education",
+    "family": "Social sci",
+    "completions": 36,
+    "exposure": 5.0,
+    "median_pay": 57321,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in International and Comparative Education."
+  },
+  {
+    "cip": "",
+    "major": "Woodworking",
+    "family": "Trades",
+    "completions": 36,
+    "exposure": 5.0,
+    "median_pay": 51606,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Woodworking."
+  },
+  {
+    "cip": "",
+    "major": "Maritime Studies",
+    "family": "Humanities",
+    "completions": 36,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Maritime Studies."
+  },
+  {
+    "cip": "",
+    "major": "Applied Statistics",
+    "family": "STEM",
+    "completions": 36,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Applied Statistics."
+  },
+  {
+    "cip": "",
+    "major": "Paper Science and Engineering",
+    "family": "STEM",
+    "completions": 35,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Paper Science and Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Electrical/Electronics Maintenance and Repair Technologies/Technicians",
+    "family": "Trades",
+    "completions": 32,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Electrical/Electronics Maintenance and Repair Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Surveying Engineering",
+    "family": "STEM",
+    "completions": 31,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Surveying Engineering."
+  },
+  {
+    "cip": "",
+    "major": "History and Political Science",
+    "family": "Humanities",
+    "completions": 31,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in History and Political Science."
+  },
+  {
+    "cip": "",
+    "major": "Curriculum and Instruction",
+    "family": "Social sci",
+    "completions": 28,
+    "exposure": 5.0,
+    "median_pay": 46160,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Curriculum and Instruction."
+  },
+  {
+    "cip": "",
+    "major": "Geography and Environmental Studies",
+    "family": "Humanities",
+    "completions": 25,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Geography and Environmental Studies."
+  },
+  {
+    "cip": "",
+    "major": "Electromechanical Engineering",
+    "family": "STEM",
+    "completions": 23,
+    "exposure": 5.0,
+    "median_pay": 84177,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Electromechanical Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Military Technology and Applied Sciences Management",
+    "family": "Other",
+    "completions": 19,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Military Technology and Applied Sciences Management."
+  },
+  {
+    "cip": "",
+    "major": "Alternative and Complementary Medical Support Services",
+    "family": "Health",
+    "completions": 18,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Alternative and Complementary Medical Support Services."
+  },
+  {
+    "cip": "",
+    "major": "Holocaust and Related Studies",
+    "family": "Humanities",
+    "completions": 17,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Holocaust and Related Studies."
+  },
+  {
+    "cip": "",
+    "major": "Heavy/Industrial Equipment Maintenance Technologies/Technicians",
+    "family": "Trades",
+    "completions": 13,
+    "exposure": 5.0,
+    "median_pay": 70652,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Heavy/Industrial Equipment Maintenance Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Cultural Studies and Comparative Literature",
+    "family": "Humanities",
+    "completions": 13,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Cultural Studies and Comparative Literature."
+  },
+  {
+    "cip": "",
+    "major": "Physics and Astronomy",
+    "family": "STEM",
+    "completions": 13,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Physics and Astronomy."
+  },
+  {
+    "cip": "",
+    "major": "Earth Systems Science",
+    "family": "Humanities",
+    "completions": 12,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Earth Systems Science."
+  },
+  {
+    "cip": "",
+    "major": "Nanotechnology",
+    "family": "STEM",
+    "completions": 11,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Nanotechnology."
+  },
+  {
+    "cip": "",
+    "major": "Mathematical Economics",
+    "family": "Humanities",
+    "completions": 11,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Mathematical Economics."
+  },
+  {
+    "cip": "",
+    "major": "Environmental Geosciences",
+    "family": "Humanities",
+    "completions": 11,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Environmental Geosciences."
+  },
+  {
+    "cip": "",
+    "major": "Somatic Bodywork and Related Therapeutic Services",
+    "family": "Health",
+    "completions": 10,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Somatic Bodywork and Related Therapeutic Services."
+  },
+  {
+    "cip": "",
+    "major": "Energy and Biologically Based Therapies",
+    "family": "Health",
+    "completions": 9,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Energy and Biologically Based Therapies."
+  },
+  {
+    "cip": "",
+    "major": "Anthrozoology",
+    "family": "Humanities",
+    "completions": 9,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Anthrozoology."
+  },
+  {
+    "cip": "",
+    "major": "Accounting and Computer Science",
+    "family": "Humanities",
+    "completions": 7,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Accounting and Computer Science."
+  },
+  {
+    "cip": "",
+    "major": "Engineering Chemistry",
+    "family": "STEM",
+    "completions": 5,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Engineering Chemistry."
+  },
+  {
+    "cip": "",
+    "major": "Student Counseling and Personnel Services",
+    "family": "Social sci",
+    "completions": 5,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Student Counseling and Personnel Services."
+  },
+  {
+    "cip": "",
+    "major": "American Indian/Native American Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 4,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in American Indian/Native American Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Taxation",
+    "family": "Business",
+    "completions": 4,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Taxation."
+  },
+  {
+    "cip": "",
+    "major": "Turkic, Uralic-Altaic, Caucasian, and Central Asian Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 4,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Turkic, Uralic-Altaic, Caucasian, and Central Asian Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Energy Systems Engineering",
+    "family": "STEM",
+    "completions": 4,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Energy Systems Engineering."
+  },
+  {
+    "cip": "",
+    "major": "Southeast Asian and Australasian/Pacific Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 4,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Southeast Asian and Australasian/Pacific Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Science Technologies/Technicians, General",
+    "family": "STEM",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Science Technologies/Technicians, General."
+  },
+  {
+    "cip": "",
+    "major": "Telecommunications Management",
+    "family": "Business",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Telecommunications Management."
+  },
+  {
+    "cip": "",
+    "major": "Celtic Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Celtic Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "South Asian Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in South Asian Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Community/Environmental/Socially-Engaged Art",
+    "family": "Arts",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Community/Environmental/Socially-Engaged Art."
+  },
+  {
+    "cip": "",
+    "major": "Precision Metal Working",
+    "family": "Trades",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Precision Metal Working."
+  },
+  {
+    "cip": "",
+    "major": "Iranian/Persian Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 3,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Iranian/Persian Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Transportation and Materials Moving, Other",
+    "family": "Trades",
+    "completions": 2,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Transportation and Materials Moving, Other."
+  },
+  {
+    "cip": "",
+    "major": "Ophthalmic and Optometric Support Services and Allied Professions",
+    "family": "Health",
+    "completions": 2,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Ophthalmic and Optometric Support Services and Allied Professions."
+  },
+  {
+    "cip": "",
+    "major": "African Languages, Literatures, and Linguistics",
+    "family": "Humanities",
+    "completions": 2,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in African Languages, Literatures, and Linguistics."
+  },
+  {
+    "cip": "",
+    "major": "Modern Greek Language and Literature",
+    "family": "Humanities",
+    "completions": 2,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Modern Greek Language and Literature."
+  },
+  {
+    "cip": "",
+    "major": "Teaching Assistants/Aides",
+    "family": "Social sci",
+    "completions": 2,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Teaching Assistants/Aides."
+  },
+  {
+    "cip": "",
+    "major": "Demography",
+    "family": "Social sci",
+    "completions": 2,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Demography."
+  },
+  {
+    "cip": "",
+    "major": "Economics and Computer Science",
+    "family": "Humanities",
+    "completions": 1,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Economics and Computer Science."
+  },
+  {
+    "cip": "",
+    "major": "Religious Institution Administration and Law",
+    "family": "Other",
+    "completions": 1,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Religious Institution Administration and Law."
+  },
+  {
+    "cip": "",
+    "major": "History and Language/Literature",
+    "family": "Humanities",
+    "completions": 1,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in History and Language/Literature."
+  },
+  {
+    "cip": "",
+    "major": "Nuclear and Industrial Radiologic Technologies/Technicians",
+    "family": "STEM",
+    "completions": 1,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Nuclear and Industrial Radiologic Technologies/Technicians."
+  },
+  {
+    "cip": "",
+    "major": "Dispute Resolution",
+    "family": "Humanities",
+    "completions": 1,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "faster",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Dispute Resolution."
+  },
+  {
+    "cip": "",
+    "major": "Digital Humanities and Textual Studies",
+    "family": "Humanities",
+    "completions": 1,
+    "exposure": 5.0,
+    "median_pay": 50000,
+    "growth": "average",
+    "occupations": [],
+    "rationale": "Exposure reflects the mix of tasks in Digital Humanities and Textual Studies."
+  },
+  {
+    "cip": "14.1001",
+    "major": "Electrical engineering",
+    "family": "STEM",
+    "completions": 31000,
+    "exposure": 5.5,
+    "median_pay": 87000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "17-2071",
+        "title": "Electrical engineers",
+        "exposure": 5
+      },
+      {
+        "soc": "17-2061",
+        "title": "Computer hardware engineers",
+        "exposure": 6
+      }
+    ],
+    "rationale": "Circuit design tooling is absorbing AI copilots, while lab bring-up and hardware debugging stay hands-on."
+  },
+  {
+    "cip": "26.0101",
+    "major": "Biology",
+    "family": "STEM",
+    "completions": 65000,
+    "exposure": 4.5,
+    "median_pay": 45000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "19-4021",
+        "title": "Biological technicians",
+        "exposure": 4
+      },
+      {
+        "soc": "19-1042",
+        "title": "Medical scientists",
+        "exposure": 5
+      }
+    ],
+    "rationale": "AI accelerates literature review and sequence analysis, but wet-lab bench work remains physical."
+  },
+  {
+    "cip": "27.0101",
+    "major": "Mathematics & statistics",
+    "family": "STEM",
+    "completions": 27000,
+    "exposure": 7.5,
+    "median_pay": 76000,
+    "growth": "faster",
+    "occupations": [
+      {
+        "soc": "15-2011",
+        "title": "Actuaries",
+        "exposure": 8
+      },
+      {
+        "soc": "15-2041",
+        "title": "Statisticians",
+        "exposure": 7
+      }
+    ],
+    "rationale": "Routine modeling and computation automate quickly; framing the right problem is the durable skill."
+  },
+  {
+    "cip": "52.0201",
+    "major": "Business administration",
+    "family": "Business",
+    "completions": 390000,
+    "exposure": 7.0,
+    "median_pay": 55000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "13-1111",
+        "title": "Management analysts",
+        "exposure": 7
+      },
+      {
+        "soc": "11-1021",
+        "title": "General & operations managers",
+        "exposure": 6
+      }
+    ],
+    "rationale": "Reporting, coordination, and analysis tasks are highly automatable; judgment and people management less so."
+  },
+  {
+    "cip": "52.0301",
+    "major": "Accounting",
+    "family": "Business",
+    "completions": 90000,
+    "exposure": 8.5,
+    "median_pay": 62000,
+    "growth": "slower",
+    "occupations": [
+      {
+        "soc": "13-2011",
+        "title": "Accountants & auditors",
+        "exposure": 9
+      },
+      {
+        "soc": "43-3031",
+        "title": "Bookkeeping & auditing clerks",
+        "exposure": 9
+      }
+    ],
+    "rationale": "Rules-based reconciliation, entry, and audit prep are among the most automatable white-collar tasks."
+  },
+  {
+    "cip": "52.0801",
+    "major": "Finance",
+    "family": "Business",
+    "completions": 104000,
+    "exposure": 8.0,
+    "median_pay": 70000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "13-2051",
+        "title": "Financial analysts",
+        "exposure": 8
+      },
+      {
+        "soc": "13-2052",
+        "title": "Personal financial advisors",
+        "exposure": 7
+      }
+    ],
+    "rationale": "Research, modeling, and reporting compress fast; client trust and fiduciary judgment persist."
+  },
+  {
+    "cip": "51.3801",
+    "major": "Nursing",
+    "family": "Health",
+    "completions": 250000,
+    "exposure": 2.5,
+    "median_pay": 81000,
+    "growth": "faster",
+    "occupations": [
+      {
+        "soc": "29-1141",
+        "title": "Registered nurses",
+        "exposure": 2
+      },
+      {
+        "soc": "29-1171",
+        "title": "Nurse practitioners",
+        "exposure": 3
+      }
+    ],
+    "rationale": "Hands-on patient care is among the least automatable work; AI mostly assists with documentation."
+  },
+  {
+    "cip": "51.0701",
+    "major": "Health administration",
+    "family": "Health",
+    "completions": 45000,
+    "exposure": 6.0,
+    "median_pay": 65000,
+    "growth": "faster",
+    "occupations": [
+      {
+        "soc": "11-9111",
+        "title": "Medical & health services managers",
+        "exposure": 6
+      },
+      {
+        "soc": "43-9041",
+        "title": "Insurance claims clerks",
+        "exposure": 8
+      }
+    ],
+    "rationale": "Scheduling, billing, and claims workflows automate readily; operating a care organization does not."
+  },
+  {
+    "cip": "42.0101",
+    "major": "Psychology",
+    "family": "Social sci",
+    "completions": 140000,
+    "exposure": 5.5,
+    "median_pay": 42000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "19-3033",
+        "title": "Clinical & counseling psychologists",
+        "exposure": 4
+      },
+      {
+        "soc": "13-1071",
+        "title": "Human resources specialists",
+        "exposure": 7
+      }
+    ],
+    "rationale": "Assessment scoring and research analysis automate; therapeutic relationships resist substitution."
+  },
+  {
+    "cip": "45.1001",
+    "major": "Political science",
+    "family": "Social sci",
+    "completions": 40000,
+    "exposure": 6.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [
+      {
+        "soc": "19-3094",
+        "title": "Political scientists",
+        "exposure": 6
+      },
+      {
+        "soc": "13-1041",
+        "title": "Compliance officers",
+        "exposure": 7
+      }
+    ],
+    "rationale": "Policy research and briefing drafts automate; coalition-building and advocacy remain relational."
+  },
+  {
+    "cip": "23.0101",
+    "major": "English",
+    "family": "Humanities",
+    "completions": 35000,
+    "exposure": 7.0,
+    "median_pay": 42000,
+    "growth": "declining",
+    "occupations": [
+      {
+        "soc": "27-3043",
+        "title": "Writers & authors",
+        "exposure": 8
+      },
+      {
+        "soc": "27-3041",
+        "title": "Editors",
+        "exposure": 8
+      }
+    ],
+    "rationale": "Drafting and editing are core LLM strengths; distinctive voice and editorial taste are the moat."
+  },
+  {
+    "cip": "09.0101",
+    "major": "Communications",
+    "family": "Humanities",
+    "completions": 90000,
+    "exposure": 7.0,
+    "median_pay": 48000,
+    "growth": "slower",
+    "occupations": [
+      {
+        "soc": "27-3031",
+        "title": "Public relations specialists",
+        "exposure": 7
+      },
+      {
+        "soc": "27-3023",
+        "title": "News analysts & journalists",
+        "exposure": 8
+      }
+    ],
+    "rationale": "Press releases, social copy, and routine coverage are already machine-drafted."
+  },
+  {
+    "cip": "50.0409",
+    "major": "Graphic design",
+    "family": "Arts",
+    "completions": 20000,
+    "exposure": 8.0,
+    "median_pay": 50000,
+    "growth": "declining",
+    "occupations": [
+      {
+        "soc": "27-1024",
+        "title": "Graphic designers",
+        "exposure": 8
+      },
+      {
+        "soc": "27-1011",
+        "title": "Art directors",
+        "exposure": 7
+      }
+    ],
+    "rationale": "Image generation collapses production design; direction, systems, and brand strategy hold value."
+  },
+  {
+    "cip": "50.0701",
+    "major": "Fine arts",
+    "family": "Arts",
+    "completions": 12000,
+    "exposure": 6.5,
+    "median_pay": 40000,
+    "growth": "slower",
+    "occupations": [
+      {
+        "soc": "27-1013",
+        "title": "Fine artists & illustrators",
+        "exposure": 7
+      },
+      {
+        "soc": "25-1121",
+        "title": "Art & design teachers",
+        "exposure": 4
+      }
+    ],
+    "rationale": "Commercial illustration is heavily exposed; original physical work and provenance are not."
+  },
+  {
+    "cip": "47.0604",
+    "major": "Automotive technology",
+    "family": "Trades",
+    "completions": 8000,
+    "exposure": 2.0,
+    "median_pay": 47000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "49-3023",
+        "title": "Automotive service technicians",
+        "exposure": 2
+      }
+    ],
+    "rationale": "Diagnostics gain AI assistance, but repair is manual, varied, and on-site."
+  },
+  {
+    "cip": "48.0508",
+    "major": "Welding technology",
+    "family": "Trades",
+    "completions": 6000,
+    "exposure": 2.5,
+    "median_pay": 48000,
+    "growth": "average",
+    "occupations": [
+      {
+        "soc": "51-4121",
+        "title": "Welders, cutters & brazers",
+        "exposure": 2
+      }
+    ],
+    "rationale": "Factory welding is robotized, but field and repair welding in uncontrolled settings is not."
+  }
+]

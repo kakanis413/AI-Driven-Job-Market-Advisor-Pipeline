@@ -113,19 +113,23 @@ CSS custom properties on `:root` / `.dark`.
 
 ### Color ramps (data)
 
-Both ramps interpolate through fixed stops in OKLCH (`d3.piecewise` over
-`interpolateOklch`); dark mode is its **own selected set of stops**, never a
-CSS filter or auto-flip. Contrast figures below are computed, not eyeballed.
+Both ramps interpolate through fixed stops in OKLab (hand-rolled in
+`scales.ts` — d3-color has no OKLab); dark mode is its **own selected set of
+stops**, never a CSS filter or auto-flip. Contrast figures below are computed,
+not eyeballed.
 
-**Exposure ramp** — green (low) → amber → red (high), domain 0–10:
+**Exposure ramp** — "ember": pale sand (low) → gold → copper → oxblood (high),
+domain 0–10. A single warm heat ramp — no green, so low exposure reads as
+"cool", not "safe" (see the pinned caveat). Luminance is monotonic, so the
+ramp survives color-vision deficiency without relying on hue:
 
 | t | Light | Dark |
 |---|---|---|
-| 0.00 | `#0d7f46` | `#22b573` |
-| 0.25 | `#6aa53c` | `#8fbf4d` |
-| 0.50 | `#d99a2b` | `#e6ab3f` |
-| 0.75 | `#d96331` | `#e57a4a` |
-| 1.00 | `#c22f2f` | `#e05252` |
+| 0.00 | `#ecd79f` | `#564834` |
+| 0.25 | `#dcae5e` | `#8a6a38` |
+| 0.50 | `#c97c3d` | `#bb7f42` |
+| 0.75 | `#ad4c2e` | `#d9764b` |
+| 1.00 | `#7f2d2a` | `#ee5b4c` |
 
 **Pay ramp** — sequential blue, domain = min→max `median_pay`. Light mode runs
 light→dark `#cde2fb → #9ec5f4 → #5598e7 → #2a78d6 → #1c5cab → #0d366b`; dark
@@ -135,8 +139,8 @@ mode flips the anchor (near-zero recedes into the surface):
 **Tile ink is computed, never fixed.** No single text color survives either
 ramp. `scales.ts` exports `inkFor(fill)`: compute WCAG contrast of ink-light
 (`#ffffff`) and ink-dark (`#191817`) against the fill and return the winner
-(verified ≥ 4.5:1 at every ramp stop, e.g. white on `#0d7f46` = 5.07,
-near-black on `#d99a2b` = 7.27).
+(verified ≥ 4.5:1 at every ramp stop, e.g. near-black on `#dcae5e` = 8.66,
+white on `#ad4c2e` = 5.45).
 
 ### Typography
 

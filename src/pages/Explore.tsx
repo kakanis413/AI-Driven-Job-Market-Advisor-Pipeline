@@ -5,6 +5,7 @@ import HeatmapGrid from '../components/HeatmapGrid'
 import LayerToggle, { Segmented } from '../components/LayerToggle'
 import Legend from '../components/Legend'
 import MajorDetailCard from '../components/MajorDetailCard'
+import MetersView from '../components/MetersView'
 import SearchSpotlight from '../components/SearchSpotlight'
 import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
@@ -14,7 +15,7 @@ import { useMeasure, useViewportHeight } from '../hooks/useMeasure'
 import { layoutTreemap, type Rect } from '../lib/layout'
 import type { Major, TipData } from '../types'
 
-type View = 'map' | 'grid'
+type View = 'map' | 'grid' | 'meters'
 
 interface Props {
   majors: Major[]
@@ -145,12 +146,18 @@ export default function Explore({ majors, status, url, retry, mode, initialView 
             options={[
               { value: 'map', label: 'Treemap' },
               { value: 'grid', label: 'Heatmap' },
+              { value: 'meters', label: 'Value' },
             ]}
           />
-          <LayerToggle layer={layer} onChange={setLayer} />
-          <div className="ms-auto">
-            <Legend layer={layer} mode={mode} payExtent={payExtent} />
-          </div>
+          {/* Color layer & legend apply to the tile views, not the value board. */}
+          {view !== 'meters' && (
+            <>
+              <LayerToggle layer={layer} onChange={setLayer} />
+              <div className="ms-auto">
+                <Legend layer={layer} mode={mode} payExtent={payExtent} />
+              </div>
+            </>
+          )}
         </div>
       </section>
 
@@ -158,9 +165,12 @@ export default function Explore({ majors, status, url, retry, mode, initialView 
         <div ref={vizRef} className="relative min-w-0">
           {status === 'loading' && vizW > 0 && <SkeletonViz width={vizW} height={mapH} />}
           {status === 'error' && <ErrorCard height={mapH} url={url} retry={retry} />}
+          {status === 'ready' && view === 'meters' && (
+            <MetersView majors={majors} height={mapH} query={query} onSelect={handleSelect} />
+          )}
           {status === 'ready' &&
             vizW > 0 &&
-            (view === 'map' ? (
+            view === 'map' && (
               <Treemap
                 majors={majors}
                 width={vizW}
@@ -174,19 +184,20 @@ export default function Explore({ majors, status, url, retry, mode, initialView 
                 onTip={handleTip}
                 geomRef={geomRef}
               />
-            ) : (
-              <HeatmapGrid
-                majors={majors}
-                width={vizW}
-                mode={mode}
-                layer={layer}
-                payExtent={payExtent}
-                selectedCip={selectedCip}
-                onSelect={handleSelect}
-                onTip={handleTip}
-                geomRef={geomRef}
-              />
-            ))}
+            )}
+          {status === 'ready' && vizW > 0 && view === 'grid' && (
+            <HeatmapGrid
+              majors={majors}
+              width={vizW}
+              mode={mode}
+              layer={layer}
+              payExtent={payExtent}
+              selectedCip={selectedCip}
+              onSelect={handleSelect}
+              onTip={handleTip}
+              geomRef={geomRef}
+            />
+          )}
         </div>
       </main>
 
@@ -284,9 +295,19 @@ export default function Explore({ majors, status, url, retry, mode, initialView 
                 <AdvisorPanel key={selected?.cip ?? 'general'} major={selected} />
               </div>
             ) : (
-              <div className="min-h-0 flex-1 overflow-y-auto p-3">
-                <MajorDetailCard major={selected} mode={mode} />
-              </div>
+              <>
+                <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                  <MajorDetailCard major={selected} mode={mode} />
+                </div>
+                <div className="border-t border-line p-3">
+                  <button
+                    onClick={() => setShowChat(true)}
+                    className="w-full rounded-md bg-ink px-4 py-2 text-sm font-semibold text-surface transition-opacity hover:opacity-90"
+                  >
+                    Ask the advisor about this major
+                  </button>
+                </div>
+              </>
             )}
           </motion.div>
         )}

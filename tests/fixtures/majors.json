@@ -1,0 +1,337 @@
+[
+  {
+    "cip": "11.0701",
+    "major": "Computer science",
+    "family": "STEM",
+    "completions": 112000,
+    "exposure": 9.0,
+    "median_pay": 99000,
+    "growth": "faster",
+    "occupations": [
+      { "soc": "15-1252", "title": "Software developers", "exposure": 9 },
+      { "soc": "15-2051", "title": "Data scientists", "exposure": 8 },
+      { "soc": "15-1211", "title": "Computer systems analysts", "exposure": 8 }
+    ],
+    "rationale": "Core tasks like coding and analysis are where AI advances fastest."
+  },
+  {
+    "cip": "14.1901",
+    "major": "Mechanical engineering",
+    "family": "STEM",
+    "completions": 32000,
+    "exposure": 5.0,
+    "median_pay": 78000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "17-2141", "title": "Mechanical engineers", "exposure": 5 },
+      { "soc": "17-2112", "title": "Industrial engineers", "exposure": 5 }
+    ],
+    "rationale": "Design and simulation are increasingly AI-assisted, but physical prototyping and testing anchor the work."
+  },
+  {
+    "cip": "14.1001",
+    "major": "Electrical engineering",
+    "family": "STEM",
+    "completions": 31000,
+    "exposure": 5.5,
+    "median_pay": 87000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "17-2071", "title": "Electrical engineers", "exposure": 5 },
+      { "soc": "17-2061", "title": "Computer hardware engineers", "exposure": 6 }
+    ],
+    "rationale": "Circuit design tooling is absorbing AI copilots, while lab bring-up and hardware debugging stay hands-on."
+  },
+  {
+    "cip": "26.0101",
+    "major": "Biology",
+    "family": "STEM",
+    "completions": 65000,
+    "exposure": 4.5,
+    "median_pay": 45000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "19-4021", "title": "Biological technicians", "exposure": 4 },
+      { "soc": "19-1042", "title": "Medical scientists", "exposure": 5 }
+    ],
+    "rationale": "AI accelerates literature review and sequence analysis, but wet-lab bench work remains physical."
+  },
+  {
+    "cip": "27.0101",
+    "major": "Mathematics & statistics",
+    "family": "STEM",
+    "completions": 27000,
+    "exposure": 7.5,
+    "median_pay": 76000,
+    "growth": "faster",
+    "occupations": [
+      { "soc": "15-2011", "title": "Actuaries", "exposure": 8 },
+      { "soc": "15-2041", "title": "Statisticians", "exposure": 7 }
+    ],
+    "rationale": "Routine modeling and computation automate quickly; framing the right problem is the durable skill."
+  },
+  {
+    "cip": "52.0201",
+    "major": "Business administration",
+    "family": "Business",
+    "completions": 390000,
+    "exposure": 7.0,
+    "median_pay": 55000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "13-1111", "title": "Management analysts", "exposure": 7 },
+      { "soc": "11-1021", "title": "General & operations managers", "exposure": 6 }
+    ],
+    "rationale": "Reporting, coordination, and analysis tasks are highly automatable; judgment and people management less so."
+  },
+  {
+    "cip": "52.0301",
+    "major": "Accounting",
+    "family": "Business",
+    "completions": 90000,
+    "exposure": 8.5,
+    "median_pay": 62000,
+    "growth": "slower",
+    "occupations": [
+      { "soc": "13-2011", "title": "Accountants & auditors", "exposure": 9 },
+      { "soc": "43-3031", "title": "Bookkeeping & auditing clerks", "exposure": 9 }
+    ],
+    "rationale": "Rules-based reconciliation, entry, and audit prep are among the most automatable white-collar tasks."
+  },
+  {
+    "cip": "52.0801",
+    "major": "Finance",
+    "family": "Business",
+    "completions": 104000,
+    "exposure": 8.0,
+    "median_pay": 70000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "13-2051", "title": "Financial analysts", "exposure": 8 },
+      { "soc": "13-2052", "title": "Personal financial advisors", "exposure": 7 }
+    ],
+    "rationale": "Research, modeling, and reporting compress fast; client trust and fiduciary judgment persist."
+  },
+  {
+    "cip": "52.1401",
+    "major": "Marketing",
+    "family": "Business",
+    "completions": 155000,
+    "exposure": 7.5,
+    "median_pay": 58000,
+    "growth": "slower",
+    "occupations": [
+      { "soc": "13-1161", "title": "Market research analysts", "exposure": 8 },
+      { "soc": "11-2011", "title": "Advertising & promotions managers", "exposure": 7 }
+    ],
+    "rationale": "Copy, creative variants, and campaign analytics are already AI-generated at scale."
+  },
+  {
+    "cip": "51.3801",
+    "major": "Nursing",
+    "family": "Health",
+    "completions": 250000,
+    "exposure": 2.5,
+    "median_pay": 81000,
+    "growth": "faster",
+    "occupations": [
+      { "soc": "29-1141", "title": "Registered nurses", "exposure": 2 },
+      { "soc": "29-1171", "title": "Nurse practitioners", "exposure": 3 }
+    ],
+    "rationale": "Hands-on patient care is among the least automatable work; AI mostly assists with documentation."
+  },
+  {
+    "cip": "51.0701",
+    "major": "Health administration",
+    "family": "Health",
+    "completions": 45000,
+    "exposure": 6.0,
+    "median_pay": 65000,
+    "growth": "faster",
+    "occupations": [
+      { "soc": "11-9111", "title": "Medical & health services managers", "exposure": 6 },
+      { "soc": "43-9041", "title": "Insurance claims clerks", "exposure": 8 }
+    ],
+    "rationale": "Scheduling, billing, and claims workflows automate readily; operating a care organization does not."
+  },
+  {
+    "cip": "51.2201",
+    "major": "Public health",
+    "family": "Health",
+    "completions": 25000,
+    "exposure": 4.0,
+    "median_pay": 52000,
+    "growth": "faster",
+    "occupations": [
+      { "soc": "19-5011", "title": "Epidemiologists", "exposure": 5 },
+      { "soc": "21-1091", "title": "Health education specialists", "exposure": 3 }
+    ],
+    "rationale": "Surveillance analytics gain AI leverage, while community fieldwork and policy negotiation stay human."
+  },
+  {
+    "cip": "42.0101",
+    "major": "Psychology",
+    "family": "Social sci",
+    "completions": 140000,
+    "exposure": 5.5,
+    "median_pay": 42000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "19-3033", "title": "Clinical & counseling psychologists", "exposure": 4 },
+      { "soc": "13-1071", "title": "Human resources specialists", "exposure": 7 }
+    ],
+    "rationale": "Assessment scoring and research analysis automate; therapeutic relationships resist substitution."
+  },
+  {
+    "cip": "45.0601",
+    "major": "Economics",
+    "family": "Social sci",
+    "completions": 40000,
+    "exposure": 7.0,
+    "median_pay": 70000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "19-3011", "title": "Economists", "exposure": 7 },
+      { "soc": "13-2051", "title": "Financial analysts", "exposure": 8 }
+    ],
+    "rationale": "Data assembly, econometrics, and forecasting are increasingly one prompt away."
+  },
+  {
+    "cip": "45.1001",
+    "major": "Political science",
+    "family": "Social sci",
+    "completions": 40000,
+    "exposure": 6.0,
+    "median_pay": 50000,
+    "growth": "slower",
+    "occupations": [
+      { "soc": "19-3094", "title": "Political scientists", "exposure": 6 },
+      { "soc": "13-1041", "title": "Compliance officers", "exposure": 7 }
+    ],
+    "rationale": "Policy research and briefing drafts automate; coalition-building and advocacy remain relational."
+  },
+  {
+    "cip": "23.0101",
+    "major": "English",
+    "family": "Humanities",
+    "completions": 35000,
+    "exposure": 7.0,
+    "median_pay": 42000,
+    "growth": "declining",
+    "occupations": [
+      { "soc": "27-3043", "title": "Writers & authors", "exposure": 8 },
+      { "soc": "27-3041", "title": "Editors", "exposure": 8 }
+    ],
+    "rationale": "Drafting and editing are core LLM strengths; distinctive voice and editorial taste are the moat."
+  },
+  {
+    "cip": "54.0101",
+    "major": "History",
+    "family": "Humanities",
+    "completions": 23000,
+    "exposure": 6.0,
+    "median_pay": 44000,
+    "growth": "declining",
+    "occupations": [
+      { "soc": "25-4022", "title": "Librarians & media specialists", "exposure": 6 },
+      { "soc": "19-3093", "title": "Historians", "exposure": 6 }
+    ],
+    "rationale": "Synthesis and summarization of sources automate; archival judgment and teaching endure longer."
+  },
+  {
+    "cip": "09.0101",
+    "major": "Communications",
+    "family": "Humanities",
+    "completions": 90000,
+    "exposure": 7.0,
+    "median_pay": 48000,
+    "growth": "slower",
+    "occupations": [
+      { "soc": "27-3031", "title": "Public relations specialists", "exposure": 7 },
+      { "soc": "27-3023", "title": "News analysts & journalists", "exposure": 8 }
+    ],
+    "rationale": "Press releases, social copy, and routine coverage are already machine-drafted."
+  },
+  {
+    "cip": "50.0409",
+    "major": "Graphic design",
+    "family": "Arts",
+    "completions": 20000,
+    "exposure": 8.0,
+    "median_pay": 50000,
+    "growth": "declining",
+    "occupations": [
+      { "soc": "27-1024", "title": "Graphic designers", "exposure": 8 },
+      { "soc": "27-1011", "title": "Art directors", "exposure": 7 }
+    ],
+    "rationale": "Image generation collapses production design; direction, systems, and brand strategy hold value."
+  },
+  {
+    "cip": "50.0701",
+    "major": "Fine arts",
+    "family": "Arts",
+    "completions": 12000,
+    "exposure": 6.5,
+    "median_pay": 40000,
+    "growth": "slower",
+    "occupations": [
+      { "soc": "27-1013", "title": "Fine artists & illustrators", "exposure": 7 },
+      { "soc": "25-1121", "title": "Art & design teachers", "exposure": 4 }
+    ],
+    "rationale": "Commercial illustration is heavily exposed; original physical work and provenance are not."
+  },
+  {
+    "cip": "50.0901",
+    "major": "Music",
+    "family": "Arts",
+    "completions": 12000,
+    "exposure": 5.5,
+    "median_pay": 42000,
+    "growth": "slower",
+    "occupations": [
+      { "soc": "27-2042", "title": "Musicians & singers", "exposure": 5 },
+      { "soc": "27-4014", "title": "Sound engineering technicians", "exposure": 6 }
+    ],
+    "rationale": "Stock composition and mixing automate; live performance and fandom economics resist it."
+  },
+  {
+    "cip": "52.2001",
+    "major": "Construction management",
+    "family": "Trades",
+    "completions": 15000,
+    "exposure": 3.0,
+    "median_pay": 75000,
+    "growth": "faster",
+    "occupations": [
+      { "soc": "11-9021", "title": "Construction managers", "exposure": 3 },
+      { "soc": "13-1051", "title": "Cost estimators", "exposure": 6 }
+    ],
+    "rationale": "Estimating and scheduling get AI help, but coordinating crews on a live site stays physical."
+  },
+  {
+    "cip": "47.0604",
+    "major": "Automotive technology",
+    "family": "Trades",
+    "completions": 8000,
+    "exposure": 2.0,
+    "median_pay": 47000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "49-3023", "title": "Automotive service technicians", "exposure": 2 }
+    ],
+    "rationale": "Diagnostics gain AI assistance, but repair is manual, varied, and on-site."
+  },
+  {
+    "cip": "48.0508",
+    "major": "Welding technology",
+    "family": "Trades",
+    "completions": 6000,
+    "exposure": 2.5,
+    "median_pay": 48000,
+    "growth": "average",
+    "occupations": [
+      { "soc": "51-4121", "title": "Welders, cutters & brazers", "exposure": 2 }
+    ],
+    "rationale": "Factory welding is robotized, but field and repair welding in uncontrolled settings is not."
+  }
+]
