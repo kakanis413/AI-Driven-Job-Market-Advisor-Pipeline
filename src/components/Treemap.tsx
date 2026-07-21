@@ -178,19 +178,14 @@ function TileView({
   const m = t.major
   const ink = inkFor(fill)
   const showName = t.w > 78 && t.h > 46
-  // Never a bare number: small tiles get an abbreviated name, full name on hover.
-  const showAbbrev = !showName && t.w > 32 && t.h > 20
+  // Below the name threshold a tile renders NOTHING — no name, no number.
+  // A repeated "5.0" or a truncated acronym is noise that looks broken; at this
+  // scale color is the only encoding that works and the detail is in the
+  // tooltip. Hard rule 2 (color paired with a number) is still met wherever a
+  // label fits, and everywhere via the tooltip on hover/focus.
   const value = layer === 'exposure' ? fmtExposure(m.exposure) : fmtPay(m.median_pay)
   const maxChars = Math.max(3, Math.floor((t.w - 14) / 6.6))
   const label = m.major.length > maxChars ? `${m.major.slice(0, maxChars - 1)}…` : m.major
-  const words = m.major.split(/[\s&]+/).filter(Boolean)
-  const abbrevMax = Math.max(2, Math.floor((t.w - 10) / 6))
-  const abbrev =
-    words[0].length <= abbrevMax
-      ? words[0]
-      : words.length > 1
-        ? words.map((w) => w[0].toUpperCase()).join('')
-        : `${words[0].slice(0, abbrevMax - 1)}…`
 
   const transition = { ...spr, delay, opacity: { duration: 0.25, delay } }
 
@@ -268,11 +263,6 @@ function TileView({
           style={{ fontSize: 11, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}
         >
           {value}
-        </text>
-      )}
-      {showAbbrev && (
-        <text x={7} y={15} fill={ink} fillOpacity={0.9} style={{ fontSize: 10, fontWeight: 600 }}>
-          {abbrev}
         </text>
       )}
       {(hover || focus || selected) && (

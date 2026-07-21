@@ -89,7 +89,7 @@ class AdvisorRequest(BaseModel):
 class RouteInfo(BaseModel):
     """Observability: which specialists actually ran, so routing is auditable."""
 
-    path: Literal["multi_agent", "single_agent"] = "multi_agent"
+    path: str = "root_agent"
     agents_called: list[str] = Field(default_factory=list)
     used_search: bool = False
     latency_ms: int = 0
@@ -97,10 +97,9 @@ class RouteInfo(BaseModel):
 
 class AdvisorResponse(BaseModel):
     agent_node: str = "college_advisor"
-    status: Literal["active_reasoning", "degraded"] = "active_reasoning"
+    status: Literal["active_reasoning"] = "active_reasoning"
     generated_guidance: str
     route: RouteInfo = Field(default_factory=RouteInfo)
-    degraded: bool = False
 
 
 class NewsItem(BaseModel):
@@ -113,6 +112,11 @@ class NewsItem(BaseModel):
     url: str = Field(..., min_length=8, max_length=2000)
     published: str | None = Field(default=None, max_length=20)
     summary: str = Field(default="", max_length=600)
+    # Enriched server-side from the REAL article page (og:image) and the source
+    # domain (favicon). Both nullable — never invented; a card renders without
+    # them when the page has none. See advisor/news.py:_enrich.
+    image: str | None = Field(default=None, max_length=2000)
+    favicon: str | None = Field(default=None, max_length=2000)
 
 
 class NewsFeed(BaseModel):

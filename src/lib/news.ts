@@ -15,6 +15,9 @@ export interface NewsItem {
   url: string
   published: string | null
   summary: string
+  /** Enriched server-side from the real page / domain; may be absent. */
+  image?: string | null
+  favicon?: string | null
 }
 
 export interface NewsFeed {

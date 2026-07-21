@@ -30,7 +30,7 @@ export default function Legend({
         role="img"
         aria-label={
           layer === 'exposure'
-            ? 'Legend: color scale from green at exposure 0 to red at exposure 10'
+            ? 'Legend: color scale from pale violet at exposure 0 to deep violet at exposure 10'
             : `Legend: color scale from light blue at ${fmtPay(payExtent[0])} to dark blue at ${fmtPay(payExtent[1])}`
         }
       >
@@ -44,6 +44,8 @@ export default function Legend({
           <span>{layer === 'exposure' ? '0 · low' : fmtPay(payExtent[0])}</span>
           <span>{layer === 'exposure' ? '10 · high' : fmtPay(payExtent[1])}</span>
         </div>
+        {/* The other half of the encoding: color is exposure/pay, area is size. */}
+        <div className="micro text-ink3">Tile area = graduates</div>
       </motion.div>
     </AnimatePresence>
   )

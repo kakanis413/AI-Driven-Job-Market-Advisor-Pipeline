@@ -42,8 +42,10 @@ export default function News({
 
   return (
     <div className="mx-auto max-w-[720px] px-5 pt-10 md:px-8">
-      <h1 className="text-[26px] font-semibold tracking-tight text-ink">News</h1>
-      <p className="mt-1 text-[14px] text-ink2">
+      <h1 className="text-[30px] leading-none tracking-tight text-ink">
+        <span className="font-display text-accent">News</span>
+      </h1>
+      <p className="mt-2 text-[14px] text-ink2">
         Recent, cited signal on how AI is changing careers — by field of study.
       </p>
 

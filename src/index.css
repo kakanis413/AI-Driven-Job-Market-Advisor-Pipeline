@@ -14,6 +14,10 @@
   --line: rgba(25, 24, 23, 0.1);
   --accent: #2a78d6;
   --accent-soft: rgba(42, 120, 214, 0.12);
+  /* Glass — floating surfaces only (header, toolbar, panel, tooltip, detail). */
+  --glass-bg: rgba(250, 249, 246, 0.72);
+  --glass-border: rgba(25, 24, 23, 0.08);
+  --glass-solid: #faf9f6;
 }
 
 .dark {
@@ -26,6 +30,9 @@
   --line: rgba(244, 243, 239, 0.1);
   --accent: #5598e7;
   --accent-soft: rgba(85, 152, 231, 0.16);
+  --glass-bg: rgba(20, 19, 18, 0.68);
+  --glass-border: rgba(244, 243, 239, 0.1);
+  --glass-solid: #141312;
 }
 
 @theme inline {
@@ -39,6 +46,7 @@
   --color-accent: var(--accent);
   --color-accent-soft: var(--accent-soft);
   --font-sans: 'Instrument Sans Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display Variable', 'Instrument Sans Variable', Georgia, serif;
   --radius-tile: 4px;
   --radius-control: 8px;
   --radius-card: 12px;
@@ -52,6 +60,52 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-weight: 560;
+}
+
+/* Glass — for surfaces that FLOAT over content (header, sticky toolbar, chat
+   panel, tooltip, detail card). Never on tiles/cells or any element encoding
+   data (see CLAUDE.md hard rules). saturate() keeps the violet ramp from going
+   muddy behind the blur. Opaque fallback guarantees text never lands on a
+   transparent background. */
+@utility glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-solid);
+  }
+}
+
+/* Editorial display serif — Playfair italic, for accent words & the wordmark.
+   Optical: serif faces read heavier, so we letterspace tighter than the sans. */
+@utility font-display {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Slow Ken Burns zoom-out for the hero's ambient map — the map settles into
+   place instead of arriving static. Reduced-motion opt-out below. */
+@keyframes heroZoom {
+  from {
+    transform: scale(1.09);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+.hero-zoom {
+  animation: heroZoom 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: 60% 40%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-zoom {
+    animation: none;
+  }
 }
 
 /* Landing-page marquee: content duplicated 2×, loops at -50%. */
