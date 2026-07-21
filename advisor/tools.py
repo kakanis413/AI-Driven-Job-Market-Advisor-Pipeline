@@ -1,7 +1,8 @@
 """Tools for the data agent: local lookups (fast, free) + BigQuery (flexible, dynamic SQL).
 
-Local tools (get_major_data, compare_majors) use the in-memory data_source for instant lookups.
-BigQuery toolset lets Gemini write SQL for complex queries the local data can't answer.
+Local tools (get_major_data, compare_majors, etc.) use the in-memory data_source
+for instant lookups. BigQuery toolset lets Gemini write SQL for complex queries
+the local data can't answer.
 """
 
 from __future__ import annotations
@@ -101,4 +102,79 @@ def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
         "major_b": sb,
         "more_exposed": more,
         "exposure_gap": delta,
+    }
+
+
+def get_median_pay(major_name: str) -> dict:
+    """Look up median pay for a specific major.
+
+    Returns an explicit status so a miss is a fact the model reports,
+    not an invitation to invent a number.
+    """
+    major = data_source.find(major_name)
+    if major is None:
+        return {"status": "not_found", "major_name": major_name}
+
+    pay = major.get("median_pay")
+    if pay is None:
+        return {"status": "no_data", "major_name": major_name}
+
+    return {
+        "status": "found",
+        "major_name": major.get("major", major_name),
+        "median_pay": pay,
+    }
+
+
+def get_ai_exposure(major_name: str) -> dict:
+    """Look up the AI exposure score for a specific major."""
+    major = data_source.find(major_name)
+    if major is None:
+        return {"status": "not_found", "major_name": major_name}
+
+    exposure = major.get("exposure")
+    if exposure is None:
+        return {"status": "no_data", "major_name": major_name}
+
+    return {
+        "status": "found",
+        "major_name": major.get("major", major_name),
+        "exposure": exposure,
+    }
+
+
+def get_top_majors(metric: str = "median_pay", n: int = 3, order: str = "desc") -> dict:
+    """Return the top N majors ranked by a given metric.
+
+    Args:
+        metric: one of "median_pay", "exposure", "graduates", "versatility"
+        n: how many to return (default 3, matching the "top 3" ask)
+        order: "desc" (highest first) or "asc" (lowest first)
+
+    Returns explicit status + the ranked list.
+    """
+    valid_metrics = {"median_pay", "exposure", "graduates", "versatility"}
+    if metric not in valid_metrics:
+        return {"status": "invalid_metric", "metric": metric, "valid_metrics": sorted(valid_metrics)}
+
+    table = data_source.majors()
+    majors = list(table.values())
+
+    # Only rank majors that actually have a non-null value for this metric
+    ranked = [m for m in majors if m.get(metric) is not None]
+    if not ranked:
+        return {"status": "no_data", "metric": metric}
+
+    ranked.sort(key=lambda m: m[metric], reverse=(order == "desc"))
+    top_n = ranked[:n]
+
+    return {
+        "status": "found",
+        "metric": metric,
+        "order": order,
+        "count": len(top_n),
+        "majors": [
+            {"major_name": m.get("major") or m.get("major_name"), metric: m.get(metric)}
+            for m in top_n
+        ],
     }

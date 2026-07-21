@@ -7,6 +7,7 @@ Data agent has hybrid tools: local lookups (fast, free) + BigQuery (flexible SQL
 """
 
 from __future__ import annotations
+from tools import get_major_data, compare_majors, get_median_pay, get_ai_exposure, get_top_majors
 
 import logging
 from typing import Any
@@ -185,4 +186,15 @@ Include the direct link in your response. If no specific course matches, provide
 "Browse all courses" link and suggest they explore based on their interests.
 """,
     tools=[data_tool, news_tool],
+)
+
+# Inside agents.py, wherever data_agent's tools list is defined —
+# add these alongside the existing get_major_data / compare_majors:
+
+
+data_agent = Agent(
+    name="data_agent",
+    model=ADVISOR_MODEL,  # matches config.py's single source of truth
+    description="Answers questions about major pay, AI exposure, and rankings using real data.",
+    tools=[get_major_data, compare_majors, get_median_pay, get_ai_exposure, get_top_majors],
 )
