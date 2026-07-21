@@ -9,6 +9,13 @@ This agent NEVER computes or adjusts a score. It only explains one that
 the SQL rollup (rollup_pipeline.sql) already produced. Run this only
 after major_ai_scores has been (re)built from an approved scoring run.
 
+Every claim -- occupations, scores, and illustrative task examples --
+stays strictly grounded in real retrieved data. To make rationales feel
+more specific without inventing anything, this agent pulls a WIDER real
+evidence pool than a naive approach would: the top 2 real tasks from
+EACH of a major's top 5 occupations (up to 10 real task examples), not
+just 3 tasks overall from whichever occupation happened to score highest.
+
 Run manually from the project root:
     python -m batch.rationale_agent --limit 10     # dry run, sanity-check
     python -m batch.rationale_agent                 # full run
@@ -76,15 +83,28 @@ Rules:
    wages, or growth figures that were not given to you.
 2. Never recompute, question, or adjust the exposure score you were
    given -- your only job is to explain it in plain language.
-3. Reference at least one specific occupation from the supplied list by
-   name. Do not give generic career advice.
-4. Exposure measures how much current generative AI can assist with or
-   accelerate the WORK in this major's related occupations. It does NOT
-   mean these jobs will disappear. Make this distinction clear, briefly,
-   without being repetitive about it.
-5. Write 2-3 sentences, 40-80 words total. Conversational but precise --
+3. Do NOT name specific occupations by title. Instead, generalize into
+   task/skill categories common across the supplied occupations and
+   their real task evidence -- e.g. "technical documentation,"
+   "translation and terminology work," "drafting reports and
+   specifications." Ground these categories in the real supplied task
+   evidence; do not invent task types that aren't reflected in it.
+4. ALWAYS begin with this exact standalone sentence, filling in the real
+   major name and score, ending in a period (not a comma): "<Major
+   name>'s AI exposure score is <score>." Do not continue that sentence
+   with "meaning..." -- start a new sentence after it.
+5. The next sentence(s) describe what kind of AI-assistable work this
+   score reflects, generalized per rule 3.
+6. ALWAYS close with an EXPLICIT statement that this score reflects task
+   assistance, not job replacement -- use direct language to this exact
+   effect (e.g. "meaning AI acts as an assistant rather than a
+   replacement" or "this does not mean these jobs will disappear").
+   An implicit contrast between AI-assistable tasks and human-led ones
+   is NOT sufficient on its own -- the explicit statement must be present
+   in every rationale, in addition to naming what remains human-led.
+7. Write 2-3 sentences, 40-80 words total. Conversational but precise --
    this is read by a student deciding on a major, not a technical report.
-6. If the supplied evidence is too thin to say anything specific and
+8. If the supplied evidence is too thin to say anything specific and
    grounded (e.g. no related occupations were supplied), return
    status="insufficient_data" and explain why in "limitations".
 
@@ -107,7 +127,7 @@ def get_majors_needing_rationale(limit: int | None) -> list[dict]:
         SELECT
             m.cip4_code,
             m.major_exposure_score,
-            d.major_title
+            d.major_name
         FROM `{PROJECT_DATASET}.major_ai_scores` AS m
         JOIN `{PROJECT_DATASET}.dim_major_cip4_clean` AS d
             ON m.cip4_code = d.cip4_code
@@ -124,10 +144,23 @@ def get_majors_needing_rationale(limit: int | None) -> list[dict]:
 
 
 def get_supporting_evidence(cip4_code: str) -> dict:
-    """Top related occupations + a few task-level rationales, for grounding."""
+    """
+    Top related occupations + real task-level evidence FROM THOSE SAME
+    OCCUPATIONS, for grounding.
+
+    Widened 2026-07-17: previously pulled just 3 task rationales overall,
+    from whichever occupation happened to have the highest-scored tasks
+    across the whole crosswalk -- not necessarily tied to the occupations
+    actually mentioned above. Now pulls the top 2 real tasks from EACH of
+    the top 5 occupations (up to 10 real task examples total), so the
+    task evidence is directly connected to the occupations the rationale
+    names, and Gemini has a richer real pool to draw a specific-feeling
+    narrative from without ever needing to invent anything.
+    """
     occ_query = f"""
         SELECT
-            oo.title AS occupation_title,
+            s.onet_soc_code,
+            oo.occupation_title AS occupation_title,
             s.occupation_exposure_score
         FROM `{PROJECT_DATASET}.cip4_to_soc_crosswalk_clean` AS x
         JOIN `{PROJECT_DATASET}.soc_onet_mapping_clean` AS m
@@ -140,25 +173,44 @@ def get_supporting_evidence(cip4_code: str) -> dict:
         ORDER BY s.occupation_exposure_score DESC
         LIMIT 5
     """
-    task_query = f"""
-        SELECT s.score_rationale
-        FROM `{PROJECT_DATASET}.cip4_to_soc_crosswalk_clean` AS x
-        JOIN `{PROJECT_DATASET}.soc_onet_mapping_clean` AS m
-            ON x.soc_code = m.soc_code
-        JOIN `{PROJECT_DATASET}.task_ai_scores` AS s
-            ON m.onet_soc_code = s.onet_soc_code
-        WHERE x.cip4_code = @cip4_code
-            AND s.scoring_status = 'scored'
-        ORDER BY s.ai_exposure_score DESC
-        LIMIT 3
-    """
     job_config = bigquery.QueryJobConfig(
         query_parameters=[bigquery.ScalarQueryParameter("cip4_code", "STRING", cip4_code)]
     )
     occupations = [dict(r) for r in bq_client.query(occ_query, job_config=job_config).result()]
+
+    if not occupations:
+        return {"occupations": [], "task_rationales": []}
+
+    onet_codes = [o["onet_soc_code"] for o in occupations]
+
+    # Top 2 tasks PER occupation (via ROW_NUMBER, partitioned per SOC),
+    # restricted to only the occupations already selected above -- this
+    # is what ties the task evidence to the occupations actually named,
+    # rather than pulling from anywhere in the major's whole crosswalk.
+    task_query = f"""
+        SELECT onet_soc_code, score_rationale
+        FROM (
+            SELECT
+                onet_soc_code,
+                score_rationale,
+                ROW_NUMBER() OVER (
+                    PARTITION BY onet_soc_code
+                    ORDER BY ai_exposure_score DESC
+                ) AS rn
+            FROM `{PROJECT_DATASET}.task_ai_scores`
+            WHERE onet_soc_code IN UNNEST(@onet_codes)
+              AND scoring_status = 'scored'
+        )
+        WHERE rn <= 2
+    """
+    task_job_config = bigquery.QueryJobConfig(
+        query_parameters=[bigquery.ArrayQueryParameter("onet_codes", "STRING", onet_codes)]
+    )
     task_rationales = [
-        r.score_rationale for r in bq_client.query(task_query, job_config=job_config).result()
+        r.score_rationale
+        for r in bq_client.query(task_query, job_config=task_job_config).result()
     ]
+
     return {"occupations": occupations, "task_rationales": task_rationales}
 
 
@@ -206,7 +258,7 @@ async def write_one(
         task_lines = "\n".join(f"- {t}" for t in evidence["task_rationales"])
 
         prompt = (
-            f"MAJOR: {major['major_title']} (CIP4 {major['cip4_code']})\n"
+            f"MAJOR: {major['major_name']} (CIP4 {major['cip4_code']})\n"
             f"MAJOR EXPOSURE SCORE: {major['major_exposure_score']}\n\n"
             f"TOP RELATED OCCUPATIONS:\n{occ_lines}\n\n"
             f"SUPPORTING TASK-LEVEL EVIDENCE:\n{task_lines}"
@@ -243,7 +295,7 @@ async def write_one(
             "cip4_code": result.cip4_code,
             "rationale": result.rationale,
             "model": "gemini-3.5-flash",
-            "prompt_version": "rationale_prompt_v1",
+            "prompt_version": "rationale_prompt_v4_explicit_framing",  # requires explicit assist-not-replace statement every time (2026-07-17)
         }
 
 
