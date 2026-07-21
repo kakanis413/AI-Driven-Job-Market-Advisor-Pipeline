@@ -1,13 +1,10 @@
-"""Simple 3-agent architecture: root_agent coordinates data_agent and news_agent.
-
-Design: Agents as tools (AgentTool), not sub-agents. Control returns to the root
-agent after each specialist completes, enabling gather-then-synthesize flow.
-
-Data agent has hybrid tools: local lookups (fast, free) + BigQuery (flexible SQL).
-"""
-
 from __future__ import annotations
-from tools import get_major_data, compare_majors, get_median_pay, get_ai_exposure, get_top_majors
+
+import os
+import sys
+
+# Add project root to sys.path so 'advisor' imports work when executed directly
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 import logging
 from typing import Any
@@ -23,7 +20,10 @@ from advisor.tools import (
     BQ_PROJECT,
     bigquery_toolset,
     compare_majors,
+    get_ai_exposure,
     get_major_data,
+    get_median_pay,
+    get_top_majors,
 )
 
 log = logging.getLogger(__name__)
@@ -67,6 +67,9 @@ data_agent = Agent(
 1. LOCAL TOOLS (fast, free - TRY THESE FIRST):
    - get_major_data(major_name): instant lookup for one major
    - compare_majors(major_a, major_b): compare two majors
+   - get_median_pay(major_name): get median pay for a major
+   - get_ai_exposure(major_name): get AI exposure for a major
+   - get_top_majors(): get top majors by pay or growth
 
 2. BIGQUERY (for complex queries the local tools can't answer):
    - Project: '{BQ_PROJECT}', Dataset: '{BQ_DATASET}'
@@ -84,7 +87,14 @@ BIGQUERY RULES:
 - Use schema-inspection tools before writing SQL if unsure of column names.
 - Return query results as-is. Do not interpret - that's the orchestrator's job.
 """,
-    tools=[get_major_data, compare_majors, bigquery_toolset],
+    tools=[
+        get_major_data,
+        compare_majors,
+        get_median_pay,
+        get_ai_exposure,
+        get_top_majors,
+        bigquery_toolset,
+    ],
 )
 
 
@@ -111,6 +121,7 @@ Rules:
 """,
     tools=[google_search],
 )
+
 
 # Builder function for news.py compatibility
 def build_news_agent() -> Agent:
@@ -186,15 +197,4 @@ Include the direct link in your response. If no specific course matches, provide
 "Browse all courses" link and suggest they explore based on their interests.
 """,
     tools=[data_tool, news_tool],
-)
-
-# Inside agents.py, wherever data_agent's tools list is defined —
-# add these alongside the existing get_major_data / compare_majors:
-
-
-data_agent = Agent(
-    name="data_agent",
-    model=ADVISOR_MODEL,  # matches config.py's single source of truth
-    description="Answers questions about major pay, AI exposure, and rankings using real data.",
-    tools=[get_major_data, compare_majors, get_median_pay, get_ai_exposure, get_top_majors],
 )
