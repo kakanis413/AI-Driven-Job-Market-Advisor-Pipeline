@@ -29,6 +29,9 @@ from advisor.tools import (
 log = logging.getLogger(__name__)
 
 
+# -----------------------------------------------------------------------------
+# Resilient Wrapper for Sub-Agent Tools
+# -----------------------------------------------------------------------------
 class ResilientAgentTool(AgentTool):
     """AgentTool that catches errors and returns 'unavailable' instead of crashing.
 
@@ -97,15 +100,10 @@ BIGQUERY RULES:
     ],
 )
 
-
 # -----------------------------------------------------------------------------
-# News Agent: searches for recent news on majors/careers
+# News Agent Instruction
 # -----------------------------------------------------------------------------
-news_agent = Agent(
-    name="news_researcher",
-    model=settings.model,
-    description="Fetches recent, relevant news for a given topic or career field.",
-    instruction="""You are a news researcher specializing in education and career trends.
+NEWS_INSTRUCTION = """You are a news researcher specializing in education and career trends.
 
 Given a topic (college major, occupation, or career field), search for the most
 recent and relevant news articles.
@@ -118,9 +116,7 @@ Rules:
 - Stay factual - do not editorialize or add opinions
 - If no recent/relevant news is found, say so clearly
 - Limit to 3-5 most relevant articles
-""",
-    tools=[google_search],
-)
+"""
 
 
 # Builder function for news.py compatibility
@@ -130,23 +126,13 @@ def build_news_agent() -> Agent:
         name="news_researcher",
         model=settings.model,
         description="Fetches recent, relevant news for a given topic or career field.",
-        instruction="""You are a news researcher specializing in education and career trends.
-
-Given a topic (college major, occupation, or career field), search for the most
-recent and relevant news articles.
-
-Rules:
-- Use Google Search to find recent news (prefer last 30 days)
-- Focus on credible sources (news outlets, official reports, industry publications)
-- Return concise bullet points with: title, source, date, and 1-sentence summary
-- Include the URL/link for each article
-- Stay factual - do not editorialize or add opinions
-- If no recent/relevant news is found, say so clearly
-- Limit to 3-5 most relevant articles
-""",
+        instruction=NEWS_INSTRUCTION,
         tools=[google_search],
     )
 
+
+# Standard module-level instantiation
+news_agent = build_news_agent()
 
 # Wrap agents as tools for the root agent
 data_tool = AgentTool(agent=data_agent)
