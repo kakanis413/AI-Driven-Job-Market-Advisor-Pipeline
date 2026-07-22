@@ -64,11 +64,11 @@ async def analyze_major(request: MajorQueryRequest):
 
         # Structured Markdown fallback response for seamless UI rendering
         guidance_text = (
-            f"**AI Exposure Overview for {target_major}**\n\n"
-            "An exposure rating of **5.0/10** indicates moderate AI task integration:\n\n"
-            "* **Task Transformation:** Routine administrative and analytical tasks are likely to be augmented by AI tools.\n"
-            "* **Core Value:** High-touch, strategic, client-facing, and interpersonal responsibilities remain human-centered.\n"
-            "* **Key Takeaway:** High exposure means your daily task mix will evolve, not disappear."
+            f"AI Exposure Overview for {target_major}\n\n"
+            "An exposure rating of 5.0/10 indicates moderate AI task integration:\n\n"
+            "Task Transformation: Routine administrative and analytical tasks are likely to be augmented by AI tools.\n"
+            "Core Value: High-touch, strategic, client-facing, and interpersonal responsibilities remain human-centered.\n"
+            "Key Takeaway: High exposure means your daily task mix will evolve, not disappear."
         )
 
     # Return pure string values across top keys so frontend receives clean text
