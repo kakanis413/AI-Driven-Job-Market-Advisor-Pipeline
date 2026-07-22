@@ -53,7 +53,11 @@ export default function App() {
       {page !== 'explore' && (
         <header className="glass sticky top-0 z-40 border-x-0 border-t-0">
           <div className="mx-auto flex max-w-[1400px] items-center justify-between px-5 py-2.5 md:px-8">
-            <Logo mode={mode} onHome={() => nav('landing')} />
+            <Logo
+              mode={mode}
+              onHome={() => nav('landing')}
+              context={page === 'news' ? 'News' : undefined}
+            />
             <NavCluster page={page} mode={mode} onNav={onNav} onToggle={toggle} />
           </div>
         </header>

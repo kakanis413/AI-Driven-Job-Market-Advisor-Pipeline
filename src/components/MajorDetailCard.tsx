@@ -71,7 +71,7 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
             <div className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-line" aria-hidden>
               <div
                 className="h-full rounded-full"
-                style={{ width: `${(o.exposure / 10) * 100}%`, background: expC(o.exposure) }}
+                style={{ width: `${((o.exposure ?? 0) / 10) * 100}%`, background: expC(o.exposure) }}
               />
             </div>
             <span
@@ -147,7 +147,7 @@ function Meter({
 }
 
 /* 180° exposure gauge: ramp-colored track, spring-animated needle. */
-function Gauge({ value, mode }: { value: number; mode: Mode }) {
+function Gauge({ value, mode }: { value: number | null; mode: Mode }) {
   const reduce = useReducedMotion()
   const spr = reduce ? REDUCED_TWEEN : SPRING
   const expC = exposureColor(mode)
@@ -168,7 +168,9 @@ function Gauge({ value, mode }: { value: number; mode: Mode }) {
     const p1 = pt(a1, r)
     return `M ${p0.x} ${p0.y} A ${r} ${r} 0 0 1 ${p1.x} ${p1.y}`
   }
-  const needleAngle = Math.PI * (1 - value / 10)
+  // Unscored: no needle is drawn (see `value === null` below); the readout
+  // renders an em dash rather than implying a score.
+  const needleAngle = Math.PI * (1 - (value ?? 0) / 10)
   const tipP = pt(needleAngle, r - 26)
 
   return (
@@ -187,16 +189,18 @@ function Gauge({ value, mode }: { value: number; mode: Mode }) {
           fill="none"
         />
       ))}
-      <motion.line
-        x1={cx}
-        y1={cy}
-        initial={{ x2: cx - (r - 26), y2: cy }}
-        animate={{ x2: tipP.x, y2: tipP.y }}
-        transition={spr}
-        stroke="var(--ink)"
-        strokeWidth={2.5}
-        strokeLinecap="round"
-      />
+      {value !== null && (
+        <motion.line
+          x1={cx}
+          y1={cy}
+          initial={{ x2: cx - (r - 26), y2: cy }}
+          animate={{ x2: tipP.x, y2: tipP.y }}
+          transition={spr}
+          stroke="var(--ink)"
+          strokeWidth={2.5}
+          strokeLinecap="round"
+        />
+      )}
       <circle cx={cx} cy={cy} r={4.5} fill="var(--ink)" />
       <text
         x={cx}

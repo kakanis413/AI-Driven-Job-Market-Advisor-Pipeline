@@ -82,8 +82,11 @@ const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFi
 
 /** The raw `exposure`/`ai_exposure_norm` fields are on a 0–1 scale; the UI works
  *  in 0–10. Values already >1 are assumed to be pre-scaled. Null-safe. */
-function toExposure(raw: RawMajor): number {
-  const v = num(raw.ai_exposure_norm) ?? num(raw.ai_exposure) ?? num(raw.exposure) ?? 0
+function toExposure(raw: RawMajor): number | null {
+  // null, not 0 — an unscored major is "not scored yet", and rendering it as 0
+  // would read as the LOWEST exposure, which is a different (false) claim.
+  const v = num(raw.ai_exposure_norm) ?? num(raw.ai_exposure) ?? num(raw.exposure)
+  if (v === null) return null
   const scaled = v <= 1 ? v * 10 : v
   return Math.max(0, Math.min(10, scaled))
 }

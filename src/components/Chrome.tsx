@@ -17,19 +17,40 @@ export function Wordmark({ mode }: { mode: Mode }) {
   )
 }
 
-export function Logo({ mode, onHome }: { mode: Mode; onHome: () => void }) {
+export function Logo({
+  mode,
+  onHome,
+  context,
+}: {
+  mode: Mode
+  onHome: () => void
+  /** Page context shown inline ("Major Visualizer · News") so a page never
+   *  needs a second header band of its own. */
+  context?: string
+}) {
   return (
-    <button
-      onClick={onHome}
-      aria-label="Major Visualizer — back to start"
-      className="flex shrink-0 items-center gap-2.5 rounded-md"
-    >
-      <Wordmark mode={mode} />
-      <span className="text-[16px] tracking-tight text-ink">
-        <span className="font-display pr-[0.04em] text-[17px] text-accent">Major</span>
-        <span className="font-semibold">Visualizer</span>
-      </span>
-    </button>
+    <div className="flex shrink-0 items-center gap-2">
+      <button
+        onClick={onHome}
+        aria-label="Major Visualizer — back to start"
+        className="flex shrink-0 items-center gap-2.5 rounded-md"
+      >
+        <Wordmark mode={mode} />
+        <span className="text-[16px] tracking-tight text-ink">
+          <span className="font-display pr-[0.04em] text-[17px] text-accent">Major</span>
+          <span className="font-semibold">Visualizer</span>
+        </span>
+      </button>
+      {context && (
+        <span className="flex items-center gap-2.5 text-[16px] tracking-tight">
+          <span aria-hidden className="text-ink3">
+            ·
+          </span>
+          {/* The page name in the display serif, matching the wordmark's accent. */}
+          <span className="font-display text-[19px] text-accent">{context}</span>
+        </span>
+      )}
+    </div>
   )
 }
 

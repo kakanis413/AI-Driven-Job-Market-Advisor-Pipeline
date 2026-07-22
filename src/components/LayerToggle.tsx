@@ -11,20 +11,31 @@ export function Segmented<T extends string>({
   options,
   value,
   onChange,
+  size = 'sm',
 }: {
   label: string
   options: Opt<T>[]
   value: T
   onChange: (v: T) => void
+  /** `sm` for the dense Explore toolbar; `lg` where the control is the page's
+   *  primary filter and has to hold its own against the content below it. */
+  size?: 'sm' | 'lg'
 }) {
   const reduce = useReducedMotion()
+  const lg = size === 'lg'
   return (
-    <div className="flex shrink-0 items-center gap-2">
-      <span className="micro hidden whitespace-nowrap text-ink3 lg:block">{label}</span>
+    <div className={`flex shrink-0 items-center ${lg ? 'gap-3' : 'gap-2'}`}>
+      <span
+        className={`micro hidden whitespace-nowrap text-ink3 lg:block ${lg ? 'text-[12px]' : ''}`}
+      >
+        {label}
+      </span>
       <div
         role="group"
         aria-label={label}
-        className="inline-flex h-9 items-center gap-0.5 rounded-full border border-line bg-surface/60 p-1"
+        className={`inline-flex items-center gap-0.5 rounded-full border border-line bg-surface/60 ${
+          lg ? 'h-12 p-1.5' : 'h-9 p-1'
+        }`}
       >
         {options.map((o) => {
           const active = o.value === value
@@ -33,9 +44,9 @@ export function Segmented<T extends string>({
               key={o.value}
               aria-pressed={active}
               onClick={() => onChange(o.value)}
-              className={`relative h-7 whitespace-nowrap rounded-full px-3 text-[13px] font-medium transition-colors ${
-                active ? 'text-page' : 'text-ink2 hover:text-ink'
-              }`}
+              className={`relative whitespace-nowrap rounded-full font-medium transition-colors ${
+                lg ? 'h-9 px-4 text-[14.5px]' : 'h-7 px-3 text-[13px]'
+              } ${active ? 'text-page' : 'text-ink2 hover:text-ink'}`}
             >
               {active && (
                 <motion.span

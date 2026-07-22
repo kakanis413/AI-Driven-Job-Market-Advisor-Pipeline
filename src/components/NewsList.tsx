@@ -21,18 +21,30 @@ export default function NewsList({
 }) {
   const reduce = useReducedMotion()
 
+  // Grid for the News tab's top-stories cards; a single column in the chat.
+  const layout =
+    variant === 'full' ? 'grid gap-4 sm:grid-cols-2 lg:grid-cols-3' : 'space-y-4'
+
   if (state === 'loading') {
     return (
       <div aria-busy="true">
         <p className="micro mb-3 text-ink3" role="status">
           Searching live sources…
         </p>
-        <div className="space-y-4">
+        {/* Skeletons mirror the card shape (incl. the 16:9 image band) so
+            nothing shifts when the real cards arrive. */}
+        <div className={layout}>
           {[0, 1, 2].map((i) => (
-            <div key={i} className="animate-pulse rounded-card border border-line bg-raised p-3">
-              <div className="h-4 w-3/4 rounded bg-line" />
-              <div className="mt-2.5 h-3 w-1/3 rounded bg-line" />
-              {variant === 'full' && <div className="mt-2.5 h-3 w-full rounded bg-line" />}
+            <div
+              key={i}
+              className="animate-pulse overflow-hidden rounded-card border border-line bg-raised"
+            >
+              {variant === 'full' && <div className="aspect-[16/9] w-full bg-line/60" />}
+              <div className="p-3">
+                <div className="h-3 w-1/3 rounded bg-line" />
+                <div className="mt-2.5 h-4 w-3/4 rounded bg-line" />
+                {variant === 'full' && <div className="mt-2.5 h-3 w-full rounded bg-line" />}
+              </div>
             </div>
           ))}
         </div>
@@ -66,10 +78,11 @@ export default function NewsList({
           No recent items for this field.
         </p>
       ) : (
-        <div className="space-y-4">
+        <div className={layout}>
           {items.map((item, i) => (
             <motion.div
               key={item.url}
+              className="h-full"
               initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={
