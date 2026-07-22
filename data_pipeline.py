@@ -278,7 +278,6 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
             # Raw values for calculations
             "pay_to_debt_ratio": m.get("pay_to_debt_ratio"),
             "versatility": m.get("versatility"),
-            "ai_exposure": exposure_float,
 
             # Normalized fields required by visualizer UI
             "median_pay_norm": m.get("median_pay_norm"),
