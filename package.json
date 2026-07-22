@@ -4,7 +4,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev:frontend": "vite",
+    "dev:backend": "./.venv/bin/python -m uvicorn main:app --reload",
+    "dev": "sh -c 'python_pid=; trap \"[ -n \\\"$python_pid\\\" ] && kill $python_pid 2>/dev/null\" EXIT INT TERM; ./.venv/bin/python -m uvicorn main:app --reload & python_pid=$!; npm run dev:frontend'",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },
@@ -14,7 +16,8 @@
     "d3-hierarchy": "^3.1.2",
     "framer-motion": "^12.9.2",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react-dom": "^19.1.0",
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.5",
