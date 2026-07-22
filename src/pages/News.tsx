@@ -41,22 +41,22 @@ export default function News({
   const retry = useCallback(() => setNonce((n) => n + 1), [])
 
   return (
-    <div className="mx-auto max-w-[720px] px-5 pt-10 md:px-8">
-      <h1 className="text-[30px] leading-none tracking-tight text-ink">
-        <span className="font-display text-accent">News</span>
-      </h1>
-      <p className="mt-2 text-[14px] text-ink2">
-        Recent, cited signal on how AI is changing careers — by field of study.
-      </p>
-
-      <div className="mt-5 overflow-x-auto pb-1">
+    <div className="mx-auto max-w-[1100px] px-5 pt-6 md:px-8">
+      {/* No page title band: the app header already reads "Major Visualizer ·
+          News", so the field selector is the top of the page and the one-liner
+          rides under it as helper text rather than a second header. */}
+      <div className="overflow-x-auto pb-1">
         <Segmented<Family>
           label="Field"
+          size="lg"
           value={family}
           onChange={onFamily}
           options={FAMILY_ORDER.map((f) => ({ value: f, label: f }))}
         />
       </div>
+      <p className="mt-2.5 text-[13px] text-ink3">
+        Recent, cited signal on how AI is changing careers — by field of study.
+      </p>
 
       <AnimatePresence mode="wait">
         <motion.div

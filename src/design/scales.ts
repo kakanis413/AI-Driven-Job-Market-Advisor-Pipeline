@@ -96,9 +96,12 @@ export function inkFor(fill: string): string {
 const EXPOSURE_POSITIONS = [0, 0.42, 0.6, 0.76, 1]
 
 /** AI exposure 0–10 → color (perceptually even, mid-weighted domain). */
-export function exposureColor(mode: Mode): (v: number) => string {
+/** Exposure → fill. An unscored major (null) gets the neutral NULL_FILL rather
+ *  than the ramp's lowest stop, so "not scored yet" never masquerades as
+ *  "lowest exposure". */
+export function exposureColor(mode: Mode): (v: number | null) => string {
   const r = ramp(EXPOSURE_STOPS[mode], EXPOSURE_POSITIONS)
-  return (v: number) => r(v / 10)
+  return (v: number | null) => (v === null ? NULL_FILL[mode] : r(v / 10))
 }
 
 /** A darker (light mode) / lighter (dark mode) shade of a fill — used for the
@@ -117,7 +120,8 @@ export function payColor(mode: Mode, [min, max]: [number, number]): (v: number) 
 
 /* ---------- formatters — the only path numbers take to the DOM ---------- */
 
-export const fmtExposure = (v: number) => v.toFixed(1)
+/** "6.8", or an em dash when the major hasn't been scored — never "0.0". */
+export const fmtExposure = (v: number | null) => (v === null ? '—' : v.toFixed(1))
 
 export const fmtPay = (v: number | null) => (v == null ? '—' : `$${Math.round(v / 1000)}k`)
 

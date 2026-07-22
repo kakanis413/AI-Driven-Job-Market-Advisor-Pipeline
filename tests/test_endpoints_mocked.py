@@ -19,7 +19,9 @@ def test_healthz_reports_config(client):
     assert resp.status_code == 200
     body = resp.json()
     assert body["status"] == "ok"
-    for key in ("model", "vertex", "majors_loaded", "multi_agent"):
+    # The single-root-agent refactor dropped `majors_loaded`/`multi_agent` from
+    # healthz; these are the config keys it reports now.
+    for key in ("model", "vertex", "project", "bigquery_dataset"):
         assert key in body
 
 
@@ -38,7 +40,10 @@ def test_analyze_major_happy_path(client, mock_agent_response):
     assert resp.status_code == 200
     body = resp.json()
     assert body["generated_guidance"] == mock_agent_response
-    assert body["degraded"] is False
+    # `degraded` went away with the multi-agent → single-agent fallback; the
+    # single root agent reports its route instead.
+    assert body["status"] == "active_reasoning"
+    assert "route" in body
 
 
 def test_analyze_major_missing_question_returns_422(client):

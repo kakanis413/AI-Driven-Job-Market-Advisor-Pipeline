@@ -16,8 +16,8 @@ export type Growth = 'declining' | 'slower' | 'average' | 'faster'
 export interface Occupation {
   soc: string
   title: string
-  /** AI exposure 0–10 for this occupation */
-  exposure: number
+  /** AI exposure 0–10 for this occupation, or null when unscored. */
+  exposure: number | null
 }
 
 export interface Major {
@@ -27,8 +27,8 @@ export interface Major {
   family: Family
   /** annual degree completions — drives tile area */
   completions: number
-  /** AI exposure 0–10 */
-  exposure: number
+  /** AI exposure 0–10, or null when the pipeline hasn't scored it yet. */
+  exposure: number | null
   /** median pay, USD — null when the source has no estimate */
   median_pay: number | null
   /** null when the source has no projection */

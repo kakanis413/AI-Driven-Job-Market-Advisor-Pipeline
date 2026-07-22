@@ -22,7 +22,9 @@ def test_find_is_case_and_punctuation_insensitive():
 def test_get_major_data_hit_returns_real_numbers():
     out = get_major_data("Computer science")
     assert out["status"] == "success"
-    assert out["source"] == "data.json"
+    # The in-memory tool cache (DYNAMIC_TOP_CAREERS_SPEC §3) renamed the source;
+    # what matters is that a hit declares where the numbers came from.
+    assert out["source"] == "local_cache"
     assert out["major"].lower().startswith("computer")
     assert isinstance(out["exposure"], (int, float))
     assert out["occupations"]  # real occupations, not empty
@@ -31,7 +33,10 @@ def test_get_major_data_hit_returns_real_numbers():
 def test_get_major_data_miss_does_not_invent():
     out = get_major_data("Underwater Basket Weaving")
     assert out["status"] == "not_found"
-    assert "invent" in out["message"].lower()
+    # The point is that a miss is reported as a fact, not filled in. Assert the
+    # behaviour (says it isn't in the dataset, carries no number) rather than the
+    # exact wording, which the refactor changed.
+    assert "not in the local dataset" in out["message"].lower()
     assert "exposure" not in out  # no fabricated number
 
 

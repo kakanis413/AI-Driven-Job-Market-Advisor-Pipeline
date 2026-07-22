@@ -103,7 +103,7 @@ export default memo(function HeatmapGrid({
       sort.key === 'major'
         ? m.major
         : sort.key === 'exposure'
-          ? m.exposure
+          ? (m.exposure ?? -1) // unscored sorts to the end, like unknown pay
           : sort.key === 'pay'
             ? (m.median_pay ?? -1)
             : sort.key === 'completions'

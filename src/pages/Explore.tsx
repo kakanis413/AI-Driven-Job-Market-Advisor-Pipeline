@@ -321,7 +321,7 @@ export default function Explore({
             <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2.5">
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold text-ink">
-                  {selected ? selected.major : 'AI advisor'}
+                  {selected ? selected.major : 'AI career advisor'}
                 </div>
                 {selected && <div className="micro text-ink3">{selected.family}</div>}
               </div>

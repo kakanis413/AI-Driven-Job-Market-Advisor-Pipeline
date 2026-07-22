@@ -62,11 +62,18 @@ class AdvisorRuntime:
             or getattr(req, "query", "")
             or getattr(req, "message", "")
         )
+        closing = (
+            "Answer the student's question generally and conversationally. State no "
+            "specific numbers you were not given by a tool. Apply the "
+            "exposure-is-not-job-loss framing."
+            if req.is_general
+            else "Answer the student's question, grounded strictly in the verified data "
+            "above (and any tool results). Apply the exposure-is-not-job-loss framing."
+        )
         return (
             f"{req.grounding_block()}\n\n"
             f"STUDENT QUESTION: {query_text}\n\n"
-            "Answer the student's question, grounded strictly in the verified data above "
-            "(and any tool results). Apply the exposure-is-not-job-loss framing."
+            f"{closing}"
         )
 
     async def _run_once(self, prompt: str) -> tuple[str, RouteInfo]:
