@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import ReactMarkdown from 'react-markdown'
 import { fmtExposure, fmtPay, growthOf } from '../design/scales'
 import { askAdvisor } from '../lib/advisor'
 import type { Major } from '../types'
@@ -122,8 +123,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
         aria-live="polite"
         style={{ WebkitMaskImage: maskImage, maskImage }}
       >
-        {/* Bottom-anchored, like every messaging UI: a short thread sits above
-            the input, new messages rise into view. */}
+        {/* Bottom-anchored thread */}
         <div className="flex min-h-full flex-col justify-end gap-3">
           {!started && (
             <div className="text-[12.5px] leading-relaxed text-ink3">
@@ -140,7 +140,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
           {messages.map((msg) => (
             <div
               key={msg.id}
-              className={`max-w-[88%] rounded-2xl px-3.5 py-2 text-[13.5px] leading-relaxed ${
+              className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed ${
                 msg.role === 'user'
                   ? 'ml-auto rounded-br-md bg-ink text-page'
                   : msg.role === 'advisor'
@@ -148,7 +148,14 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
                     : 'mr-auto rounded-bl-md border border-line bg-raised text-ink2'
               }`}
             >
-              {msg.text}
+              {msg.role === 'advisor' ? (
+                <div className="prose prose-invert max-w-none space-y-2 [&>p]:m-0 [&>ul]:my-1.5 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_h3]:my-1 [&_h3]:text-[14px] [&_h3]:font-semibold">
+                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                </div>
+              ) : (
+                <span>{msg.text}</span>
+              )}
+
               {msg.role === 'error' && (
                 <button
                   onClick={() => send(lastSentRef.current)}
@@ -160,7 +167,8 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
             </div>
           ))}
           {pending && <ThinkingIndicator />}
-          {/* Grounded stat strip — the numbers, scannable, after the prose. */}
+          
+          {/* Grounded stat strip */}
           {answered && (
             <div className="grid grid-cols-3 overflow-hidden rounded-xl border border-line">
               <StatCell label="Exposure" value={`${fmtExposure(major.exposure)} / 10`} />
@@ -168,8 +176,8 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
               <StatCell label="Growth" value={growthOf(major.growth).label} divider />
             </div>
           )}
-          {/* Hand-off to the News tab. Built by the frontend from the selected
-              major's family — never by the model (NEWS_TAB.md hard rule 2). */}
+
+          {/* Hand-off to News tab */}
           {answered && (
             <a
               href={`#/news/${encodeURIComponent(major.family)}`}
@@ -181,8 +189,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
         </div>
       </div>
 
-      {/* Suggestions live above the input as outlined chips — never as sent
-          messages — so it's always clear the user hasn't asked them yet. */}
+      {/* Suggestions */}
       {!started && (
         <div className="flex flex-wrap gap-1.5 px-3 pt-2">
           {(major
