@@ -49,8 +49,13 @@ class Settings:
     bigquery_dataset: str = os.getenv("BQ_DATASET", "majors")
 
     # --- data file for local lookups ---
+    # The SAME file the browser renders. Grounding the advisor on the exact data
+    # the user is looking at is the invariant in HANDOFF.md — a separate copy
+    # under advisor/data/ silently drifted (flat 5.0 + seeded demo rows) and made
+    # the chat contradict the tiles. One file, one truth. Override per-deployment
+    # (or in tests) with ADVISOR_DATA_FILE.
     data_file: Path = Path(
-        os.getenv("ADVISOR_DATA_FILE", str(REPO_ROOT / "advisor" / "data" / "majors.json"))
+        os.getenv("ADVISOR_DATA_FILE", str(REPO_ROOT / "public" / "data.json"))
     )
 
     # --- reliability ---

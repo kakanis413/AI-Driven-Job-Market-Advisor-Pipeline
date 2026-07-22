@@ -26,11 +26,14 @@ class OccupationInfo(BaseModel):
 
 
 class AdvisorRequest(BaseModel):
-    """What the frontend POSTs: the clicked major's record + the student's question."""
+    """What the frontend POSTs: the student's question, plus the clicked major's
+    record when there is one. `major_name` is optional so the advisor can also
+    answer general questions with no major attached (general mode); in that mode
+    it must stay conceptual and invent no numbers."""
 
     model_config = ConfigDict(extra="ignore")
 
-    major_name: str = Field(..., min_length=1, max_length=200)
+    major_name: str | None = Field(default=None, min_length=1, max_length=200)
     exposure: float | None = Field(default=None, ge=0, le=10)
     median_pay: int | None = Field(default=None, ge=0)
     growth: str | None = Field(default=None, max_length=40)
@@ -62,8 +65,23 @@ class AdvisorRequest(BaseModel):
             return None
         return s
 
+    @property
+    def is_general(self) -> bool:
+        """No major attached → general mode (conceptual answers, no invented numbers)."""
+        return not (self.major_name and self.major_name.strip())
+
     def grounding_block(self) -> str:
         """The verified-facts block handed to the agents. Unknowns are explicit."""
+        if self.is_general:
+            return (
+                "NO MAJOR SELECTED — GENERAL MODE.\n"
+                "You have NO verified data for any specific major in this turn. Answer "
+                "conceptually about majors, AI exposure and careers. You may state no "
+                "specific salary, exposure score, or growth figure unless a tool you "
+                "called returned it. If the student asks about a particular major's "
+                "numbers, say you need them to pick it on the map (or call data_agent) "
+                "rather than estimating."
+            )
         pay = f"${self.median_pay:,}" if self.median_pay else "not available"
         exposure = f"{self.exposure}/10" if self.exposure is not None else "not available"
         growth = self.growth or "not available"
