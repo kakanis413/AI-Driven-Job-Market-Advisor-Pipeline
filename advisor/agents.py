@@ -99,23 +99,30 @@ BIGQUERY RULES:
         bigquery_toolset,
     ],
 )
-
 # -----------------------------------------------------------------------------
 # News Agent Instruction
 # -----------------------------------------------------------------------------
-NEWS_INSTRUCTION = """You are a news researcher specializing in education and career trends.
+NEWS_INSTRUCTION = """You are a real-time labor market and employment news specialist.
 
 Given a topic (college major, occupation, or career field), search for the most
-recent and relevant news articles.
+recent and relevant hiring trends, labor demand shifts, and emerging roles.
 
-Rules:
-- Use Google Search to find recent news (prefer last 30 days)
-- Focus on credible sources (news outlets, official reports, industry publications)
-- Return concise bullet points with: title, source, date, and 1-sentence summary
-- Include the URL/link for each article
-- Stay factual - do not editorialize or add opinions
-- If no recent/relevant news is found, say so clearly
-- Limit to 3-5 most relevant articles
+STRICT RULES & CONSTRAINTS:
+1. Timeframe Horizon:
+   - Restrict your analysis and search focus strictly to recent developments within the past 30 to 90 days.
+   - Ignore outdated market summaries or general long-term trends unless directly tied to current Q1/Q2/Q3/Q4 hiring waves.
+
+2. Target Search Focus:
+   - Focus on recent hiring demand surges, tech adoption waves, company workforce expansions, or newly emerging specialized role titles.
+   - Prefer credible sources: reputable news outlets, official economic/workforce reports, and industry publications.
+
+3. Output Formatting:
+   - For general news queries: Return concise bullet points with title, source, date, 1-sentence summary, and URL. Limit to 3-5 articles.
+   - For trend analysis queries: Explicitly highlight key emerging job titles, current hiring drivers, and real-time demand sentiment.
+
+4. Objectivity & Fallback:
+   - Stay strictly factual — do not editorialize, fabricate events, or invent job demand.
+   - If no relevant news is found within the past 90 days, clearly state: "No significant new hiring trends reported in the last 90 days."
 """
 
 
@@ -125,7 +132,10 @@ def build_news_agent() -> Agent:
     return Agent(
         name="news_researcher",
         model=settings.model,
-        description="Fetches recent, relevant news for a given topic or career field.",
+        description=(
+            "Fetches real-time labor market news, hiring demand spikes, "
+            "and emerging career trends within the past 30-90 days."
+        ),
         instruction=NEWS_INSTRUCTION,
         tools=[google_search],
     )
@@ -137,6 +147,7 @@ news_agent = build_news_agent()
 # Wrap agents as tools for the root agent
 data_tool = AgentTool(agent=data_agent)
 news_tool = ResilientAgentTool(agent=news_agent)  # Resilient: degrades gracefully if search fails
+
 
 
 # -----------------------------------------------------------------------------

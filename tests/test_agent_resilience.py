@@ -22,7 +22,7 @@ def test_resilient_agent_tool_degrades_instead_of_raising(monkeypatch):
     result = asyncio.run(tool.run_async(args={"request": "any"}, tool_context=None))
 
     assert result["status"] == "unavailable"
-    assert result["agent"] == "news_agent"
+    assert result["agent"] == "news_researcher"
     assert "invent" in result["message"]
 
 
@@ -36,3 +36,26 @@ def test_resilient_agent_tool_passes_success_through(monkeypatch):
     result = asyncio.run(tool.run_async(args={"request": "any"}, tool_context=None))
 
     assert result == "two cited news items"
+
+
+# Append these functions to the bottom of tests/test_agent_resilience.py
+
+
+def test_news_agent_instruction_contains_recency_constraints():
+    """Ensure news_agent prompt explicitly enforces 30-to-90-day time horizon constraints."""
+    agent = build_news_agent()
+    instructions = agent.instruction.lower()
+
+    # Verify recency constraints are set in system instructions
+    assert "30 to 90 days" in instructions or "30-90 days" in instructions
+    assert "factual" in instructions
+
+
+def test_news_agent_instruction_contains_fallback_clause():
+    """Ensure news_agent has clear instructions on how to respond when no recent news exists."""
+    agent = build_news_agent()
+    instructions = agent.instruction.lower()
+
+    # Verify explicit fallback phrase directive
+    assert "no significant new hiring trends reported" in instructions or "if no relevant news" in instructions
+

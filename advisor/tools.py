@@ -8,6 +8,7 @@ the local data can't answer.
 from __future__ import annotations
 
 import logging
+from functools import lru_cache
 from typing import Any
 
 import google.auth
@@ -40,6 +41,7 @@ log.info("BigQuery toolset initialized (project=%s, dataset=%s)", BQ_PROJECT, BQ
 # -----------------------------------------------------------------------------
 # Local tools (fast, free, always available)
 # -----------------------------------------------------------------------------
+@lru_cache(maxsize=128)
 def get_major_data(major_name: str) -> dict[str, Any]:
     """Look up AI exposure, median pay, growth, and occupations for one college major.
 
@@ -66,6 +68,7 @@ def get_major_data(major_name: str) -> dict[str, Any]:
     return {"status": "success", "source": "local_cache", **data_source.summarize(row)}
 
 
+@lru_cache(maxsize=128)
 def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
     """Compare two college majors on AI exposure and median pay.
 
@@ -105,6 +108,7 @@ def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
     }
 
 
+@lru_cache(maxsize=128)
 def get_median_pay(major_name: str) -> dict:
     """Look up median pay for a specific major.
 
@@ -126,6 +130,7 @@ def get_median_pay(major_name: str) -> dict:
     }
 
 
+@lru_cache(maxsize=128)
 def get_ai_exposure(major_name: str) -> dict:
     """Look up the AI exposure score for a specific major."""
     major = data_source.find(major_name)
@@ -143,6 +148,7 @@ def get_ai_exposure(major_name: str) -> dict:
     }
 
 
+@lru_cache(maxsize=32)
 def get_top_majors(metric: str = "median_pay", n: int = 3, order: str = "desc") -> dict:
     """Return the top N majors ranked by a given metric.
 
@@ -177,4 +183,48 @@ def get_top_majors(metric: str = "median_pay", n: int = 3, order: str = "desc") 
             {"major_name": m.get("major") or m.get("major_name"), metric: m.get(metric)}
             for m in top_n
         ],
+    }
+
+
+# -----------------------------------------------------------------------------
+# Dynamic Real-Time Career Blending Tool
+# -----------------------------------------------------------------------------
+def get_dynamic_top_careers(major_name: str, news_insights: str = "") -> dict[str, Any]:
+    """Blends static baseline dataset metrics with recent news agent findings
+    to generate an up-to-date 'Top 3 Careers' list for a given major.
+
+    Args:
+        major_name: College major to evaluate.
+        news_insights: Recent (30-90 day) hiring news or trend context from news_agent.
+
+    Returns:
+        A dict containing status, top careers, and merged market context.
+    """
+    base_data = get_major_data(major_name)
+    if base_data.get("status") == "not_found":
+        return {
+            "status": "partial",
+            "major": major_name,
+            "message": "Major not found in local baseline data; relying on news insights.",
+            "news_context": news_insights,
+        }
+
+    occupations = base_data.get("top_occupations", []) or base_data.get("occupations", [])
+    
+    # Sort baseline candidates by pay/growth where available
+    sorted_careers = sorted(
+        occupations,
+        key=lambda x: x.get("median_pay", 0) if isinstance(x, dict) else 0,
+        reverse=True
+    )
+
+    top_3 = sorted_careers[:3] if sorted_careers else []
+
+    return {
+        "status": "success",
+        "major": base_data.get("major", major_name),
+        "top_3_careers": top_3,
+        "baseline_pay": base_data.get("median_pay"),
+        "ai_exposure": base_data.get("exposure"),
+        "news_context": news_insights if news_insights else "Based on baseline annual metrics.",
     }

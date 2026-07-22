@@ -1,4 +1,4 @@
-"""Runtime: turn a request into a grounded answer, with timeout and retry.
+"""Runtime: turn a request into a grounded answer, with timeout, retry, and TTL caching.
 
 Simple architecture - just runs the root_agent. No multi-agent/single-agent fallback.
 """
@@ -9,6 +9,7 @@ import asyncio
 import logging
 import time
 import uuid
+from typing import Dict, Tuple
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -20,6 +21,12 @@ from advisor.config import settings
 from advisor.schemas import AdvisorRequest, AdvisorResponse, RouteInfo
 
 log = logging.getLogger(__name__)
+
+# -----------------------------------------------------------------------------
+# 24-Hour Response Cache
+# -----------------------------------------------------------------------------
+RESPONSE_CACHE: Dict[str, Tuple[float, AdvisorResponse]] = {}
+CACHE_TTL_SECONDS = 86400  # 24 Hours
 
 
 class AdvisorRuntime:
@@ -99,17 +106,35 @@ class AdvisorRuntime:
         raise errors.classify(last) if last else errors.AdvisorError()
 
     async def advise(self, req: AdvisorRequest) -> AdvisorResponse:
+        # Check cache key based on major and query
+        major_name = getattr(req, "major", "") or getattr(req, "major_name", "")
+        cache_key = f"{major_name.lower().strip()}:{(req.query_context or '').lower().strip()}"
+
+        # 1. Check TTL Cache
+        if cache_key in RESPONSE_CACHE:
+            timestamp, cached_response = RESPONSE_CACHE[cache_key]
+            if time.time() - timestamp < CACHE_TTL_SECONDS:
+                log.info("Runtime TTL Cache HIT for key: %r", cache_key)
+                return cached_response
+
+        # 2. Cache Miss - Run Runner Pipeline
+        log.info("Runtime TTL Cache MISS for key: %r", cache_key)
         prompt = self._prompt(req)
         started = time.perf_counter()
 
         reply, route = await self._run_with_retry(prompt)
         route.path = "root_agent"
         route.latency_ms = int((time.perf_counter() - started) * 1000)
-        return AdvisorResponse(
+
+        response = AdvisorResponse(
             status="active_reasoning",
             generated_guidance=reply,
             route=route,
         )
+
+        # 3. Store in TTL Cache
+        RESPONSE_CACHE[cache_key] = (time.time(), response)
+        return response
 
 
 _runtime: AdvisorRuntime | None = None
