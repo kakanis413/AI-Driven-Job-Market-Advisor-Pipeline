@@ -36,6 +36,8 @@ MAJORS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.dim_major_cip4_clean"
 CROSSWALK_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.cip4_to_soc_crosswalk_clean"
 OEWS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.occupations_oews_clean"
 OCCUPATIONS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.dim_occupations"
+SCORES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_scores"
+RATIONALES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales"
 
 # Default GCS bucket for output
 DEFAULT_BUCKET = "majors-data-bucket"
@@ -59,6 +61,17 @@ def build_majors_query() -> str:
     """
     return f"""
     WITH
+    -- Step 0: Get AI exposure scores and rationales
+    ai_data AS (
+        SELECT
+            s.cip4_code,
+            s.major_exposure_score,
+            r.rationale
+        FROM `{SCORES_TABLE}` s
+        LEFT JOIN `{RATIONALES_TABLE}` r
+            ON s.cip4_code = r.cip4_code
+    ),
+
     -- Step 1: Get occupation data with employment and growth from dim_occupations
     occupation_data AS (
         SELECT
@@ -101,6 +114,7 @@ def build_majors_query() -> str:
     -- Step 3: Join with majors table and compute final metrics
     majors_with_metrics AS (
         SELECT
+            m.cip4_code,
             m.major_name AS major,
             m.cip_family_code AS family,
             m.completions_bachelors AS graduates,
@@ -115,9 +129,10 @@ def build_majors_query() -> str:
         WHERE m.completions_bachelors > 0
     ),
 
-    -- Step 4: Compute pay-to-debt ratio
+    -- Step 4: Compute pay-to-debt ratio and join AI data
     final_metrics AS (
         SELECT
+            mwm.cip4_code,
             major,
             family,
             graduates,
@@ -130,12 +145,16 @@ def build_majors_query() -> str:
                 ELSE NULL
             END AS pay_to_debt_ratio,
             COALESCE(versatility, 0) AS versatility,
-            -- AI exposure placeholder: set to 0.5 to satisfy schema validation
-            0.5 AS ai_exposure
-        FROM majors_with_metrics
+            -- AI exposure from scores table (NULL if no score - not fabricated)
+            ai.major_exposure_score AS ai_exposure,
+            ai.rationale
+        FROM majors_with_metrics mwm
+        LEFT JOIN ai_data ai
+            ON mwm.cip4_code = ai.cip4_code
     )
 
     SELECT
+        cip4_code AS cip,
         major,
         family,
         graduates,
@@ -143,7 +162,8 @@ def build_majors_query() -> str:
         growth,
         pay_to_debt_ratio,
         versatility,
-        ai_exposure
+        ai_exposure,
+        rationale
     FROM final_metrics
     ORDER BY graduates DESC
     """
@@ -202,12 +222,12 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
     majors = [dict(row.items()) for row in rows]
 
     # Normalize numeric metrics (creates *_norm fields)
+    # Note: ai_exposure is NOT normalized - NULL values indicate missing data
     metrics_to_normalize = [
         "median_pay",
         "growth",
         "pay_to_debt_ratio",
         "versatility",
-        "ai_exposure",
     ]
 
     for metric in metrics_to_normalize:
@@ -230,16 +250,20 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
         raw_pay = m.get("median_pay")
         pay_int = int(raw_pay) if raw_pay is not None else 50000
 
-        # 3. Ensure exposure is a float (default to 5.0 if None)
+        # 3. Exposure: keep as None if missing (frontend defaults to 0)
+        # Per test_schemas.py: unknowns should be marked "not available", not fabricated
         raw_exposure = m.get("ai_exposure")
-        exposure_float = float(raw_exposure) if raw_exposure is not None else 5.0
+        exposure_float = float(raw_exposure) if raw_exposure is not None else None
 
         processed_majors.append({
+            # CIP code for matching (not displayed to user)
+            "cip": m.get("cip"),
+
             # Standard metadata
             "major": m.get("major"),
             "family": m.get("family"),
             "graduates": m.get("graduates"),
-            
+
             # Strict raw types matching MajorAnalysisSchema validation
             "major_name": m.get("major"), # map to major_name expected by schema
             "exposure": exposure_float,
@@ -248,17 +272,18 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
             "occupations": [], # Defaulting to empty list as allowed by test_schemas.py
             "query_context": "",
 
+            # AI rationale (None if missing - frontend shows "pending" message)
+            "rationale": m.get("rationale"),
+
             # Raw values for calculations
             "pay_to_debt_ratio": m.get("pay_to_debt_ratio"),
             "versatility": m.get("versatility"),
-            "ai_exposure": exposure_float,
 
             # Normalized fields required by visualizer UI
             "median_pay_norm": m.get("median_pay_norm"),
             "growth_norm": m.get("growth_norm"),
             "pay_to_debt_ratio_norm": m.get("pay_to_debt_ratio_norm"),
             "versatility_norm": m.get("versatility_norm"),
-            "ai_exposure_norm": m.get("ai_exposure_norm"),
         })
 
     return processed_majors
