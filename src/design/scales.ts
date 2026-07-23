@@ -137,9 +137,14 @@ export const fmtCount = (v: number) => compact.format(v).toLowerCase()
 /** Pay-to-debt ratio → "2.7×". */
 export const fmtRatio = (v: number) => `${v.toFixed(1)}×`
 
-/** A 0–1 rank → a plain-language band. Keeps color from being the only signal. */
-export const bandOf = (norm: number) =>
-  norm < 1 / 3 ? 'Narrow' : norm < 2 / 3 ? 'Moderate' : 'Broad'
+/** Career-versatility band from the *count* of mapped occupations. The min-max
+ *  normalized rank is far too skewed to split into thirds (the median major maps
+ *  to ~2 of ~22 possible occupations, so a 1/3–2/3 split on the rank labels
+ *  ~97% "Narrow"). Banding on the absolute count keeps all three bands populated
+ *  and honest: 1–2 is genuinely Narrow, 3–5 Moderate, 6+ Broad. Keeps color from
+ *  being the only signal on the versatility meter. */
+export const bandOf = (versatility: number) =>
+  versatility <= 2 ? 'Narrow' : versatility <= 5 ? 'Moderate' : 'Broad'
 
 /* ---------- growth display ---------- */
 

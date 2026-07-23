@@ -180,9 +180,10 @@ def test_process_bigquery_results():
     assert "growth_norm" in result[0]
     assert "versatility_norm" in result[0]
     assert "pay_to_debt_ratio_norm" in result[0]
-    # Check raw metric fields are NOT in output (except graduates)
-    assert "median_pay" not in result[0]
-    assert "cip" not in result[0]
+    # Raw values ARE emitted alongside the *_norm ranks: the UI renders the
+    # real figures (median pay, exposure, CIP) and only uses *_norm for meters.
+    assert "median_pay" in result[0]
+    assert "cip" in result[0]
 
 
 def test_process_bigquery_results_output_schema():
@@ -202,15 +203,25 @@ def test_process_bigquery_results_output_schema():
 
     result = process_bigquery_results(mock_rows)
 
+    # The contract the frontend reads: raw display values + *_norm ranks.
     expected_fields = {
+        "cip",
         "major",
+        "major_name",
         "family",
         "graduates",
+        "median_pay",
+        "growth",
+        "exposure",
+        "rationale",
+        "occupations",
+        "query_context",
+        "pay_to_debt_ratio",
+        "versatility",
         "median_pay_norm",
         "growth_norm",
         "pay_to_debt_ratio_norm",
         "versatility_norm",
-        "ai_exposure_norm",
     }
     assert set(result[0].keys()) == expected_fields
 

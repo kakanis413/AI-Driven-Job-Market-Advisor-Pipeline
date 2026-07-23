@@ -82,7 +82,7 @@ export default memo(function HeatmapGrid({
     const weights: [ColKey, string, number][] = [
       ['exposure', 'AI exposure', 1.25],
       ['pay', 'Median pay', 1],
-      ['completions', 'Graduates / yr', 1],
+      ['completions', "Bachelor's grads / yr", 1],
     ]
     if (hasGrowth) weights.push(['growth', 'Job growth', 0.8])
     const total = weights.reduce((s, [, , w]) => s + w, 0)

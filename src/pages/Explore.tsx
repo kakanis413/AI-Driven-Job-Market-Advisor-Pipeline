@@ -6,7 +6,7 @@ import LayerToggle, { Segmented } from '../components/LayerToggle'
 import { Logo, NavCluster } from '../components/Chrome'
 import Legend from '../components/Legend'
 import MajorDetailCard from '../components/MajorDetailCard'
-import MetersView from '../components/MetersView'
+import MetersView, { type SortKey } from '../components/MetersView'
 import SearchSpotlight from '../components/SearchSpotlight'
 import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
@@ -61,6 +61,9 @@ export default function Explore({
 
   const [view, setView] = useState<View>(initialView)
   const [layer, setLayer] = useState<Layer>('exposure')
+  // The value board's sort lives here so the toolbar's "Sort by" segment (which
+  // occupies the same slot as "Color by") is the primary control.
+  const [sort, setSort] = useState<SortKey>('payToDebt')
   const [query, setQuery] = useState(initialQuery ?? '')
   const [selectedCip, setSelectedCip] = useState<string | null>(null)
   const [tip, setTip] = useState<TipData | null>(null)
@@ -75,9 +78,11 @@ export default function Explore({
 
   const vh = useViewportHeight()
   const { ref: vizRef, width: vizW } = useMeasure<HTMLDivElement>()
-  // One combined bar now (~57) instead of a header + toolbar, plus the pinned
-  // footer (~48) and a little breathing room — so the map gets even more height.
-  const mapH = Math.max(480, vh - 150)
+  // Glass chrome is now up to ~194 tall (controls + inline legend, with the nav
+  // wrapping to its own line on mid-width screens) plus the search row; subtract
+  // that, the pinned footer (~48), and a little breathing room so the map always
+  // clears the footer at every breakpoint.
+  const mapH = Math.max(440, vh - 250)
 
   const payExtent = useMemo<[number, number]>(() => {
     const pays = majors.map((m) => m.median_pay).filter((p): p is number => p != null)
@@ -168,43 +173,76 @@ export default function Explore({
 
   return (
     <>
-      {/* One combined sticky glass bar: logo · search · view · color · legend,
-          with nav + dark-mode at the far right. No title band and no second
-          row — the page's whole job is the map, so it starts as high as it can.
-          The dark fill belongs to the CONTROLS (Segmented); the nav is quiet. */}
+      {/* Sticky glass chrome, two rows so Explore reads as one system with News:
+          a top bar identical to the News header (logo left · nav + dark-mode
+          right), then the tool row (search · view · color · legend) hairlined
+          off below it. The dark fill belongs to the CONTROLS (Segmented); the
+          nav stays quiet. */}
       <div className="glass sticky top-0 z-40 border-x-0 border-t-0">
-        <div className="mx-auto flex max-w-[1400px] items-center gap-x-3 px-5 py-2.5 md:gap-x-4 md:px-8">
-          <Logo mode={mode} onHome={() => nav('landing')} />
-          <div className="w-44 shrink-0 sm:w-52 lg:w-60">
-            <SearchSpotlight
-              compact
-              majors={majors}
-              mode={mode}
-              query={query}
-              onQuery={setQuery}
-              onPick={handlePick}
+        <div className="mx-auto max-w-[1400px] px-5 md:px-8">
+          {/* Row 1 — the controls ride next to the wordmark; nav trails right.
+              The second slot always holds exactly one Segmented (Color by for the
+              tile views, Sort by for the value board), same size and position, so
+              switching tabs never reflows the bar. */}
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 py-2.5">
+            <Logo mode={mode} onHome={() => nav('landing')} context="Explore" />
+            <Segmented<View>
+              label="View"
+              value={view}
+              onChange={switchView}
+              options={[
+                { value: 'map', label: 'Heatmap' },
+                { value: 'grid', label: 'HashTable' },
+                { value: 'meters', label: 'Value' },
+              ]}
             />
-          </div>
-          <Segmented<View>
-            label="View"
-            value={view}
-            onChange={switchView}
-            options={[
-              { value: 'map', label: 'Treemap' },
-              { value: 'grid', label: 'Heatmap' },
-              { value: 'meters', label: 'Value' },
-            ]}
-          />
-          {/* Color layer & legend apply to the tile views, not the value board. */}
-          {view !== 'meters' && <LayerToggle layer={layer} onChange={setLayer} />}
-          <div className="flex-1" />
-          {view !== 'meters' && (
-            <div className="hidden shrink-0 lg:block">
-              <Legend layer={layer} mode={mode} payExtent={payExtent} />
+            {view === 'meters' ? (
+              <Segmented<SortKey>
+                label="Sort by"
+                value={sort}
+                onChange={setSort}
+                options={[
+                  { value: 'payToDebt', label: 'Pay vs. debt' },
+                  { value: 'versatility', label: 'Versatility' },
+                ]}
+              />
+            ) : (
+              <LayerToggle layer={layer} onChange={setLayer} />
+            )}
+            {/* Reference sits with the controls: the color legend for the tile
+                views, the value caption for the board. Shown from xl up, where
+                row 1 has room for it beside the controls; below that it stays
+                out so the bar never crowds. */}
+            {view === 'meters' ? (
+              <p className="hidden shrink-0 self-center text-[12px] text-ink3 xl:block">
+                Early-career pay per $1 of typical student debt
+              </p>
+            ) : (
+              <div className="hidden shrink-0 xl:block">
+                <Legend layer={layer} mode={mode} payExtent={payExtent} />
+              </div>
+            )}
+            {/* ms-auto (not a flex-1 spacer) so that when the row wraps on a
+                narrow viewport the nav drops to the bottom-right, never under
+                the logo. */}
+            <div className="ms-auto">
+              <NavCluster page="explore" mode={mode} onNav={nav} onToggle={toggle} />
             </div>
-          )}
-          <div className="hidden flex-1 lg:block" />
-          <NavCluster page="explore" mode={mode} onNav={nav} onToggle={toggle} />
+          </div>
+          {/* Row 2 — search on its own hairlined row, roomy and full-width at
+              every breakpoint. */}
+          <div className="flex items-center border-t border-line py-2.5">
+            <div className="w-full max-w-[420px]">
+              <SearchSpotlight
+                compact
+                majors={majors}
+                mode={mode}
+                query={query}
+                onQuery={setQuery}
+                onPick={handlePick}
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -213,7 +251,15 @@ export default function Explore({
           {status === 'loading' && vizW > 0 && <SkeletonViz width={vizW} height={mapH} />}
           {status === 'error' && <ErrorCard height={mapH} url={url} retry={retry} />}
           {status === 'ready' && view === 'meters' && (
-            <MetersView majors={majors} height={mapH} query={query} onSelect={handleSelect} />
+            <MetersView
+              majors={majors}
+              height={mapH}
+              query={query}
+              sort={sort}
+              mode={mode}
+              onSortChange={setSort}
+              onSelect={handleSelect}
+            />
           )}
           {status === 'ready' &&
             vizW > 0 &&
