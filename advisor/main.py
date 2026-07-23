@@ -1,6 +1,13 @@
 # advisor/main.py
 
 import logging
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from advisor.config import apply_vertex_env
+apply_vertex_env()
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
@@ -12,17 +19,15 @@ logger = logging.getLogger("uvicorn.error")
 
 app = FastAPI(title="AI Job Market Advisor API")
 
-# Enable CORS for local dev / Vite frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # Allow Vite frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# Flexible request model matching any key names sent by the frontend
 class MajorQueryRequest(BaseModel):
     major: str | None = Field(default="")
     major_name: str | None = Field(default="")
@@ -34,7 +39,6 @@ class MajorQueryRequest(BaseModel):
 @app.post("/api/v1/analyze-major")
 @app.post("/api/advise")
 async def analyze_major(request: MajorQueryRequest):
-    # Fall back across any potential payload key sent by React
     target_major = request.major or request.major_name or "General"
     user_query = (
         request.query_context
@@ -55,14 +59,12 @@ async def analyze_major(request: MajorQueryRequest):
         route_used = getattr(response, "route", "live_pipeline")
 
     except Exception as exc:
-        # Print full python exception traceback in terminal for local debugging
         logger.error(
             f"Error processing major query for '{target_major}': {exc}",
             exc_info=True,
         )
         route_used = "fallback_handler"
 
-        # Structured Markdown fallback response for seamless UI rendering
         guidance_text = (
             f"AI Exposure Overview for {target_major}\n\n"
             "An exposure rating of 5.0/10 indicates moderate AI task integration:\n\n"
@@ -71,7 +73,6 @@ async def analyze_major(request: MajorQueryRequest):
             "Key Takeaway: High exposure means your daily task mix will evolve, not disappear."
         )
 
-    # Return pure string values across top keys so frontend receives clean text
     return {
         "status": "success",
         "major": target_major,

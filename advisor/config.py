@@ -9,6 +9,7 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 
@@ -43,6 +44,7 @@ class Settings:
     # --- Vertex / ADC ---
     use_vertex: bool = _env_bool("GOOGLE_GENAI_USE_VERTEXAI", True)
     project: str = os.getenv("GOOGLE_CLOUD_PROJECT", "sprinternship-sea-2026")
+    # Defaulting location to 'global' for Gemini 3.5 & Search Grounding compatibility
     location: str = os.getenv("GOOGLE_CLOUD_LOCATION", "global")
 
     # --- BigQuery ---
@@ -93,6 +95,7 @@ def apply_vertex_env() -> None:
     Called at startup so the ADK client picks up project/location even when the process
     was launched without a .env file.
     """
-    os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "TRUE" if settings.use_vertex else "FALSE")
-    os.environ.setdefault("GOOGLE_CLOUD_PROJECT", settings.project)
-    os.environ.setdefault("GOOGLE_CLOUD_LOCATION", settings.location)
+    # Force environmental variables so google-genai & ADK override defaults cleanly
+    os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true" if settings.use_vertex else "false"
+    os.environ["GOOGLE_CLOUD_PROJECT"] = settings.project
+    os.environ["GOOGLE_CLOUD_LOCATION"] = settings.location

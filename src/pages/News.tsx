@@ -17,7 +17,7 @@ export default function News({
 }) {
   const reduce = useReducedMotion()
   const [feed, setFeed] = useState<NewsFeed | null>(null)
-  const [state, setState] = useState<'idle' | 'loading' | 'error'>('idle')
+  const [state, setState] = useState<'idle' | 'loading' | 'error'>('loading')
   const [nonce, setNonce] = useState(0) // bump to retry
 
   useEffect(() => {

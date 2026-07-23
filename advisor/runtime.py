@@ -1,6 +1,6 @@
 """Runtime: turn a request into a grounded answer, with timeout, retry, and TTL caching.
 
-Simple architecture - just runs the root_agent. No multi-agent/single-agent fallback.
+Supports sync responses and async token streaming for low-latency TTFT.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import logging
 import re
 import time
 import uuid
-from typing import Dict, Tuple
+from typing import Dict, Tuple, AsyncGenerator
 
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
@@ -23,9 +23,6 @@ from advisor.schemas import AdvisorRequest, AdvisorResponse, RouteInfo
 
 log = logging.getLogger(__name__)
 
-# -----------------------------------------------------------------------------
-# 24-Hour TTL & Bounded In-Memory Response Cache
-# -----------------------------------------------------------------------------
 RESPONSE_CACHE: Dict[str, Tuple[float, AdvisorResponse]] = {}
 CACHE_TTL_SECONDS = 86400  # 24 Hours
 MAX_CACHE_SIZE = 500       # Prevent unbounded memory usage
@@ -33,14 +30,10 @@ _CACHE_LOCK = asyncio.Lock()
 
 
 def _normalize_text(text: str | None) -> str:
-    """Normalize input strings by stripping whitespace, lowercasing, and removing 
-    extra punctuation/spaces so subtle question variations hit the cache."""
     if not text:
         return ""
     text = text.lower().strip()
-    # Replace multiple whitespaces/newlines with a single space
     text = re.sub(r"\s+", " ", text)
-    # Strip basic trailing punctuation for consistent keys
     return text.strip("?.! ")
 
 
@@ -76,6 +69,24 @@ class AdvisorRuntime:
             f"{closing}"
         )
 
+    async def advise_stream(self, req: AdvisorRequest) -> AsyncGenerator[str, None]:
+        """Yields response text in chunks as it generates for fast SSE streaming."""
+        prompt = self._prompt(req)
+        user_id = "student"
+        session_id = f"s-{uuid.uuid4().hex[:16]}"
+        await self._session_service.create_session(
+            app_name=settings.app_name, user_id=user_id, session_id=session_id
+        )
+        content = types.Content(role="user", parts=[types.Part(text=prompt)])
+
+        async for event in self._runner.run_async(
+            user_id=user_id, session_id=session_id, new_message=content
+        ):
+            if event.content and event.content.parts:
+                for part in event.content.parts:
+                    if part.text:
+                        yield part.text
+
     async def _run_once(self, prompt: str) -> tuple[str, RouteInfo]:
         user_id = "student"
         session_id = f"s-{uuid.uuid4().hex[:16]}"
@@ -96,7 +107,6 @@ class AdvisorRuntime:
                     called.append(fc.name)
                     if fc.name in {"news_researcher", "google_search"}:
                         used_search = True
-            # grounding metadata is another signal that search actually ran
             gm = getattr(event, "grounding_metadata", None)
             if gm is not None and getattr(gm, "web_search_queries", None):
                 used_search = True
@@ -133,12 +143,7 @@ class AdvisorRuntime:
         raise errors.classify(last) if last else errors.AdvisorError()
 
     async def advise(self, req: AdvisorRequest) -> AdvisorResponse:
-        # Extract major and query attributes robustly across payload formats
-        major_name = (
-            getattr(req, "major", "")
-            or getattr(req, "major_name", "")
-            or ""
-        )
+        major_name = getattr(req, "major", "") or getattr(req, "major_name", "") or ""
         raw_query = (
             getattr(req, "query_context", "")
             or getattr(req, "query", "")
@@ -150,20 +155,17 @@ class AdvisorRuntime:
         norm_query = _normalize_text(raw_query)
         cache_key = f"{norm_major}:{norm_query}"
 
-        # 1. Check TTL Cache (Thread-safe)
         async with _CACHE_LOCK:
             if cache_key in RESPONSE_CACHE:
                 timestamp, cached_response = RESPONSE_CACHE[cache_key]
                 if time.time() - timestamp < CACHE_TTL_SECONDS:
                     log.info("⚡ Runtime TTL Cache HIT for key: %r", cache_key)
-                    # Mark response as cached for routing inspection
                     cached_response.route.path = "cache_hit"
                     return cached_response
                 else:
                     log.info("Expired TTL Cache entry for key: %r", cache_key)
                     del RESPONSE_CACHE[cache_key]
 
-        # 2. Cache Miss - Run Runner Pipeline
         log.info("🐢 Runtime TTL Cache MISS for key: %r", cache_key)
         prompt = self._prompt(req)
         started = time.perf_counter()
@@ -178,10 +180,8 @@ class AdvisorRuntime:
             route=route,
         )
 
-        # 3. Store in TTL Cache with LRU Size Eviction
         async with _CACHE_LOCK:
             if len(RESPONSE_CACHE) >= MAX_CACHE_SIZE:
-                # Remove oldest inserted item
                 oldest_key = next(iter(RESPONSE_CACHE))
                 del RESPONSE_CACHE[oldest_key]
             RESPONSE_CACHE[cache_key] = (time.time(), response)
@@ -193,7 +193,6 @@ _runtime: AdvisorRuntime | None = None
 
 
 def get_runtime() -> AdvisorRuntime:
-    """Returns a process-wide singleton instance of AdvisorRuntime."""
     global _runtime
     if _runtime is None:
         _runtime = AdvisorRuntime()
