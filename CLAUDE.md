@@ -156,9 +156,14 @@ CSS custom properties on `:root` / `.dark`.
 | Raised surface | `#ffffff` | `#1c1b19` |
 | Ink primary | `#191817` | `#f4f3ef` |
 | Ink secondary | `#5a5852` | `#b9b6ac` |
-| Ink muted (axes, meta) | `#8b887f` | `#85827a` |
+| Ink muted (axes, meta) | `#6f6c63` | `#8a877f` |
 | Hairline border | `rgba(25,24,23,.10)` | `rgba(244,243,239,.10)` |
-| Accent (interactive, focus) | `#2a78d6` | `#5598e7` |
+| Accent (interactive, focus) | `#2166bf` | `#5598e7` |
+
+> Ink-muted and the light accent were darkened from `#8b887f` / `#2a78d6` so
+> small informational text and accent links clear WCAG AA (4.5:1) on every
+> surface; the originals sat at ~3.2:1 and ~4.0:1 on the page plane. Focus rings
+> (a 3:1 non-text bar) only strengthen.
 
 **Glass** (`GLASS` in `tokens.ts`, `.glass` utility in `index.css`) — for
 surfaces that **float over content**: the app header, the sticky Explore

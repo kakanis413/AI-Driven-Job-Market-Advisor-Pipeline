@@ -10,10 +10,16 @@
   --raised: #ffffff;
   --ink: #191817;
   --ink2: #5a5852;
-  --ink3: #8b887f;
+  /* Muted meta/labels. Darkened from #8b887f so small informational text clears
+     WCAG AA 4.5:1 on every surface (was ~3.2:1 on the page plane — a real fail
+     for the micro labels, captions, and axis text this token drives). */
+  --ink3: #6f6c63;
   --line: rgba(25, 24, 23, 0.1);
-  --accent: #2a78d6;
-  --accent-soft: rgba(42, 120, 214, 0.12);
+  /* Interactive/brand blue. Deepened from #2a78d6 so accent TEXT (links, the
+     wordmark accent word) clears 4.5:1 on light surfaces; the old value sat at
+     3.98–4.42:1. Focus rings (a 3:1 non-text requirement) only get stronger. */
+  --accent: #2166bf;
+  --accent-soft: rgba(33, 102, 191, 0.12);
   /* Glass — floating surfaces only (header, toolbar, panel, tooltip, detail). */
   --glass-bg: rgba(250, 249, 246, 0.72);
   --glass-border: rgba(25, 24, 23, 0.08);
@@ -26,7 +32,9 @@
   --raised: #1c1b19;
   --ink: #f4f3ef;
   --ink2: #b9b6ac;
-  --ink3: #85827a;
+  /* Nudged lighter (#85827a → #8a877f) so muted text clears 4.5:1 on the raised
+     surface too (it landed at 4.48:1, a hair under). */
+  --ink3: #8a877f;
   --line: rgba(244, 243, 239, 0.1);
   --accent: #5598e7;
   --accent-soft: rgba(85, 152, 231, 0.16);
