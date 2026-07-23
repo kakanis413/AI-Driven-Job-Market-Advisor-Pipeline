@@ -1,0 +1,626 @@
+[
+{
+"unitid": 131469,
+"name": "American University",
+"state": "DC",
+"domain": "american.edu"
+},
+{
+"unitid": 104151,
+"name": "Arizona State University Campus Immersion",
+"state": "AZ",
+"domain": "asu.edu"
+},
+{
+"unitid": 100858,
+"name": "Auburn University",
+"state": "AL",
+"domain": "auburn.edu"
+},
+{
+"unitid": 164924,
+"name": "Boston College",
+"state": "MA",
+"domain": "bc.edu"
+},
+{
+"unitid": 164988,
+"name": "Boston University",
+"state": "MA",
+"domain": "bu.edu"
+},
+{
+"unitid": 165015,
+"name": "Brandeis University",
+"state": "MA",
+"domain": "brandeis.edu"
+},
+{
+"unitid": 230728,
+"name": "Brigham Young University",
+"state": "UT",
+"domain": "byu.edu"
+},
+{
+"unitid": 217156,
+"name": "Brown University",
+"state": "RI",
+"domain": "brown.edu"
+},
+{
+"unitid": 122409,
+"name": "California Institute of Technology",
+"state": "CA",
+"domain": "caltech.edu"
+},
+{
+"unitid": 110097,
+"name": "California Polytechnic State University-San Luis Obispo",
+"state": "CA",
+"domain": "calpoly.edu"
+},
+{
+"unitid": 211440,
+"name": "Carnegie Mellon University",
+"state": "PA",
+"domain": "cmu.edu"
+},
+{
+"unitid": 201885,
+"name": "Case Western Reserve University",
+"state": "OH",
+"domain": "case.edu"
+},
+{
+"unitid": 218733,
+"name": "Clemson University",
+"state": "SC",
+"domain": "clemson.edu"
+},
+{
+"unitid": 126614,
+"name": "Colorado State University-Fort Collins",
+"state": "CO",
+"domain": "colostate.edu"
+},
+{
+"unitid": 190150,
+"name": "Columbia University in the City of New York",
+"state": "NY",
+"domain": "columbia.edu"
+},
+{
+"unitid": 190415,
+"name": "Cornell University",
+"state": "NY",
+"domain": "cornell.edu"
+},
+{
+"unitid": 182670,
+"name": "Dartmouth College",
+"state": "NH",
+"domain": "dartmouth.edu"
+},
+{
+"unitid": 198419,
+"name": "Duke University",
+"state": "NC",
+"domain": "duke.edu"
+},
+{
+"unitid": 139658,
+"name": "Emory University",
+"state": "GA",
+"domain": "emory.edu"
+},
+{
+"unitid": 134097,
+"name": "Florida State University",
+"state": "FL",
+"domain": "fsu.edu"
+},
+{
+"unitid": 232557,
+"name": "George Mason University",
+"state": "VA",
+"domain": "gmu.edu"
+},
+{
+"unitid": 131496,
+"name": "George Washington University",
+"state": "DC",
+"domain": "gwu.edu"
+},
+{
+"unitid": 130943,
+"name": "Georgetown University",
+"state": "DC",
+"domain": "georgetown.edu"
+},
+{
+"unitid": 139959,
+"name": "Georgia Institute of Technology-Main Campus",
+"state": "GA",
+"domain": "gatech.edu"
+},
+{
+"unitid": 166027,
+"name": "Harvard University",
+"state": "MA",
+"domain": "harvard.edu"
+},
+{
+"unitid": 145813,
+"name": "Illinois Institute of Technology",
+"state": "IL",
+"domain": "iit.edu"
+},
+{
+"unitid": 151351,
+"name": "Indiana University-Bloomington",
+"state": "IN",
+"domain": "iu.edu"
+},
+{
+"unitid": 162928,
+"name": "Johns Hopkins University",
+"state": "MD",
+"domain": "jhu.edu"
+},
+{
+"unitid": 159391,
+"name": "Louisiana State University and Agricultural & Mechanical College",
+"state": "LA",
+"domain": "lsu.edu"
+},
+{
+"unitid": 240329,
+"name": "Marquette University",
+"state": "WI",
+"domain": "marquette.edu"
+},
+{
+"unitid": 166683,
+"name": "Massachusetts Institute of Technology",
+"state": "MA",
+"domain": "mit.edu"
+},
+{
+"unitid": 201645,
+"name": "Miami University-Oxford",
+"state": "OH",
+"domain": "miamioh.edu"
+},
+{
+"unitid": 171100,
+"name": "Michigan State University",
+"state": "MI",
+"domain": "msu.edu"
+},
+{
+"unitid": 130697,
+"name": "New York University",
+"state": "NY",
+"domain": "nyu.edu"
+},
+{
+"unitid": 199193,
+"name": "North Carolina State University at Raleigh",
+"state": "NC",
+"domain": "ncsu.edu"
+},
+{
+"unitid": 167358,
+"name": "Northeastern University",
+"state": "MA",
+"domain": "northeastern.edu"
+},
+{
+"unitid": 147767,
+"name": "Northwestern University",
+"state": "IL",
+"domain": "northwestern.edu"
+},
+{
+"unitid": 204796,
+"name": "Ohio State University-Main Campus",
+"state": "OH",
+"domain": "osu.edu"
+},
+{
+"unitid": 209542,
+"name": "Oregon State University",
+"state": "OR",
+"domain": "oregonstate.edu"
+},
+{
+"unitid": 214777,
+"name": "Pennsylvania State University-Main Campus",
+"state": "PA",
+"domain": "psu.edu"
+},
+{
+"unitid": 186131,
+"name": "Princeton University",
+"state": "NJ",
+"domain": "princeton.edu"
+},
+{
+"unitid": 243780,
+"name": "Purdue University-Main Campus",
+"state": "IN",
+"domain": "purdue.edu"
+},
+{
+"unitid": 194824,
+"name": "Rensselaer Polytechnic Institute",
+"state": "NY",
+"domain": "rpi.edu"
+},
+{
+"unitid": 227757,
+"name": "Rice University",
+"state": "TX",
+"domain": "rice.edu"
+},
+{
+"unitid": 186380,
+"name": "Rutgers University-New Brunswick",
+"state": "NJ",
+"domain": "rutgers.edu"
+},
+{
+"unitid": 227216,
+"name": "Southern Methodist University",
+"state": "TX",
+"domain": "smu.edu"
+},
+{
+"unitid": 243744,
+"name": "Stanford University",
+"state": "CA",
+"domain": "stanford.edu"
+},
+{
+"unitid": 196097,
+"name": "Stony Brook University",
+"state": "NY",
+"domain": "stonybrook.edu"
+},
+{
+"unitid": 195030,
+"name": "Syracuse University",
+"state": "NY",
+"domain": "syracuse.edu"
+},
+{
+"unitid": 216287,
+"name": "Temple University",
+"state": "PA",
+"domain": "temple.edu"
+},
+{
+"unitid": 228723,
+"name": "Texas A & M University-College Station",
+"state": "TX",
+"domain": "tamu.edu"
+},
+{
+"unitid": 228246,
+"name": "Texas Tech University",
+"state": "TX",
+"domain": "ttu.edu"
+},
+{
+"unitid": 100751,
+"name": "The University of Alabama",
+"state": "AL",
+"domain": "ua.edu"
+},
+{
+"unitid": 228778,
+"name": "The University of Texas at Austin",
+"state": "TX",
+"domain": "utexas.edu"
+},
+{
+"unitid": 168342,
+"name": "Tufts University",
+"state": "MA",
+"domain": "tufts.edu"
+},
+{
+"unitid": 104179,
+"name": "University of Arizona",
+"state": "AZ",
+"domain": "arizona.edu"
+},
+{
+"unitid": 110635,
+"name": "University of California-Berkeley",
+"state": "CA",
+"domain": "berkeley.edu"
+},
+{
+"unitid": 110705,
+"name": "University of California-Davis",
+"state": "CA",
+"domain": "ucdavis.edu"
+},
+{
+"unitid": 110644,
+"name": "University of California-Irvine",
+"state": "CA",
+"domain": "uci.edu"
+},
+{
+"unitid": 110662,
+"name": "University of California-Los Angeles",
+"state": "CA",
+"domain": "ucla.edu"
+},
+{
+"unitid": 110671,
+"name": "University of California-San Diego",
+"state": "CA",
+"domain": "ucsd.edu"
+},
+{
+"unitid": 110680,
+"name": "University of California-Santa Barbara",
+"state": "CA",
+"domain": "ucsb.edu"
+},
+{
+"unitid": 110714,
+"name": "University of California-Santa Cruz",
+"state": "CA",
+"domain": "ucsc.edu"
+},
+{
+"unitid": 137351,
+"name": "University of Central Florida",
+"state": "FL",
+"domain": "ucf.edu"
+},
+{
+"unitid": 144050,
+"name": "University of Chicago",
+"state": "IL",
+"domain": "uchicago.edu"
+},
+{
+"unitid": 206084,
+"name": "University of Cincinnati-Main Campus",
+"state": "OH",
+"domain": "uc.edu"
+},
+{
+"unitid": 129020,
+"name": "University of Colorado Boulder",
+"state": "CO",
+"domain": "colorado.edu"
+},
+{
+"unitid": 130590,
+"name": "University of Connecticut",
+"state": "CT",
+"domain": "uconn.edu"
+},
+{
+"unitid": 134130,
+"name": "University of Florida",
+"state": "FL",
+"domain": "ufl.edu"
+},
+{
+"unitid": 139755,
+"name": "University of Georgia",
+"state": "GA",
+"domain": "uga.edu"
+},
+{
+"unitid": 225511,
+"name": "University of Houston",
+"state": "TX",
+"domain": "uh.edu"
+},
+{
+"unitid": 145600,
+"name": "University of Illinois Chicago",
+"state": "IL",
+"domain": "uic.edu"
+},
+{
+"unitid": 145637,
+"name": "University of Illinois Urbana-Champaign",
+"state": "IL",
+"domain": "illinois.edu"
+},
+{
+"unitid": 153658,
+"name": "University of Iowa",
+"state": "IA",
+"domain": "uiowa.edu"
+},
+{
+"unitid": 155317,
+"name": "University of Kansas",
+"state": "KS",
+"domain": "ku.edu"
+},
+{
+"unitid": 157085,
+"name": "University of Kentucky",
+"state": "KY",
+"domain": "uky.edu"
+},
+{
+"unitid": 163286,
+"name": "University of Maryland-College Park",
+"state": "MD",
+"domain": "umd.edu"
+},
+{
+"unitid": 168421,
+"name": "University of Massachusetts-Amherst",
+"state": "MA",
+"domain": "umass.edu"
+},
+{
+"unitid": 170976,
+"name": "University of Michigan-Ann Arbor",
+"state": "MI",
+"domain": "umich.edu"
+},
+{
+"unitid": 174066,
+"name": "University of Minnesota-Twin Cities",
+"state": "MN",
+"domain": "umn.edu"
+},
+{
+"unitid": 176017,
+"name": "University of Mississippi",
+"state": "MS",
+"domain": "olemiss.edu"
+},
+{
+"unitid": 178396,
+"name": "University of Missouri-Columbia",
+"state": "MO",
+"domain": "missouri.edu"
+},
+{
+"unitid": 181464,
+"name": "University of Nebraska-Lincoln",
+"state": "NE",
+"domain": "unl.edu"
+},
+{
+"unitid": 182281,
+"name": "University of Nevada-Reno",
+"state": "NV",
+"domain": "unr.edu"
+},
+{
+"unitid": 187985,
+"name": "University of New Mexico-Main Campus",
+"state": "NM",
+"domain": "unm.edu"
+},
+{
+"unitid": 199120,
+"name": "University of North Carolina at Chapel Hill",
+"state": "NC",
+"domain": "unc.edu"
+},
+{
+"unitid": 152080,
+"name": "University of Notre Dame",
+"state": "IN",
+"domain": "nd.edu"
+},
+{
+"unitid": 207500,
+"name": "University of Oklahoma-Norman Campus",
+"state": "OK",
+"domain": "ou.edu"
+},
+{
+"unitid": 209551,
+"name": "University of Oregon",
+"state": "OR",
+"domain": "uoregon.edu"
+},
+{
+"unitid": 215062,
+"name": "University of Pennsylvania",
+"state": "PA",
+"domain": "upenn.edu"
+},
+{
+"unitid": 215293,
+"name": "University of Pittsburgh-Pittsburgh Campus",
+"state": "PA",
+"domain": "pitt.edu"
+},
+{
+"unitid": 218663,
+"name": "University of South Carolina-Columbia",
+"state": "SC",
+"domain": "sc.edu"
+},
+{
+"unitid": 123961,
+"name": "University of Southern California",
+"state": "CA",
+"domain": "usc.edu"
+},
+{
+"unitid": 218964,
+"name": "University of Tennessee-Knoxville",
+"state": "TN",
+"domain": "utk.edu"
+},
+{
+"unitid": 230764,
+"name": "University of Utah",
+"state": "UT",
+"domain": "utah.edu"
+},
+{
+"unitid": 234076,
+"name": "University of Virginia-Main Campus",
+"state": "VA",
+"domain": "virginia.edu"
+},
+{
+"unitid": 236948,
+"name": "University of Washington-Seattle Campus",
+"state": "WA",
+"domain": "washington.edu"
+},
+{
+"unitid": 240444,
+"name": "University of Wisconsin-Madison",
+"state": "WI",
+"domain": "wisc.edu"
+},
+{
+"unitid": 240727,
+"name": "University of Wyoming",
+"state": "WY",
+"domain": "uwyo.edu"
+},
+{
+"unitid": 221999,
+"name": "Vanderbilt University",
+"state": "TN",
+"domain": "vanderbilt.edu"
+},
+{
+"unitid": 233921,
+"name": "Virginia Polytechnic Institute and State University",
+"state": "VA",
+"domain": "vt.edu"
+},
+{
+"unitid": 236595,
+"name": "Washington State University",
+"state": "WA",
+"domain": "wsu.edu"
+},
+{
+"unitid": 179867,
+"name": "Washington University in St Louis",
+"state": "MO",
+"domain": "wustl.edu"
+},
+{
+"unitid": 130794,
+"name": "Yale University",
+"state": "CT",
+"domain": "yale.edu"
+}
+]

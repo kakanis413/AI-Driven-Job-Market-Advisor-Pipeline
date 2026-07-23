@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Landing from './pages/Landing'
 import Explore from './pages/Explore'
 import News from './pages/News'
+import Chat from './pages/Chat'
 import { Logo, NavCluster } from './components/Chrome'
 import { FAMILY_ORDER } from './design/tokens'
 import type { Family } from './types'
@@ -48,6 +49,14 @@ export default function App() {
 
   return (
     <div className="min-h-screen pb-20">
+      {/* Bypass block (WCAG 2.4.1): first Tab stop jumps keyboard users past the
+          header/nav straight to the page content. Visually hidden until focused. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-3 focus:z-[70] focus:rounded-lg focus:border focus:border-line focus:bg-raised focus:px-4 focus:py-2 focus:text-[13px] focus:font-semibold focus:text-ink focus:shadow-lg"
+      >
+        Skip to content
+      </a>
       {/* On Explore the logo + nav live inside that page's single combined bar,
           so the global header only renders on landing / news. */}
       {page !== 'explore' && (
@@ -56,13 +65,14 @@ export default function App() {
             <Logo
               mode={mode}
               onHome={() => nav('landing')}
-              context={page === 'news' ? 'News' : undefined}
+              context={page === 'news' ? 'News' : page === 'chat' ? 'Chat' : undefined}
             />
             <NavCluster page={page} mode={mode} onNav={onNav} onToggle={toggle} />
           </div>
         </header>
       )}
 
+      <main id="main-content" tabIndex={-1} className="outline-none">
       <AnimatePresence mode="wait">
         {page === 'landing' ? (
           <motion.div
@@ -91,6 +101,16 @@ export default function App() {
               onFamily={(f) => nav('news', f)}
             />
           </motion.div>
+        ) : page === 'chat' ? (
+          <motion.div
+            key="chat"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.32, ease: EASE }}
+          >
+            <Chat majors={majors} mode={mode} initialCip={sub} />
+          </motion.div>
         ) : (
           <motion.div
             key="explore"
@@ -115,6 +135,7 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      </main>
 
       {/* Hard rule 4: the caveat is pinned and always visible. */}
       <footer className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface/90 backdrop-blur">

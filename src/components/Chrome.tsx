@@ -71,7 +71,7 @@ export function NavCluster({
   return (
     <div className="flex shrink-0 items-center gap-1">
       <nav className="hidden items-center sm:flex">
-        {(['explore', 'news'] as const).map((p) => {
+        {(['explore', 'chat', 'news'] as const).map((p) => {
           const active = page === p
           return (
             <button

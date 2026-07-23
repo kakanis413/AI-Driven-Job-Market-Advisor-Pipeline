@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { fmtExposure, fmtPay, growthOf } from '../design/scales'
 import { askAdvisor } from '../lib/advisor'
+import { useUniversity } from '../hooks/useUniversity'
+import UniversityGateModal from './UniversityGateModal'
 import type { Major } from '../types'
 
 interface Msg {
@@ -68,9 +70,15 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
       : 'Which majors are most exposed to AI?',
   )
   const [pending, setPending] = useState(false)
+  const reduceMotion = useReducedMotion()
   const idRef = useRef(0)
   const lastSentRef = useRef('')
   const logRef = useRef<HTMLDivElement>(null)
+
+  // Personalization: carry the chosen school on every request, and raise the
+  // soft gate once — after the first successful reply, if no school is set yet.
+  const { university, gateDismissed, hasChatted, markChatted } = useUniversity()
+  const [gateOpen, setGateOpen] = useState(false)
 
   // Soft fade masks at whichever edge has hidden content, so overflow is never
   // silent. Recomputed on scroll and whenever the thread changes.
@@ -104,8 +112,22 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
     push('user', text)
     setInput('')
     setPending(true)
-    askAdvisor({ major: major ?? null, message: text })
-      .then((reply) => push('advisor', reply))
+    askAdvisor({
+      major: major ?? null,
+      message: text,
+      // Only set when a school is chosen → national request is unchanged otherwise.
+      university: university?.name,
+      universityDomain: university?.domain,
+      intendedMajor: university?.intendedMajor || major?.major,
+    })
+      .then((reply) => {
+        push('advisor', reply)
+        // Soft gate, once per user: first successful reply, no school, not dismissed.
+        if (!university && !gateDismissed && !hasChatted) {
+          markChatted()
+          setGateOpen(true)
+        }
+      })
       .catch((e: unknown) =>
         push('error', `Couldn’t reach the advisor (${e instanceof Error ? e.message : String(e)}).`),
       )
@@ -138,19 +160,28 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
             </div>
           )}
           {messages.map((msg) => (
-            <div
+            <motion.div
               key={msg.id}
-              className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-[13.5px] leading-relaxed ${
+              initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: reduceMotion ? 0.15 : 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className={
                 msg.role === 'user'
-                  ? 'ml-auto rounded-br-md bg-ink text-page'
-                  : msg.role === 'advisor'
-                    ? 'mr-auto rounded-bl-md border border-line bg-raised text-ink'
-                    : 'mr-auto rounded-bl-md border border-line bg-raised text-ink2'
-              }`}
+                  ? 'ml-auto max-w-[82%] rounded-2xl rounded-br-md bg-ink px-3.5 py-2.5 text-[13.5px] leading-relaxed text-page'
+                  : msg.role === 'error'
+                    ? 'mr-auto max-w-[92%] rounded-2xl rounded-bl-md border border-accent/30 bg-raised px-3.5 py-2.5 text-[13.5px] leading-relaxed text-ink2'
+                    : 'mr-auto w-full max-w-[min(94%,44rem)]'
+              }
             >
               {msg.role === 'advisor' ? (
-                <div className="prose prose-invert max-w-none space-y-2 [&>p]:m-0 [&>ul]:my-1.5 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_h3]:my-1 [&_h3]:text-[14px] [&_h3]:font-semibold">
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                <div className="rounded-2xl rounded-bl-md border border-line bg-raised px-4 py-3">
+                  <div className="mb-1.5 flex items-center gap-1.5">
+                    <span className="grid size-4 place-items-center rounded-full bg-accent-soft">
+                      <span className="size-1.5 rounded-full bg-accent" />
+                    </span>
+                    <span className="micro text-ink3">Advisor</span>
+                  </div>
+                  <AdvisorMarkdown text={msg.text} />
                 </div>
               ) : (
                 <span>{msg.text}</span>
@@ -164,7 +195,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
                   Retry
                 </button>
               )}
-            </div>
+            </motion.div>
           ))}
           {pending && <ThinkingIndicator />}
           
@@ -238,6 +269,52 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
           </svg>
         </button>
       </form>
+
+      <UniversityGateModal open={gateOpen} major={major} onClose={() => setGateOpen(false)} />
+    </div>
+  )
+}
+
+/** Advisor reply, rendered from markdown. The @tailwindcss/typography plugin
+ *  isn't installed, so block spacing/links/lists are styled explicitly here via
+ *  arbitrary variants — paragraphs get real breathing room (the old `space-y-2`
+ *  was cancelled by a `[&>p]:m-0`, which collapsed replies into a wall of text).
+ *  Links open safely in a new tab. */
+function AdvisorMarkdown({ text }: { text: string }) {
+  return (
+    <div
+      className={[
+        'space-y-3 text-[13.5px] leading-[1.62] text-ink',
+        // headings
+        '[&_h1]:mt-1 [&_h1]:text-[15px] [&_h1]:font-semibold [&_h1]:tracking-[-0.01em]',
+        '[&_h2]:mt-1 [&_h2]:text-[14.5px] [&_h2]:font-semibold [&_h2]:tracking-[-0.01em]',
+        '[&_h3]:mt-1 [&_h3]:text-[14px] [&_h3]:font-semibold',
+        // emphasis
+        '[&_strong]:font-semibold [&_strong]:text-ink [&_em]:italic',
+        // lists
+        '[&_ul]:list-disc [&_ul]:space-y-1 [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:space-y-1 [&_ol]:pl-5',
+        '[&_li]:pl-0.5 [&_li>ul]:mt-1 [&_li>ol]:mt-1',
+        // links — accent, underline on hover, safe target
+        '[&_a]:font-medium [&_a]:text-accent [&_a]:underline [&_a]:decoration-accent/40 [&_a]:underline-offset-2 hover:[&_a]:decoration-accent',
+        // code + quotes
+        '[&_code]:rounded [&_code]:bg-page [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[12.5px]',
+        '[&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-page [&_pre]:p-3',
+        '[&_blockquote]:border-l-2 [&_blockquote]:border-line [&_blockquote]:pl-3 [&_blockquote]:text-ink2',
+        // dividers between sections
+        '[&_hr]:my-3 [&_hr]:border-line',
+      ].join(' ')}
+    >
+      <ReactMarkdown
+        components={{
+          a: ({ href, children }) => (
+            <a href={href} target="_blank" rel="noopener noreferrer">
+              {children}
+            </a>
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </div>
   )
 }

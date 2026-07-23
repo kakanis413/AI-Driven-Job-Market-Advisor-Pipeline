@@ -246,7 +246,7 @@ export default function Explore({
         </div>
       </div>
 
-      <main className="mx-auto mt-3 max-w-[1400px] px-5 md:px-8">
+      <div className="mx-auto mt-3 max-w-[1400px] px-5 md:px-8">
         <div ref={vizRef} className="relative min-w-0">
           {status === 'loading' && vizW > 0 && <SkeletonViz width={vizW} height={mapH} />}
           {status === 'error' && <ErrorCard height={mapH} url={url} retry={retry} />}
@@ -292,7 +292,7 @@ export default function Explore({
             />
           )}
         </div>
-      </main>
+      </div>
 
       {/* Advisor launcher: a circle that morphs into the panel. */}
       <AnimatePresence>
