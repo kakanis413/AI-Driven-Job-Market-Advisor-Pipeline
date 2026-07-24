@@ -92,11 +92,11 @@ export default function Explore({
 
   const vh = useViewportHeight()
   const { ref: vizRef, width: vizW } = useMeasure<HTMLDivElement>()
-  // Glass chrome is now up to ~194 tall (controls + inline legend, with the nav
-  // wrapping to its own line on mid-width screens) plus the search row; subtract
-  // that, the pinned footer (~48), and a little breathing room so the map always
-  // clears the footer at every breakpoint.
-  const mapH = Math.max(440, vh - 250)
+  // Glass chrome is up to ~186 tall (controls + inline legend, with the nav
+  // wrapping to its own line on mid-width screens, plus the tightened search
+  // row); subtract that, the pinned footer (~48), and a little breathing room so
+  // the map always clears the footer at every breakpoint.
+  const mapH = Math.max(440, vh - 242)
 
   const payExtent = useMemo<[number, number]>(() => {
     const pays = majors.map((m) => m.median_pay).filter((p): p is number => p != null)
@@ -289,8 +289,8 @@ export default function Explore({
               the compact color scale for the tile views, the value caption for
               the board. At xl this row is search only — the inline legend in
               row 1 takes over. */}
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line py-2.5">
-            <div className="w-full max-w-[420px]">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line py-1.5">
+            <div className="w-full max-w-[560px]">
               <SearchSpotlight
                 compact
                 majors={majors}
