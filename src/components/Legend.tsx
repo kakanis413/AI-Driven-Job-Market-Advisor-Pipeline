@@ -54,14 +54,17 @@ export default function Legend({
         aria-label={ariaLabel}
         className={compact ? 'flex items-center gap-2' : 'flex flex-col gap-1.5'}
       >
+        {/* Every label here rides the one `micro` token — title, endpoint
+            captions, and the area note all render at the same size/tracking as
+            the toolbar labels and column headers. */}
         {compact ? (
           <>
             <span className="micro shrink-0 text-ink3">{title}</span>
-            <span className="shrink-0 text-[11px] text-ink3" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <span className="micro shrink-0 text-ink3" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {lo}
             </span>
             {bar}
-            <span className="shrink-0 text-[11px] text-ink3" style={{ fontVariantNumeric: 'tabular-nums' }}>
+            <span className="micro shrink-0 text-ink3" style={{ fontVariantNumeric: 'tabular-nums' }}>
               {hi}
             </span>
           </>
@@ -70,7 +73,7 @@ export default function Legend({
             <div className="micro text-ink3">{title}</div>
             {bar}
             <div
-              className="flex justify-between text-[11px] text-ink3"
+              className="micro flex justify-between text-ink3"
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >
               <span>{layer === 'exposure' ? '0 · low' : fmtPay(payExtent[0])}</span>
