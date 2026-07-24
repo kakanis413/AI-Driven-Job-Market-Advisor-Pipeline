@@ -36,8 +36,20 @@ MAJORS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.dim_major_cip4_clean"
 CROSSWALK_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.cip4_to_soc_crosswalk_clean"
 OEWS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.occupations_oews_clean"
 OCCUPATIONS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.dim_occupations"
+
+# AI-exposure headline number. The v2 tables are the Karpathy-style direct
+# major scores (batch/major_scoring.py) — they replace the compressed rollup
+# as the source of truth, and fill in the ~96 majors the rollup left null.
+# The v1 tables (produced by rollup_pipeline.sql) are kept as a fallback so a
+# major only in v1 still gets a number, and so this pipeline never regresses
+# if a future v2 run is missing.
+SCORES_V2_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_scores_v2"
+RATIONALES_V2_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales_v2"
 SCORES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_scores"
 RATIONALES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales"
+RUNS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.ai_scoring_runs"
+# The approved direct-major run whose scores/rationales are production truth.
+MAJOR_SCORING_RUN_ID = "major_karpathy_v2"
 
 # Default GCS bucket for output
 DEFAULT_BUCKET = "majors-data-bucket"
@@ -61,15 +73,41 @@ def build_majors_query() -> str:
     """
     return f"""
     WITH
-    -- Step 0: Get AI exposure scores and rationales
+    -- Step 0: Get AI exposure scores and rationales.
+    -- Prefer the approved Karpathy-style direct major scores (v2); fall back
+    -- to the rollup scores (v1) for any major v2 didn't cover. NULL stays NULL
+    -- (never fabricated) — a major absent from both simply has no score.
+    -- The v2 side is gated on run_status='approved' so an unreviewed run can't
+    -- leak into published data.json (the approved-run discipline, preserved).
+    approved_major_run AS (
+        SELECT scoring_run_id
+        FROM `{RUNS_TABLE}`
+        WHERE scoring_run_id = '{MAJOR_SCORING_RUN_ID}'
+          AND run_status = 'approved'
+    ),
+    scores_v2 AS (
+        SELECT v2.cip4_code, v2.major_exposure_score
+        FROM `{SCORES_V2_TABLE}` v2
+        JOIN approved_major_run a ON v2.scoring_run_id = a.scoring_run_id
+        WHERE v2.scoring_status = 'scored'
+    ),
+    rationales_v2 AS (
+        SELECT rv2.cip4_code, rv2.rationale
+        FROM `{RATIONALES_V2_TABLE}` rv2
+        JOIN approved_major_run a ON rv2.scoring_run_id = a.scoring_run_id
+    ),
     ai_data AS (
         SELECT
-            s.cip4_code,
-            s.major_exposure_score,
-            r.rationale
-        FROM `{SCORES_TABLE}` s
+            COALESCE(v2.cip4_code, s.cip4_code) AS cip4_code,
+            COALESCE(v2.major_exposure_score, s.major_exposure_score) AS major_exposure_score,
+            COALESCE(rv2.rationale, r.rationale) AS rationale
+        FROM scores_v2 v2
+        FULL OUTER JOIN `{SCORES_TABLE}` s
+            ON v2.cip4_code = s.cip4_code
+        LEFT JOIN rationales_v2 rv2
+            ON COALESCE(v2.cip4_code, s.cip4_code) = rv2.cip4_code
         LEFT JOIN `{RATIONALES_TABLE}` r
-            ON s.cip4_code = r.cip4_code
+            ON COALESCE(v2.cip4_code, s.cip4_code) = r.cip4_code
     ),
 
     -- Step 1: Get occupation data with employment and growth from dim_occupations
