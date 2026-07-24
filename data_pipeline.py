@@ -1,17 +1,8 @@
 """
 Data pipeline: BigQuery → data.json → Google Cloud Storage
 
-This module builds the "read path" for the college-majors heatmap visualizer.
-It queries BigQuery tables, computes employment-weighted metrics per major,
-outputs a compact data.json, and uploads it to GCS with caching enabled.
-
-Tables:
-    - dim_majors: One row per college major (CIP code, graduates, debt, earnings)
-    - cip4_to_soc_crosswalk_clean: Many-to-many bridge between CIP ↔ SOC codes
-    - occupations_oews_clean: One row per occupation (SOC code, wages, employment)
-
-Usage:
-    python data_pipeline.py [--bucket BUCKET_NAME] [--output PATH] [--dry-run]
+Filters out low-sample/niche majors lacking salary data to ensure high-impact,
+accurate statistics on the client frontend.
 """
 
 import argparse
@@ -23,39 +14,32 @@ from typing import Any
 from google.cloud import bigquery
 from google.cloud import storage
 
-
 # ─────────────────────────────────────────────────────────────────────────────
-# Configuration
+# Configuration & Thresholds (Option 1 Applied)
 # ─────────────────────────────────────────────────────────────────────────────
 
 GCP_PROJECT = "sprinternship-sea-2026"
 BQ_DATASET = "majors"
 
-# Table names (fully qualified)
+# Data Quality Thresholds
+MIN_GRADUATES_THRESHOLD = 500  # Excludes micro-majors with trivial graduate counts (< 500)
+REQUIRE_SALARY_DATA = True     # Excludes rows where median pay is missing ('—')
+
 MAJORS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.dim_major_cip4_clean"
 CROSSWALK_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.cip4_to_soc_crosswalk_clean"
 OEWS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.occupations_oews_clean"
 OCCUPATIONS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.dim_occupations"
 
-# AI-exposure headline number. The v2 tables are the Karpathy-style direct
-# major scores (batch/major_scoring.py) — they replace the compressed rollup
-# as the source of truth, and fill in the ~96 majors the rollup left null.
-# The v1 tables (produced by rollup_pipeline.sql) are kept as a fallback so a
-# major only in v1 still gets a number, and so this pipeline never regresses
-# if a future v2 run is missing.
 SCORES_V2_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_scores_v2"
 RATIONALES_V2_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales_v2"
 SCORES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_scores"
 RATIONALES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales"
 RUNS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.ai_scoring_runs"
-# The approved direct-major run whose scores/rationales are production truth.
+
 MAJOR_SCORING_RUN_ID = "major_karpathy_v2"
 
-# Default GCS bucket for output
 DEFAULT_BUCKET = "majors-data-bucket"
 DEFAULT_OUTPUT_PATH = "data.json"
-
-# Cache-Control header for GCS object (1 hour public cache)
 CACHE_CONTROL = "public, max-age=3600"
 
 
@@ -63,22 +47,14 @@ CACHE_CONTROL = "public, max-age=3600"
 # SQL Query
 # ─────────────────────────────────────────────────────────────────────────────
 
-def build_majors_query() -> str:
+def build_majors_query(min_graduates: int = MIN_GRADUATES_THRESHOLD, require_salary: bool = REQUIRE_SALARY_DATA) -> str:
     """
-    Build the SQL query that joins majors with occupations via the crosswalk
-    and computes employment-weighted metrics.
+    Build the SQL query with data quality thresholds to filter out niche majors.
+    """
+    salary_clause = "AND m.median_earnings_4yr IS NOT NULL" if require_salary else ""
 
-    Returns:
-        SQL query string
-    """
     return f"""
     WITH
-    -- Step 0: Get AI exposure scores and rationales.
-    -- Prefer the approved Karpathy-style direct major scores (v2); fall back
-    -- to the rollup scores (v1) for any major v2 didn't cover. NULL stays NULL
-    -- (never fabricated) — a major absent from both simply has no score.
-    -- The v2 side is gated on run_status='approved' so an unreviewed run can't
-    -- leak into published data.json (the approved-run discipline, preserved).
     approved_major_run AS (
         SELECT scoring_run_id
         FROM `{RUNS_TABLE}`
@@ -110,7 +86,6 @@ def build_majors_query() -> str:
             ON COALESCE(v2.cip4_code, s.cip4_code) = r.cip4_code
     ),
 
-    -- Step 1: Get occupation data with employment and growth from dim_occupations
     occupation_data AS (
         SELECT
             cw.cip4_code,
@@ -127,29 +102,23 @@ def build_majors_query() -> str:
           AND occ.employment_2024 > 0
     ),
 
-    -- Step 2: Aggregate occupation metrics per major (employment-weighted)
     major_occupation_metrics AS (
         SELECT
             cip4_code,
-            -- Employment-weighted average of median wages from linked occupations
             SAFE_DIVIDE(
                 SUM(employment_2024 * median_wage_annual),
                 SUM(employment_2024)
             ) AS weighted_occ_pay,
-            -- Employment-weighted average growth (outlook_pct)
             SAFE_DIVIDE(
                 SUM(employment_2024 * outlook_pct),
                 SUM(employment_2024)
             ) AS weighted_growth,
-            -- Count of distinct occupations (versatility)
             COUNT(DISTINCT soc_code) AS versatility,
-            -- Total linked employment
             SUM(employment_2024) AS total_linked_employment
         FROM occupation_data
         GROUP BY cip4_code
     ),
 
-    -- Step 3: Join with majors table and compute final metrics
     majors_with_metrics AS (
         SELECT
             m.cip4_code,
@@ -158,21 +127,16 @@ def build_majors_query() -> str:
             m.completions_bachelors AS graduates,
             m.median_earnings_4yr AS median_pay,
             m.median_debt,
-            -- Fallback to 0.0 if growth is null to satisfy schema validation
             COALESCE(occ.weighted_growth, 0.0) AS growth,
             occ.versatility
         FROM `{MAJORS_TABLE}` m
         LEFT JOIN major_occupation_metrics occ
             ON m.cip4_code = occ.cip4_code
-        -- Respect the dimension's own curation flag as well as the completions
-        -- filter. Today every row with completions_bachelors > 0 is also
-        -- include_in_heatmap = true, so this excludes nothing; it is here so a
-        -- future curation decision upstream is honoured without a code change.
-        WHERE m.completions_bachelors > 0
+        WHERE m.completions_bachelors >= {min_graduates}
+          {salary_clause}
           AND m.include_in_heatmap
     ),
 
-    -- Step 4: Compute pay-to-debt ratio and join AI data
     final_metrics AS (
         SELECT
             mwm.cip4_code,
@@ -181,14 +145,12 @@ def build_majors_query() -> str:
             graduates,
             median_pay,
             growth,
-            -- Pay-to-debt ratio (guard against divide by zero)
             CASE
                 WHEN median_debt IS NOT NULL AND median_debt > 0
                 THEN ROUND(SAFE_DIVIDE(median_pay, median_debt), 2)
                 ELSE NULL
             END AS pay_to_debt_ratio,
             COALESCE(versatility, 0) AS versatility,
-            -- AI exposure from scores table (NULL if no score - not fabricated)
             ai.major_exposure_score AS ai_exposure,
             ai.rationale
         FROM majors_with_metrics mwm
@@ -219,19 +181,10 @@ def build_majors_query() -> str:
 def normalize_values(rows: list[dict[str, Any]], field: str) -> list[dict[str, Any]]:
     """
     Add a normalized (0-1) version of a numeric field across all rows.
-
-    Args:
-        rows: List of major dictionaries
-        field: Field name to normalize
-
-    Returns:
-        Rows with added '{field}_norm' field
     """
-    # Extract non-null values
     values = [r[field] for r in rows if r.get(field) is not None]
 
     if not values:
-        # No valid values, set all normalized to None
         for row in rows:
             row[f"{field}_norm"] = None
         return rows
@@ -254,18 +207,9 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
     """
     Convert BigQuery rows to dictionaries, normalize metrics, and output
     only the fields needed for the frontend.
-
-    Args:
-        rows: Raw BigQuery result rows
-
-    Returns:
-        List of processed major dictionaries with normalized fields only
     """
-    # Convert to list of dicts
     majors = [dict(row.items()) for row in rows]
 
-    # Normalize numeric metrics (creates *_norm fields)
-    # Note: ai_exposure is NOT normalized - NULL values indicate missing data
     metrics_to_normalize = [
         "median_pay",
         "growth",
@@ -278,7 +222,6 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
 
     processed_majors = []
     for m in majors:
-        # 1. Parse growth (float) into a string category to satisfy the schema
         raw_growth = m.get("growth")
         if raw_growth is None:
             growth_str = "average"
@@ -289,43 +232,26 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
         else:
             growth_str = "average"
 
-        # 2. median_pay: keep None when the source has no 4-yr earnings
-        # (earnings_4yr_available = false for ~70 majors). Substituting a
-        # placeholder salary here fabricated a number the UI then showed as
-        # fact — the same class of error the exposure handling below avoids.
         raw_pay = m.get("median_pay")
         pay_int = int(raw_pay) if raw_pay is not None else None
 
-        # 3. Exposure: keep as None if missing (frontend defaults to 0)
-        # Per test_schemas.py: unknowns should be marked "not available", not fabricated
         raw_exposure = m.get("ai_exposure")
         exposure_float = float(raw_exposure) if raw_exposure is not None else None
 
         processed_majors.append({
-            # CIP code for matching (not displayed to user)
             "cip": m.get("cip"),
-
-            # Standard metadata
             "major": m.get("major"),
             "family": m.get("family"),
             "graduates": m.get("graduates"),
-
-            # Strict raw types matching MajorAnalysisSchema validation
-            "major_name": m.get("major"), # map to major_name expected by schema
+            "major_name": m.get("major"),
             "exposure": exposure_float,
             "median_pay": pay_int,
             "growth": growth_str,
-            "occupations": [], # Defaulting to empty list as allowed by test_schemas.py
+            "occupations": [],
             "query_context": "",
-
-            # AI rationale (None if missing - frontend shows "pending" message)
             "rationale": m.get("rationale"),
-
-            # Raw values for calculations
             "pay_to_debt_ratio": m.get("pay_to_debt_ratio"),
             "versatility": m.get("versatility"),
-
-            # Normalized fields required by visualizer UI
             "median_pay_norm": m.get("median_pay_norm"),
             "growth_norm": m.get("growth_norm"),
             "pay_to_debt_ratio_norm": m.get("pay_to_debt_ratio_norm"),
@@ -338,12 +264,6 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
 def query_majors(client: bigquery.Client) -> list[dict[str, Any]]:
     """
     Execute the majors query and return processed results.
-
-    Args:
-        client: BigQuery client
-
-    Returns:
-        List of major dictionaries ready for JSON output
     """
     query = build_majors_query()
     print(f"Executing BigQuery query against {GCP_PROJECT}.{BQ_DATASET}...")
@@ -351,25 +271,15 @@ def query_majors(client: bigquery.Client) -> list[dict[str, Any]]:
     job = client.query(query)
     results = list(job.result())
 
-    print(f"Retrieved {len(results)} majors from BigQuery")
+    print(f"Retrieved {len(results)} high-impact majors from BigQuery")
     return process_bigquery_results(results)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Output
+# Output & Execution
 # ─────────────────────────────────────────────────────────────────────────────
 
 def write_json(majors: list[dict[str, Any]], output_path: str | Path) -> Path:
-    """
-    Write majors data to a JSON file.
-
-    Args:
-        majors: List of major dictionaries
-        output_path: Path to output file
-
-    Returns:
-        Path to written file
-    """
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -387,132 +297,59 @@ def upload_to_gcs(
     blob_name: str = "data.json",
     cache_control: str = CACHE_CONTROL,
 ) -> str:
-    """
-    Upload the JSON file to Google Cloud Storage with caching headers.
-
-    Args:
-        local_path: Path to local JSON file
-        bucket_name: GCS bucket name
-        blob_name: Object name in the bucket
-        cache_control: Cache-Control header value
-
-    Returns:
-        GCS URI of uploaded object
-    """
     client = storage.Client(project=GCP_PROJECT)
 
-    # Get or create bucket
     try:
         bucket = client.get_bucket(bucket_name)
     except Exception:
         print(f"Bucket {bucket_name} not found. Creating...")
         bucket = client.create_bucket(bucket_name, location="US")
-        print(f"Created bucket {bucket_name}")
 
     blob = bucket.blob(blob_name)
-
-    # Set cache control metadata
     blob.cache_control = cache_control
     blob.content_type = "application/json"
-
-    # Upload file
     blob.upload_from_filename(str(local_path))
 
-    gcs_uri = f"gs://{bucket_name}/{blob_name}"
-    public_url = f"https://storage.googleapis.com/{bucket_name}/{blob_name}"
+    return f"gs://{bucket_name}/{blob_name}"
 
-    print(f"Uploaded to {gcs_uri}")
-    print(f"Public URL: {public_url}")
-    print(f"Cache-Control: {cache_control}")
-
-    return gcs_uri
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Main Pipeline
-# ─────────────────────────────────────────────────────────────────────────────
 
 def run_pipeline(
     bucket_name: str = DEFAULT_BUCKET,
     output_path: str = DEFAULT_OUTPUT_PATH,
     dry_run: bool = False,
 ) -> dict[str, Any]:
-    """
-    Run the complete data pipeline: BigQuery → JSON → GCS.
-
-    Args:
-        bucket_name: GCS bucket for upload
-        output_path: Local path for JSON output
-        dry_run: If True, skip GCS upload
-
-    Returns:
-        Pipeline result summary
-    """
     print("=" * 60)
-    print("College Majors Data Pipeline")
+    print("College Majors Data Pipeline (Quality Filtered)")
     print("=" * 60)
 
-    # Initialize BigQuery client
     bq_client = bigquery.Client(project=GCP_PROJECT)
-
-    # Query and process data
     majors = query_majors(bq_client)
 
     if not majors:
         raise ValueError("No majors returned from BigQuery query")
 
-    # Write local JSON file
     local_file = write_json(majors, output_path)
 
-    # Upload to GCS (unless dry run)
     gcs_uri = None
     if not dry_run:
         gcs_uri = upload_to_gcs(local_file, bucket_name)
     else:
         print("Dry run: skipping GCS upload")
 
-    result = {
+    return {
         "majors_count": len(majors),
         "local_file": str(local_file),
         "gcs_uri": gcs_uri,
-        "bucket": bucket_name if not dry_run else None,
     }
 
-    print("=" * 60)
-    print("Pipeline complete!")
-    print(f"  Majors processed: {result['majors_count']}")
-    print(f"  Local file: {result['local_file']}")
-    if gcs_uri:
-        print(f"  GCS URI: {result['gcs_uri']}")
-    print("=" * 60)
-
-    return result
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# CLI Entry Point
-# ─────────────────────────────────────────────────────────────────────────────
 
 def main():
-    """CLI entry point."""
     parser = argparse.ArgumentParser(
-        description="Build data.json from BigQuery and upload to GCS"
+        description="Build filtered data.json from BigQuery and upload to GCS"
     )
-    parser.add_argument(
-        "--bucket",
-        default=DEFAULT_BUCKET,
-        help=f"GCS bucket name (default: {DEFAULT_BUCKET})",
-    )
-    parser.add_argument(
-        "--output",
-        default=DEFAULT_OUTPUT_PATH,
-        help=f"Local output path (default: {DEFAULT_OUTPUT_PATH})",
-    )
-    parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Skip GCS upload (local file only)",
-    )
+    parser.add_argument("--bucket", default=DEFAULT_BUCKET)
+    parser.add_argument("--output", default=DEFAULT_OUTPUT_PATH)
+    parser.add_argument("--dry-run", action="store_true")
 
     args = parser.parse_args()
 
