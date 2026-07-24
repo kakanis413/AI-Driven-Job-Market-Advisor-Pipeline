@@ -71,7 +71,7 @@ def test_compare_grounding_block_adds_context_and_national_note():
     assert "national data only" in block.lower()
     assert "never invent" in block.lower()
     # the national portion is still present, unchanged
-    assert "VERIFIED DATA FOR THIS MAJOR" in block
+    assert "CONTEXT FOR THIS MAJOR" in block
 
 
 def test_compare_context_works_in_general_mode_too():

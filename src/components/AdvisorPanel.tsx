@@ -11,21 +11,18 @@ interface Msg {
   id: number
   role: 'user' | 'advisor' | 'error'
   text: string
+  /** True while tokens are still arriving. Held out of the live region until it
+   *  flips false, so the reply is announced once instead of per token. */
+  streaming?: boolean
 }
 
-/** Staged status text for the ~11s multi-agent round trip: rotate through what
- *  the backend is plausibly doing, and after 5s add an elapsed hint so a long
- *  wait reads as working, not frozen. Timing is presentational only — it does
- *  not observe the real agent route. */
-const THINKING_STAGES = [
-  'Checking the data…',
-  'Looking up occupations…',
-  'Writing your guidance…',
-] as const
-const STAGE_MS = 3500
+/** Status text for the wait before the first token. With streaming that wait is
+ *  usually ~1s, but a turn that calls a slow tool (a live news search) produces no
+ *  token for several seconds. `status` is the hop the backend reports it is
+ *  actually running; the fallback is used only until the first one arrives. */
 const ELAPSED_HINT_AFTER_S = 5
 
-function ThinkingIndicator() {
+function ThinkingIndicator({ status }: { status: string | null }) {
   const [seconds, setSeconds] = useState(0)
 
   useEffect(() => {
@@ -33,10 +30,7 @@ function ThinkingIndicator() {
     return () => clearInterval(t)
   }, [])
 
-  const stage =
-    THINKING_STAGES[
-      Math.min(Math.floor((seconds * 1000) / STAGE_MS), THINKING_STAGES.length - 1)
-    ]
+  const stage = status ?? 'Checking the data…'
 
   return (
     <div className="mr-auto flex items-center gap-2 rounded-2xl rounded-bl-md border border-line bg-raised px-3.5 py-2.5">
@@ -70,6 +64,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
       : 'Which majors are most exposed to AI?',
   )
   const [pending, setPending] = useState(false)
+  const [status, setStatus] = useState<string | null>(null)
   const reduceMotion = useReducedMotion()
   const idRef = useRef(0)
   const lastSentRef = useRef('')
@@ -96,11 +91,19 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
   }, ${fade.bottom ? '#000 calc(100% - 22px), transparent' : '#000 100%'})`
 
   useEffect(() => {
-    logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' })
+    // Smooth scrolling per token would fight itself — each chunk restarts the
+    // animation, so the thread judders and never settles. Jump instantly while
+    // streaming; keep the smooth glide for discrete message additions.
+    const streamingNow = messages.some((m) => m.streaming)
+    logRef.current?.scrollTo({
+      top: logRef.current.scrollHeight,
+      behavior: streamingNow || reduceMotion ? 'auto' : 'smooth',
+    })
     onScroll()
-  }, [messages, pending])
+  }, [messages, pending, reduceMotion])
 
   const started = messages.length > 0
+  const streaming = messages.some((m) => m.streaming)
 
   const push = (role: Msg['role'], text: string) =>
     setMessages((ms) => [...ms, { id: idRef.current++, role, text }])
@@ -112,6 +115,25 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
     push('user', text)
     setInput('')
     setPending(true)
+    setStatus(null)
+
+    // The reply bubble is created by the FIRST token, not up front — an empty
+    // bubble next to the thinking dots would read as a failed response.
+    const replyId = idRef.current++
+    let opened = false
+
+    const onToken = (chunk: string) => {
+      if (!opened) {
+        opened = true
+        setPending(false)
+        setMessages((ms) => [...ms, { id: replyId, role: 'advisor', text: chunk, streaming: true }])
+        return
+      }
+      setMessages((ms) =>
+        ms.map((m) => (m.id === replyId ? { ...m, text: m.text + chunk } : m)),
+      )
+    }
+
     askAdvisor({
       major: major ?? null,
       message: text,
@@ -119,19 +141,40 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
       university: university?.name,
       universityDomain: university?.domain,
       intendedMajor: university?.intendedMajor || major?.major,
+      onToken,
+      onStatus: setStatus,
     })
       .then((reply) => {
-        push('advisor', reply)
+        // Settle on the server's full text — the source of truth if any chunk was
+        // dropped — and drop `streaming` so the live region announces it once.
+        if (opened) {
+          setMessages((ms) =>
+            ms.map((m) => (m.id === replyId ? { ...m, text: reply, streaming: false } : m)),
+          )
+        } else {
+          setMessages((ms) => [...ms, { id: replyId, role: 'advisor', text: reply }])
+        }
         // Soft gate, once per user: first successful reply, no school, not dismissed.
         if (!university && !gateDismissed && !hasChatted) {
           markChatted()
           setGateOpen(true)
         }
       })
-      .catch((e: unknown) =>
-        push('error', `Couldn’t reach the advisor (${e instanceof Error ? e.message : String(e)}).`),
-      )
-      .finally(() => setPending(false))
+      .catch((e: unknown) => {
+        // Whatever streamed before the failure stays on screen — deleting text the
+        // student already read is more confusing than a partial answer plus a
+        // clearly-marked error. Just stop marking it as in-flight.
+        if (opened) {
+          setMessages((ms) =>
+            ms.map((m) => (m.id === replyId ? { ...m, streaming: false } : m)),
+          )
+        }
+        push('error', `Couldn’t reach the advisor (${e instanceof Error ? e.message : String(e)}).`)
+      })
+      .finally(() => {
+        setPending(false)
+        setStatus(null)
+      })
   }
 
   const answered = major && messages.some((m) => m.role === 'advisor')
@@ -143,6 +186,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
         onScroll={onScroll}
         className="min-h-0 flex-1 overflow-y-auto px-4 py-3"
         aria-live="polite"
+        aria-busy={pending || streaming}
         style={{ WebkitMaskImage: maskImage, maskImage }}
       >
         {/* Bottom-anchored thread */}
@@ -162,6 +206,10 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
           {messages.map((msg) => (
             <motion.div
               key={msg.id}
+              // Held out of the polite live region while tokens stream, so a
+              // screen reader gets one complete answer instead of ~200 fragments.
+              // Sighted users see the text land either way.
+              aria-hidden={msg.streaming || undefined}
               initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0.15 : 0.25, ease: [0.22, 1, 0.36, 1] }}
@@ -197,7 +245,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
               )}
             </motion.div>
           ))}
-          {pending && <ThinkingIndicator />}
+          {pending && <ThinkingIndicator status={status} />}
           
           {/* Grounded stat strip */}
           {answered && (
