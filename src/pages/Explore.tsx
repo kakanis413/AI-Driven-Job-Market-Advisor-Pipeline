@@ -12,6 +12,7 @@ import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
 import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
 import { advisorIsLive } from '../lib/advisor'
+import { normalize } from '../design/scales'
 import { useMeasure, useViewportHeight } from '../hooks/useMeasure'
 import { layoutTreemap, type Rect } from '../lib/layout'
 import type { Page } from '../hooks/useRoute'
@@ -100,6 +101,16 @@ export default function Explore({
     () => majors.find((m) => m.cip === selectedCip) ?? null,
     [majors, selectedCip],
   )
+
+  // Live count of majors matching the active query — same predicate the viz
+  // uses to dim non-matches, so the number the user reads matches what they see.
+  const trimmedQuery = query.trim()
+  const matchCount = useMemo(() => {
+    const q = normalize(query)
+    if (!q) return 0
+    return majors.filter((m) => normalize(m.major).includes(q) || normalize(m.family).includes(q))
+      .length
+  }, [majors, query])
 
   /** Open the panel, morphing from `from` (tile or FAB center in client coords). */
   const openAdvisor = useCallback((from?: { x: number; y: number }) => {
@@ -252,6 +263,28 @@ export default function Explore({
                 onPick={handlePick}
               />
             </div>
+            {/* Match feedback while a query is active — mirrors the landing's
+                no-match copy. Live region so the count is announced as it
+                changes. */}
+            {trimmedQuery && (
+              <p role="status" aria-live="polite" className="text-[12.5px] text-ink3">
+                {matchCount === 0 ? (
+                  <>
+                    No majors match <span className="text-ink2">“{trimmedQuery}”</span>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className="font-semibold text-ink2"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {matchCount}
+                    </span>{' '}
+                    {matchCount === 1 ? 'major matches' : 'majors match'}
+                  </>
+                )}
+              </p>
+            )}
             <div className="ms-auto xl:hidden">
               {view === 'meters' ? (
                 <p className="text-[12px] text-ink3">Early-career pay per $1 of typical student debt</p>
