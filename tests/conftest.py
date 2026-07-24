@@ -62,6 +62,25 @@ def mock_agent_response(monkeypatch):
 
 
 @pytest.fixture
+def mock_agent_stream(monkeypatch):
+    """Fakes the streaming LLM boundary. Chunks deliberately contain newlines and a
+    non-ASCII character, because SSE framing is exactly what those break."""
+    from advisor import runtime as runtime_mod
+
+    chunks = ["The answer is ", "8.4/10.\n\n", "Task mix shifts — jobs don’t vanish."]
+
+    async def _fake_advise_stream(self, req):
+        yield ("status", "Checking recent headlines…")
+        for chunk in chunks:
+            yield ("token", chunk)
+
+    monkeypatch.setattr(
+        runtime_mod.AdvisorRuntime, "advise_stream", _fake_advise_stream
+    )
+    return chunks
+
+
+@pytest.fixture
 def rich_payload() -> dict:
     return {
         "major_name": "Computer science",
