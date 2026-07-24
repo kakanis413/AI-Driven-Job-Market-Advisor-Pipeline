@@ -60,8 +60,21 @@ class Settings:
         os.getenv("ADVISOR_DATA_FILE", str(REPO_ROOT / "public" / "data.json"))
     )
 
+    # --- latency ---
+    # The single largest lever on time-to-first-token. Gemini 3.x thinks before it
+    # writes, and that thinking lands entirely in front of the first token:
+    # measured on this prompt, default thinking = 8.2s TTFT / 8.9s total, versus
+    # MINIMAL = 0.8s / 2.4s. The root agent's job is to read a grounding block it
+    # was handed, pick at most one tool, and write three paragraphs — none of which
+    # needs an extended reasoning budget. Raise to "LOW"/"STANDARD" via
+    # ADVISOR_THINKING_LEVEL if answer quality regresses on harder questions.
+    thinking_level: str = os.getenv("ADVISOR_THINKING_LEVEL", "MINIMAL")
+
     # --- reliability ---
-    request_timeout_s: float = _env_float("ADVISOR_TIMEOUT_S", 90.0)
+    # 30s, not 90s: with max_retries=2 and exponential backoff a stuck request at
+    # 90s hangs ~4.5 min before the client sees anything. At 30s the worst case is
+    # ~95s, and p95 for a real answer is ~10s — so 30s only ever cuts off hangs.
+    request_timeout_s: float = _env_float("ADVISOR_TIMEOUT_S", 30.0)
     max_retries: int = int(os.getenv("ADVISOR_MAX_RETRIES", "2"))
     retry_base_delay_s: float = _env_float("ADVISOR_RETRY_BASE_DELAY_S", 0.5)
 
