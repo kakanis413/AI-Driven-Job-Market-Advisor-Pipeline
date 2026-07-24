@@ -88,7 +88,7 @@ export default memo(function Treemap({
       width={width}
       height={height}
       role="group"
-      aria-label={`Treemap of ${tiles.length} college majors, sized by graduates and colored by ${
+      aria-label={`Treemap of ${tiles.length} college majors, sized by bachelor's graduates and colored by ${
         layer === 'exposure' ? 'AI exposure' : 'median pay'
       }`}
     >
@@ -198,7 +198,7 @@ function TileView({
       aria-pressed={selected}
       aria-label={`${m.major}: AI exposure ${fmtExposure(m.exposure)} out of 10, median pay ${fmtPay(
         m.median_pay,
-      )}, ${fmtCount(m.completions)} graduates per year. Press Enter for details.`}
+      )}, ${fmtCount(m.completions)} bachelor's graduates per year. Press Enter for details.`}
       initial={
         entry
           ? { x: entry.x, y: entry.y, opacity: 1, scale: 1 }

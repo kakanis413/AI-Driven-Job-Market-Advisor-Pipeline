@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
 
-/** Tiny hash router — three pages, no router dependency.
+/** Tiny hash router — no router dependency.
  *  `#/` → landing, `#/explore` → explorer, `#/explore/heatmap` → explorer in
- *  grid view, `#/news/STEM` → news tab preselected to a family. */
+ *  grid view, `#/news/STEM` → news tab preselected to a family, `#/chat` → the
+ *  advisor home (`#/chat/11.0701` pre-selects a major by CIP). */
 
-export type Page = 'landing' | 'explore' | 'news'
+export type Page = 'landing' | 'explore' | 'news' | 'chat'
 
 function parse(): { page: Page; sub: string | null } {
   const [p, sub] = location.hash.replace(/^#\/?/, '').split('/')
-  if (p === 'explore' || p === 'news') {
+  if (p === 'explore' || p === 'news' || p === 'chat') {
     return { page: p, sub: sub ? decodeURIComponent(sub) : null }
   }
   return { page: 'landing', sub: null }

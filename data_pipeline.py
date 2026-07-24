@@ -126,7 +126,12 @@ def build_majors_query() -> str:
         FROM `{MAJORS_TABLE}` m
         LEFT JOIN major_occupation_metrics occ
             ON m.cip4_code = occ.cip4_code
+        -- Respect the dimension's own curation flag as well as the completions
+        -- filter. Today every row with completions_bachelors > 0 is also
+        -- include_in_heatmap = true, so this excludes nothing; it is here so a
+        -- future curation decision upstream is honoured without a code change.
         WHERE m.completions_bachelors > 0
+          AND m.include_in_heatmap
     ),
 
     -- Step 4: Compute pay-to-debt ratio and join AI data
@@ -246,9 +251,12 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
         else:
             growth_str = "average"
 
-        # 2. Convert median_pay strictly to an integer
+        # 2. median_pay: keep None when the source has no 4-yr earnings
+        # (earnings_4yr_available = false for ~70 majors). Substituting a
+        # placeholder salary here fabricated a number the UI then showed as
+        # fact — the same class of error the exposure handling below avoids.
         raw_pay = m.get("median_pay")
-        pay_int = int(raw_pay) if raw_pay is not None else 50000
+        pay_int = int(raw_pay) if raw_pay is not None else None
 
         # 3. Exposure: keep as None if missing (frontend defaults to 0)
         # Per test_schemas.py: unknowns should be marked "not available", not fabricated

@@ -41,6 +41,16 @@ class AdvisorRequest(BaseModel):
     query_context: str = Field(..., min_length=1, max_length=2000)
     cip: str | None = Field(default=None, max_length=20)
 
+    # Optional "personalize for my university" layer. Additive and non-blocking:
+    # when absent the request, prompt, and cache key are byte-for-byte the
+    # national path. When both `university` and `university_domain` are present
+    # the advisor runs one domain-scoped program search and layers school-specific
+    # guidance on top of the NATIONAL exposure/pay/growth data (never fabricating
+    # school numbers).
+    university: str | None = Field(default=None, max_length=200)
+    university_domain: str | None = Field(default=None, max_length=120)
+    intended_major: str | None = Field(default=None, max_length=200)
+
     @field_validator("query_context")
     @classmethod
     def _no_blank_question(cls, v: str) -> str:
@@ -70,8 +80,39 @@ class AdvisorRequest(BaseModel):
         """No major attached → general mode (conceptual answers, no invented numbers)."""
         return not (self.major_name and self.major_name.strip())
 
+    @property
+    def is_university_compare(self) -> bool:
+        """Both school name and domain present → run the domain-scoped program
+        search and layer school-specific guidance on top of the national data."""
+        return bool(
+            self.university and self.university.strip()
+            and self.university_domain and self.university_domain.strip()
+        )
+
+    def _university_block(self) -> str:
+        """The clearly-labeled school context, appended to the grounding block.
+        Reminds the agent our numbers are NATIONAL, not this school's."""
+        major = (self.intended_major or self.major_name or "the intended major").strip()
+        return (
+            "\n\nUNIVERSITY CONTEXT (personalize for this school):\n"
+            f"  school: {self.university}\n"
+            f"  school website domain: {self.university_domain}\n"
+            f"  intended major: {major}\n"
+            "  NOTE: the exposure, pay, and growth figures above are NATIONAL "
+            "estimates, not this school's numbers. Do NOT present them as "
+            f"{self.university}'s own data. Use a domain-scoped search "
+            f"(site:{self.university_domain}) to find what THIS program "
+            "emphasizes, cite the pages you use, and if nothing is found say so "
+            "and answer from the national data only — never invent courses, "
+            "rankings, faculty, or outcomes."
+        )
+
     def grounding_block(self) -> str:
-        """The verified-facts block handed to the agents. Unknowns are explicit."""
+        """The verified-facts block handed to the agents. Unknowns are explicit.
+        When a school is attached, the same national block gets a clearly-labeled
+        UNIVERSITY CONTEXT suffix; the national portion is never altered."""
+        # Additive only — the national block is byte-for-byte unchanged without a school.
+        suffix = self._university_block() if self.is_university_compare else ""
         if self.is_general:
             return (
                 "NO MAJOR SELECTED — GENERAL MODE.\n"
@@ -81,7 +122,7 @@ class AdvisorRequest(BaseModel):
                 "called returned it. If the student asks about a particular major's "
                 "numbers, say you need them to pick it on the map (or call data_agent) "
                 "rather than estimating."
-            )
+            ) + suffix
         pay = f"${self.median_pay:,}" if self.median_pay else "not available"
         exposure = f"{self.exposure}/10" if self.exposure is not None else "not available"
         growth = self.growth or "not available"
@@ -101,7 +142,7 @@ class AdvisorRequest(BaseModel):
             f"  growth outlook: {growth}\n"
             "  occupations this major feeds into:\n"
             f"{occs}"
-        )
+        ) + suffix
 
 
 class RouteInfo(BaseModel):

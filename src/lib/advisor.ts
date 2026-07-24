@@ -16,22 +16,35 @@ export const advisorIsLive = Boolean(AGENT_URL)
 export interface AdvisorPayload {
   major: Major | null
   message: string
+  /** Optional "personalize for my school" layer. When present, the backend runs
+   *  one domain-scoped program search and layers school-specific guidance on top
+   *  of the national data. Absent → the request is byte-for-byte the national one. */
+  university?: string
+  universityDomain?: string
+  intendedMajor?: string
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-export async function askAdvisor({ major, message }: AdvisorPayload): Promise<string> {
+export async function askAdvisor({
+  major,
+  message,
+  university,
+  universityDomain,
+  intendedMajor,
+}: AdvisorPayload): Promise<string> {
   // Offline preview ONLY when there is no endpoint to call.
   if (!AGENT_URL) {
     await wait(700)
     const who = major ? `${major.major} (CIP ${major.cip})` : 'your question'
-    return `Offline preview — no advisor endpoint is configured (VITE_AGENT_URL). Echoing ${who}: “${message}”.`
+    const school = university ? ` for ${university}` : ''
+    return `Offline preview — no advisor endpoint is configured (VITE_AGENT_URL). Echoing ${who}${school}: “${message}”.`
   }
 
   // Body matches the FastAPI AdvisorRequest (/api/v1/analyze-major). With no
   // major selected we send the question alone; `major_name` is optional and the
   // backend switches to general mode.
-  const body = major
+  const base = major
     ? {
         major_name: major.major,
         cip: major.cip || null,
@@ -49,6 +62,18 @@ export async function askAdvisor({ major, message }: AdvisorPayload): Promise<st
         query_context: message,
       }
     : { query_context: message }
+
+  // Only fold in the school when one is set, so with no school the body is
+  // byte-for-byte today's request (backward compatible; same backend cache key).
+  const body =
+    university && universityDomain
+      ? {
+          ...base,
+          university,
+          university_domain: universityDomain,
+          intended_major: intendedMajor,
+        }
+      : base
 
   const res = await fetch(AGENT_URL, {
     method: 'POST',

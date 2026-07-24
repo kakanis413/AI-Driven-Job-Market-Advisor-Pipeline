@@ -46,7 +46,7 @@ export default function Tooltip({ tip, mode }: { tip: TipData | null; mode: Mode
             <Metric label="Median pay">
               <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtPay(tip.major.median_pay)}</b>
             </Metric>
-            <Metric label="Graduates / yr">
+            <Metric label="Bachelor's grads / yr">
               <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtCount(tip.major.completions)}</b>
             </Metric>
             <Metric label="Job growth">

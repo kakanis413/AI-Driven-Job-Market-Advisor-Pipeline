@@ -82,7 +82,7 @@ export default memo(function HeatmapGrid({
     const weights: [ColKey, string, number][] = [
       ['exposure', 'AI exposure', 1.25],
       ['pay', 'Median pay', 1],
-      ['completions', 'Graduates / yr', 1],
+      ['completions', "Bachelor's grads / yr", 1],
     ]
     if (hasGrowth) weights.push(['growth', 'Job growth', 0.8])
     const total = weights.reduce((s, [, , w]) => s + w, 0)
@@ -140,6 +140,13 @@ export default memo(function HeatmapGrid({
     setSort((s) =>
       s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === 'major' ? 1 : -1 },
     )
+
+  // Sort state is shown visually with ▲/▼ (aria-hidden); spell it out for
+  // screen readers so the direction isn't lost when the glyph is skipped.
+  const sortLabel = (key: SortKey, label: string) =>
+    sort.key === key
+      ? `${label}, sorted ${sort.dir === 1 ? 'ascending' : 'descending'} — activate to reverse`
+      : `Sort by ${label.toLowerCase()}`
 
   const selIdx = rows.findIndex((r) => r.m.cip === selectedCip)
   const gridH = HEAD_H + rows.length * ROW_H
@@ -203,6 +210,7 @@ export default memo(function HeatmapGrid({
           {/* column headers */}
           <button
             onClick={() => toggleSort('major')}
+            aria-label={sortLabel('major', 'Major')}
             className={`micro absolute left-0 top-0 flex h-[26px] items-center gap-1 rounded-md px-2 text-left transition-colors ${
               sort.key === 'major' ? 'text-ink' : 'text-ink3 hover:text-ink'
             }`}
@@ -214,6 +222,7 @@ export default memo(function HeatmapGrid({
             <button
               key={c.key}
               onClick={() => toggleSort(c.key)}
+              aria-label={sortLabel(c.key, c.label)}
               className={`micro absolute top-0 flex h-[26px] items-center gap-1 rounded-md px-2 text-left transition-colors ${
                 sort.key === c.key || hoverCol === c.key ? 'text-ink' : 'text-ink3 hover:text-ink'
               }`}
