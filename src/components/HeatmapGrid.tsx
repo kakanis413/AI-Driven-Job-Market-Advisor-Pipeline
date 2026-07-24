@@ -1,6 +1,14 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
+import {
+  FAMILY_ORDER,
+  REDUCED_TWEEN,
+  SPRING,
+  TABLE_HEAD_H,
+  TABLE_ROW_H,
+  type Layer,
+  type Mode,
+} from '../design/tokens'
 import {
   NULL_FILL,
   exposureColor,
@@ -11,11 +19,12 @@ import {
   inkFor,
   payColor,
 } from '../design/scales'
+import SortMenu from './SortMenu'
 import type { Rect } from '../lib/layout'
 import type { Family, Major, TipData } from '../types'
 
-const ROW_H = 44
-const HEAD_H = 34
+const ROW_H = TABLE_ROW_H
+const HEAD_H = TABLE_HEAD_H
 const GAP = 6
 
 type ColKey = 'exposure' | 'pay' | 'completions' | 'growth'
@@ -30,9 +39,20 @@ interface Col {
 
 const GROWTH_RANK = { declining: 0, slower: 1, average: 2, faster: 3 } as const
 
+/** Every column the table can show, with the width weight it takes when
+ *  visible. Hiding one redistributes its share across the rest. */
+const ALL_COLS: [ColKey, string, number][] = [
+  ['exposure', 'AI exposure', 1.25],
+  ['pay', 'Median pay', 1],
+  ['completions', "Bachelor's grads / yr", 1],
+  ['growth', 'Job growth', 0.8],
+]
+
 interface Props {
   majors: Major[]
   width: number
+  /** Max height of the scroll container — the sort bar sticks to its top. */
+  height: number
   mode: Mode
   layer: Layer
   payExtent: [number, number]
@@ -45,6 +65,7 @@ interface Props {
 export default memo(function HeatmapGrid({
   majors,
   width,
+  height,
   mode,
   layer,
   payExtent,
@@ -62,8 +83,6 @@ export default memo(function HeatmapGrid({
     [majors],
   )
   const [fams, setFams] = useState<Set<Family>>(() => new Set(allFamilies))
-  // Every family selected ⇒ no real filter, so chips render quiet (see below).
-  const allSelected = fams.size === allFamilies.length
   const [hoverRow, setHoverRow] = useState<number | null>(null)
   const [hoverCol, setHoverCol] = useState<ColKey | null>(null)
 
@@ -80,23 +99,23 @@ export default memo(function HeatmapGrid({
   const labelW = Math.min(230, Math.max(150, width * 0.26))
   const bodyW = Math.max(width, labelW + 470)
   const hasGrowth = useMemo(() => majors.some((m) => m.growth), [majors])
+  // Columns the data can support (growth only when the source has projections).
+  const available = useMemo(
+    () => ALL_COLS.filter(([k]) => k !== 'growth' || hasGrowth),
+    [hasGrowth],
+  )
+
   const cols = useMemo<Col[]>(() => {
-    const weights: [ColKey, string, number][] = [
-      ['exposure', 'AI exposure', 1.25],
-      ['pay', 'Median pay', 1],
-      ['completions', "Bachelor's grads / yr", 1],
-    ]
-    if (hasGrowth) weights.push(['growth', 'Job growth', 0.8])
-    const total = weights.reduce((s, [, , w]) => s + w, 0)
+    const total = available.reduce((s, [, , w]) => s + w, 0)
     const space = bodyW - labelW
     let x = labelW
-    return weights.map(([key, label, wt]) => {
+    return available.map(([key, label, wt]) => {
       const w = (space * wt) / total
       const col = { key, label, x, w }
       x += w
       return col
     })
-  }, [bodyW, labelW, hasGrowth])
+  }, [bodyW, labelW, available])
 
   const rows = useMemo(() => {
     const filtered = majors.filter((m) => fams.has(m.family))
@@ -118,7 +137,9 @@ export default memo(function HeatmapGrid({
       const c = typeof va === 'string' ? va.localeCompare(vb as string) : va - (vb as number)
       return c * dir
     })
-    return sorted.map((m, i) => ({ m, y: HEAD_H + i * ROW_H }))
+    // `y` is relative to the BODY container, which sits below the sticky sort
+    // bar — so it no longer carries the HEAD_H offset itself.
+    return sorted.map((m, i) => ({ m, y: i * ROW_H }))
   }, [majors, fams, sort])
 
   const heroKey: ColKey = layer === 'pay' ? 'pay' : 'exposure'
@@ -127,8 +148,10 @@ export default memo(function HeatmapGrid({
   useEffect(() => {
     const g = geomRef.current
     g.clear()
+    // Stored in the view's own space (header included), so a cross-view morph
+    // lands where the cell actually appears on screen.
     for (const { m, y } of rows)
-      g.set(m.cip, { x: heroCol.x, y: y + 4, w: heroCol.w - GAP, h: ROW_H - 8 })
+      g.set(m.cip, { x: heroCol.x, y: HEAD_H + y + 4, w: heroCol.w - GAP, h: ROW_H - 8 })
   }, [rows, heroCol, geomRef])
 
   const expC = useMemo(() => exposureColor(mode), [mode])
@@ -138,20 +161,24 @@ export default memo(function HeatmapGrid({
     [majors],
   )
 
-  const toggleSort = (key: SortKey) =>
-    setSort((s) =>
-      s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === 'major' ? 1 : -1 },
-    )
-
-  // Sort state is shown visually with ▲/▼ (aria-hidden); spell it out for
-  // screen readers so the direction isn't lost when the glyph is skipped.
-  const sortLabel = (key: SortKey, label: string) =>
-    sort.key === key
-      ? `${label}, sorted ${sort.dir === 1 ? 'ascending' : 'descending'} — activate to reverse`
-      : `Sort by ${label.toLowerCase()}`
+  // Sorting lives in the toolbar's SortMenu, which states the field and
+  // direction in words — so the headers stay quiet labels with no carets.
+  const sortOptions = useMemo(
+    () => [
+      { key: 'major', label: 'Major', text: true },
+      ...available.map(([key, label]) => ({ key, label })),
+    ],
+    [available],
+  )
 
   const selIdx = rows.findIndex((r) => r.m.cip === selectedCip)
-  const gridH = HEAD_H + rows.length * ROW_H
+  const bodyH = rows.length * ROW_H
+  // Entry geometry comes from the other view's space (header included); the body
+  // container starts below the sort bar, so shift it back into body space.
+  const entryOf = (cip: string): Rect | undefined => {
+    const e = entryGeom.current!.get(cip)
+    return e && { ...e, y: e.y - HEAD_H }
+  }
 
   const cellText = (m: Major, key: ColKey): string =>
     key === 'exposure'
@@ -164,82 +191,90 @@ export default memo(function HeatmapGrid({
 
   return (
     <div className="w-full">
-      {/* family filter chips. When every family is on, nothing is actually
-          narrowed, so all chips read as quiet outlines instead of eight solid
-          black pills fighting the data. The filled emphasis only appears once
-          the user narrows to a subset. `aria-pressed` always tracks real
-          membership regardless of styling. */}
-      <div className="mb-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter by family">
-        {allFamilies.map((f) => {
-          const on = fams.has(f)
-          const filled = on && !allSelected
-          return (
+      {/* Toolbar: the sort control, then the family filter chips. When every
+          family is on, nothing is actually narrowed, so all chips read as quiet
+          outlines instead of eight solid pills fighting the data. The filled
+          emphasis only appears once the user narrows to a subset; `aria-pressed`
+          always tracks real membership regardless of styling. */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <SortMenu
+          options={sortOptions}
+          sortKey={sort.key}
+          dir={sort.dir}
+          onChange={(key, dir) => setSort({ key: key as SortKey, dir })}
+        />
+        <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-line" />
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by family">
+          {allFamilies.map((f) => {
+            const on = fams.has(f)
+            const filled = on && fams.size !== allFamilies.length
+            return (
+              <button
+                key={f}
+                aria-pressed={on}
+                onClick={() =>
+                  setFams((prev) => {
+                    const next = new Set(prev)
+                    if (next.has(f)) next.delete(f)
+                    else next.add(f)
+                    return next
+                  })
+                }
+                className={`micro h-8 rounded-full border px-3 transition-colors ${
+                  filled
+                    ? 'border-transparent bg-ink text-page'
+                    : 'border-line bg-surface text-ink3 hover:text-ink'
+                }`}
+              >
+                {f}
+              </button>
+            )
+          })}
+          {fams.size < allFamilies.length && (
             <button
-              key={f}
-              aria-pressed={on}
-              onClick={() =>
-                setFams((prev) => {
-                  const next = new Set(prev)
-                  if (next.has(f)) next.delete(f)
-                  else next.add(f)
-                  return next
-                })
-              }
-              className={`micro h-8 rounded-full border px-3 transition-colors ${
-                filled
-                  ? 'border-transparent bg-ink text-page'
-                  : 'border-line bg-surface text-ink3 hover:text-ink'
-              }`}
+              onClick={() => setFams(new Set(allFamilies))}
+              className="micro h-8 rounded-full px-2 text-accent hover:underline"
             >
-              {f}
+              Reset
             </button>
-          )
-        })}
-        {fams.size < allFamilies.length && (
-          <button
-            onClick={() => setFams(new Set(allFamilies))}
-            className="micro h-8 rounded-full px-2 text-accent hover:underline"
-          >
-            Reset
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       <div
-        className="overflow-x-auto"
+        className="overflow-auto"
+        style={{ maxHeight: height }}
         onPointerLeave={() => {
           setHoverRow(null)
           setHoverCol(null)
           onTip(null)
         }}
       >
-        <div className="relative" style={{ width: bodyW, height: gridH }}>
-          {/* column headers */}
-          <button
-            onClick={() => toggleSort('major')}
-            aria-label={sortLabel('major', 'Major')}
-            className={`micro absolute left-0 top-0 flex h-[26px] items-center gap-1 rounded-md px-2 text-left transition-colors ${
-              sort.key === 'major' ? 'text-ink' : 'text-ink3 hover:text-ink'
-            }`}
-            style={{ width: labelW - GAP }}
-          >
-            Major {sort.key === 'major' && <span aria-hidden>{sort.dir === 1 ? '▲' : '▼'}</span>}
-          </button>
-          {cols.map((c) => (
-            <button
-              key={c.key}
-              onClick={() => toggleSort(c.key)}
-              aria-label={sortLabel(c.key, c.label)}
-              className={`micro absolute top-0 flex h-[26px] items-center gap-1 rounded-md px-2 text-left transition-colors ${
-                sort.key === c.key || hoverCol === c.key ? 'text-ink' : 'text-ink3 hover:text-ink'
-              }`}
-              style={{ left: c.x, width: c.w - GAP }}
-            >
-              {c.label}{' '}
-              {sort.key === c.key && <span aria-hidden>{sort.dir === 1 ? '▲' : '▼'}</span>}
-            </button>
-          ))}
+        {/* Sticky header: quiet column labels, pinned to the top of the scroll
+            container with a hairline under it. Sorting is the toolbar's job, so
+            these carry no carets — the sorted column just reads in text-ink. */}
+        <div
+          className="sticky top-0 z-20 border-b border-line bg-page/95 backdrop-blur"
+          style={{ width: bodyW, height: HEAD_H }}
+        >
+          <div className="relative h-full">
+            <ColHeader
+              label="Major"
+              active={sort.key === 'major'}
+              style={{ left: 0, width: labelW - GAP }}
+            />
+            {cols.map((c) => (
+              <ColHeader
+                key={c.key}
+                label={c.label}
+                active={sort.key === c.key || hoverCol === c.key}
+                style={{ left: c.x, width: c.w - GAP }}
+              />
+            ))}
+          </div>
+        </div>
 
+        <div className="relative" style={{ width: bodyW, height: bodyH }}>
           {/* crosshair: one row wash + one column wash that travel */}
           {hoverRow !== null && rows[hoverRow] && (
             <motion.div
@@ -250,7 +285,7 @@ export default memo(function HeatmapGrid({
                 background: 'color-mix(in srgb, var(--ink) 5%, transparent)',
               }}
               initial={false}
-              animate={{ y: HEAD_H + hoverRow * ROW_H + 1 }}
+              animate={{ y: hoverRow * ROW_H + 1 }}
               transition={spr}
             />
           )}
@@ -258,9 +293,9 @@ export default memo(function HeatmapGrid({
             <motion.div
               className="pointer-events-none absolute rounded-lg"
               style={{
-                top: HEAD_H,
+                top: 0,
                 width: (cols.find((c) => c.key === hoverCol)?.w ?? 0) - GAP,
-                height: rows.length * ROW_H,
+                height: bodyH,
                 background: 'color-mix(in srgb, var(--ink) 3%, transparent)',
               }}
               initial={false}
@@ -275,7 +310,7 @@ export default memo(function HeatmapGrid({
               className="pointer-events-none absolute left-0 z-10 rounded-[10px] border-2"
               style={{ width: bodyW, borderColor: 'color-mix(in srgb, var(--ink) 45%, transparent)' }}
               initial={false}
-              animate={{ y: HEAD_H + selIdx * ROW_H, height: ROW_H }}
+              animate={{ y: selIdx * ROW_H, height: ROW_H }}
               transition={spr}
             />
           )}
@@ -285,6 +320,10 @@ export default memo(function HeatmapGrid({
               const delay = revealed ? 0 : Math.min(i * 0.022, 0.4)
               const hoverProps = (key: ColKey | null) => ({
                 onPointerMove: (e: React.PointerEvent) => {
+                  // Touch taps fire a synthetic pointermove; skip it so the
+                  // hover tooltip/crosshair never flash on touch — those users
+                  // get the tap preview sheet instead.
+                  if (e.pointerType === 'touch') return
                   setHoverRow(i)
                   setHoverCol(key)
                   onTip({ major: m, x: e.clientX, y: e.clientY })
@@ -313,8 +352,8 @@ export default memo(function HeatmapGrid({
                 </motion.button>,
               ]
               for (const c of cols) {
-                const isHero = c.key === heroKey
-                const entry = isHero ? entryGeom.current!.get(m.cip) : undefined
+                const isHero = c.key === heroCol?.key
+                const entry = isHero ? entryOf(m.cip) : undefined
                 const fill =
                   c.key === 'exposure'
                     ? expC(m.exposure)
@@ -389,3 +428,27 @@ export default memo(function HeatmapGrid({
     </div>
   )
 })
+
+/** One quiet column label in the sticky header. Not interactive — sorting is
+ *  the toolbar's SortMenu — so the sorted column only shifts color, never size,
+ *  and no caret glyph competes with the label. */
+function ColHeader({
+  label,
+  active,
+  style,
+}: {
+  label: string
+  active: boolean
+  style: React.CSSProperties
+}) {
+  return (
+    <div
+      className={`micro absolute inset-y-0 flex items-center px-2 transition-colors ${
+        active ? 'text-ink' : 'text-ink3'
+      }`}
+      style={style}
+    >
+      <span className="truncate">{label}</span>
+    </div>
+  )
+}

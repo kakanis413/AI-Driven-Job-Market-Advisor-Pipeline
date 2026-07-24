@@ -9,3 +9,7 @@ node_modules
 .claude/
 .vscode/
 *.code-workspace
+TREEMAP_SIZE_TRADES_PROMPT.md
+
+ADVISOR_LATENCY_ADR.md
+TREEMAP_DRILLDOWN_HANDOFF.md
