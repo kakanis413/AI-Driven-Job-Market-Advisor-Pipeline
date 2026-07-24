@@ -94,7 +94,7 @@ export default memo(function Treemap({
     >
       {bands.map(
         (b) =>
-          b.w > 70 && (
+          b.w > 100 && (
             <motion.text
               key={b.family}
               initial={false}

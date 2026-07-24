@@ -19,6 +19,7 @@ import {
   inkFor,
   payColor,
 } from '../design/scales'
+import SortMenu from './SortMenu'
 import type { Rect } from '../lib/layout'
 import type { Family, Major, TipData } from '../types'
 
@@ -37,6 +38,15 @@ interface Col {
 }
 
 const GROWTH_RANK = { declining: 0, slower: 1, average: 2, faster: 3 } as const
+
+/** Every column the table can show, with the width weight it takes when
+ *  visible. Hiding one redistributes its share across the rest. */
+const ALL_COLS: [ColKey, string, number][] = [
+  ['exposure', 'AI exposure', 1.25],
+  ['pay', 'Median pay', 1],
+  ['completions', "Bachelor's grads / yr", 1],
+  ['growth', 'Job growth', 0.8],
+]
 
 interface Props {
   majors: Major[]
@@ -73,8 +83,6 @@ export default memo(function HeatmapGrid({
     [majors],
   )
   const [fams, setFams] = useState<Set<Family>>(() => new Set(allFamilies))
-  // Every family selected ⇒ no real filter, so chips render quiet (see below).
-  const allSelected = fams.size === allFamilies.length
   const [hoverRow, setHoverRow] = useState<number | null>(null)
   const [hoverCol, setHoverCol] = useState<ColKey | null>(null)
 
@@ -91,23 +99,23 @@ export default memo(function HeatmapGrid({
   const labelW = Math.min(230, Math.max(150, width * 0.26))
   const bodyW = Math.max(width, labelW + 470)
   const hasGrowth = useMemo(() => majors.some((m) => m.growth), [majors])
+  // Columns the data can support (growth only when the source has projections).
+  const available = useMemo(
+    () => ALL_COLS.filter(([k]) => k !== 'growth' || hasGrowth),
+    [hasGrowth],
+  )
+
   const cols = useMemo<Col[]>(() => {
-    const weights: [ColKey, string, number][] = [
-      ['exposure', 'AI exposure', 1.25],
-      ['pay', 'Median pay', 1],
-      ['completions', "Bachelor's grads / yr", 1],
-    ]
-    if (hasGrowth) weights.push(['growth', 'Job growth', 0.8])
-    const total = weights.reduce((s, [, , w]) => s + w, 0)
+    const total = available.reduce((s, [, , w]) => s + w, 0)
     const space = bodyW - labelW
     let x = labelW
-    return weights.map(([key, label, wt]) => {
+    return available.map(([key, label, wt]) => {
       const w = (space * wt) / total
       const col = { key, label, x, w }
       x += w
       return col
     })
-  }, [bodyW, labelW, hasGrowth])
+  }, [bodyW, labelW, available])
 
   const rows = useMemo(() => {
     const filtered = majors.filter((m) => fams.has(m.family))
@@ -153,17 +161,15 @@ export default memo(function HeatmapGrid({
     [majors],
   )
 
-  const toggleSort = (key: SortKey) =>
-    setSort((s) =>
-      s.key === key ? { key, dir: s.dir === 1 ? -1 : 1 } : { key, dir: key === 'major' ? 1 : -1 },
-    )
-
-  // Sort state is shown visually with ▲/▼ (aria-hidden); spell it out for
-  // screen readers so the direction isn't lost when the glyph is skipped.
-  const sortLabel = (key: SortKey, label: string) =>
-    sort.key === key
-      ? `${label}, sorted ${sort.dir === 1 ? 'ascending' : 'descending'} — activate to reverse`
-      : `Sort by ${label.toLowerCase()}`
+  // Sorting lives in the toolbar's SortMenu, which states the field and
+  // direction in words — so the headers stay quiet labels with no carets.
+  const sortOptions = useMemo(
+    () => [
+      { key: 'major', label: 'Major', text: true },
+      ...available.map(([key, label]) => ({ key, label })),
+    ],
+    [available],
+  )
 
   const selIdx = rows.findIndex((r) => r.m.cip === selectedCip)
   const bodyH = rows.length * ROW_H
@@ -185,45 +191,54 @@ export default memo(function HeatmapGrid({
 
   return (
     <div className="w-full">
-      {/* family filter chips. When every family is on, nothing is actually
-          narrowed, so all chips read as quiet outlines instead of eight solid
-          black pills fighting the data. The filled emphasis only appears once
-          the user narrows to a subset. `aria-pressed` always tracks real
-          membership regardless of styling. */}
-      <div className="mb-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter by family">
-        {allFamilies.map((f) => {
-          const on = fams.has(f)
-          const filled = on && !allSelected
-          return (
+      {/* Toolbar: the sort control, then the family filter chips. When every
+          family is on, nothing is actually narrowed, so all chips read as quiet
+          outlines instead of eight solid pills fighting the data. The filled
+          emphasis only appears once the user narrows to a subset; `aria-pressed`
+          always tracks real membership regardless of styling. */}
+      <div className="mb-3 flex flex-wrap items-center gap-2">
+        <SortMenu
+          options={sortOptions}
+          sortKey={sort.key}
+          dir={sort.dir}
+          onChange={(key, dir) => setSort({ key: key as SortKey, dir })}
+        />
+        <span aria-hidden className="mx-1 h-5 w-px shrink-0 bg-line" />
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by family">
+          {allFamilies.map((f) => {
+            const on = fams.has(f)
+            const filled = on && fams.size !== allFamilies.length
+            return (
+              <button
+                key={f}
+                aria-pressed={on}
+                onClick={() =>
+                  setFams((prev) => {
+                    const next = new Set(prev)
+                    if (next.has(f)) next.delete(f)
+                    else next.add(f)
+                    return next
+                  })
+                }
+                className={`micro h-8 rounded-full border px-3 transition-colors ${
+                  filled
+                    ? 'border-transparent bg-ink text-page'
+                    : 'border-line bg-surface text-ink3 hover:text-ink'
+                }`}
+              >
+                {f}
+              </button>
+            )
+          })}
+          {fams.size < allFamilies.length && (
             <button
-              key={f}
-              aria-pressed={on}
-              onClick={() =>
-                setFams((prev) => {
-                  const next = new Set(prev)
-                  if (next.has(f)) next.delete(f)
-                  else next.add(f)
-                  return next
-                })
-              }
-              className={`micro h-8 rounded-full border px-3 transition-colors ${
-                filled
-                  ? 'border-transparent bg-ink text-page'
-                  : 'border-line bg-surface text-ink3 hover:text-ink'
-              }`}
+              onClick={() => setFams(new Set(allFamilies))}
+              className="micro h-8 rounded-full px-2 text-accent hover:underline"
             >
-              {f}
+              Reset
             </button>
-          )
-        })}
-        {fams.size < allFamilies.length && (
-          <button
-            onClick={() => setFams(new Set(allFamilies))}
-            className="micro h-8 rounded-full px-2 text-accent hover:underline"
-          >
-            Reset
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       <div
@@ -235,32 +250,24 @@ export default memo(function HeatmapGrid({
           onTip(null)
         }}
       >
-        {/* Sticky sort bar: every column header is its own sort toggle, pinned
-            to the top of the scroll container with a hairline under it. The
-            caret slot is always rendered (hidden when inactive) so labels never
-            shift and the carets stay on one baseline. */}
+        {/* Sticky header: quiet column labels, pinned to the top of the scroll
+            container with a hairline under it. Sorting is the toolbar's job, so
+            these carry no carets — the sorted column just reads in text-ink. */}
         <div
           className="sticky top-0 z-20 border-b border-line bg-page/95 backdrop-blur"
           style={{ width: bodyW, height: HEAD_H }}
         >
           <div className="relative h-full">
-            <SortHeader
+            <ColHeader
               label="Major"
               active={sort.key === 'major'}
-              dir={sort.dir}
-              ariaLabel={sortLabel('major', 'Major')}
-              onClick={() => toggleSort('major')}
               style={{ left: 0, width: labelW - GAP }}
             />
             {cols.map((c) => (
-              <SortHeader
+              <ColHeader
                 key={c.key}
                 label={c.label}
-                active={sort.key === c.key}
-                hovered={hoverCol === c.key}
-                dir={sort.dir}
-                ariaLabel={sortLabel(c.key, c.label)}
-                onClick={() => toggleSort(c.key)}
+                active={sort.key === c.key || hoverCol === c.key}
                 style={{ left: c.x, width: c.w - GAP }}
               />
             ))}
@@ -345,7 +352,7 @@ export default memo(function HeatmapGrid({
                 </motion.button>,
               ]
               for (const c of cols) {
-                const isHero = c.key === heroKey
+                const isHero = c.key === heroCol?.key
                 const entry = isHero ? entryOf(m.cip) : undefined
                 const fill =
                   c.key === 'exposure'
@@ -422,40 +429,26 @@ export default memo(function HeatmapGrid({
   )
 })
 
-/** One column header in the sticky sort bar. Label + a fixed caret slot: the
- *  glyph shows only on the active column, but the slot is always reserved so
- *  labels never shift and every caret sits on the same baseline. The direction
- *  is spelled out in `ariaLabel` because the glyph is aria-hidden. */
-function SortHeader({
+/** One quiet column label in the sticky header. Not interactive — sorting is
+ *  the toolbar's SortMenu — so the sorted column only shifts color, never size,
+ *  and no caret glyph competes with the label. */
+function ColHeader({
   label,
   active,
-  hovered,
-  dir,
-  ariaLabel,
-  onClick,
   style,
 }: {
   label: string
   active: boolean
-  hovered?: boolean
-  dir: 1 | -1
-  ariaLabel: string
-  onClick: () => void
   style: React.CSSProperties
 }) {
   return (
-    <button
-      onClick={onClick}
-      aria-label={ariaLabel}
-      className={`micro absolute inset-y-0 flex items-center gap-1 rounded-md px-2 text-left transition-colors ${
-        active || hovered ? 'text-ink' : 'text-ink3 hover:text-ink'
+    <div
+      className={`micro absolute inset-y-0 flex items-center px-2 transition-colors ${
+        active ? 'text-ink' : 'text-ink3'
       }`}
       style={style}
     >
       <span className="truncate">{label}</span>
-      <span aria-hidden className={`shrink-0 ${active ? 'opacity-100' : 'opacity-0'}`}>
-        {dir === 1 ? '▲' : '▼'}
-      </span>
-    </button>
+    </div>
   )
 }
