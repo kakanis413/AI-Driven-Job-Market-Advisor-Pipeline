@@ -7,18 +7,17 @@ import type { Family } from '../types'
 export type Mode = 'light' | 'dark'
 export type Layer = 'exposure' | 'pay'
 
-/** Exposure ramp stops, "violet depth": pale lilac (low) → deep violet (high).
- *  Violet is deliberate. Exposure is a MAGNITUDE, not a verdict: red reads as
- *  danger and would contradict our own pinned caveat (high exposure does NOT
- *  mean the job disappears), while green would read as "safe". Violet carries
- *  neither valence — it reads as intensity — and stays clearly distinct from the
- *  sequential-blue pay ramp, so flipping the layer toggle is unmistakable.
- *  Luminance is monotonic, so it survives CVD without relying on hue.
+/** Exposure ramp stops, "pastel greenery": pale mint (low) → deep teal (high).
+ *  Exposure is a MAGNITUDE, not a verdict, so read this ramp as intensity, not
+ *  as "safe → danger" — the pinned caveat (high exposure does NOT mean the job
+ *  disappears) still governs. Luminance is monotonic low→high, so it survives
+ *  CVD without relying on hue, and it stays clearly distinct from the
+ *  sequential-blue pay ramp so flipping the layer toggle is unmistakable.
  *  Interpolated in OKLab. Dark mode is its own selected set, never an auto-flip.
  *  Every stop is contrast-verified against `inkFor` (≥4.5:1 at all stops). */
 export const EXPOSURE_STOPS: Record<Mode, string[]> = {
-  light: ['#efe9f3', '#d5c8e4', '#b09ccc', '#8567ab', '#432c63'],
-  dark: ['#2b2338', '#463862', '#69538f', '#9078bb', '#c3b2dd'],
+  light: ['#e7f2ea', '#bfe0cb', '#8fc7a8', '#579b81', '#274f45'],
+  dark: ['#233029', '#3c6151', '#66a184', '#93bfa9', '#c6e4d1'],
 }
 
 /** Sequential blue for median pay. Dark mode flips the anchor so "near zero"
