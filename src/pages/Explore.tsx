@@ -12,8 +12,8 @@ import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
 import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
 import { advisorIsLive } from '../lib/advisor'
-import { normalize } from '../design/scales'
-import { useMeasure, useViewportHeight } from '../hooks/useMeasure'
+import { exposureColor, fmtCount, fmtExposure, fmtPay, growthOf, normalize } from '../design/scales'
+import { useMeasure, useMediaQuery, useViewportHeight } from '../hooks/useMeasure'
 import { layoutTreemap, type Rect } from '../lib/layout'
 import type { Page } from '../hooks/useRoute'
 import type { Major, TipData } from '../types'
@@ -74,6 +74,13 @@ export default function Explore({
   const [query, setQuery] = useState(initialQuery ?? '')
   const [selectedCip, setSelectedCip] = useState<string | null>(null)
   const [tip, setTip] = useState<TipData | null>(null)
+  // Touch/phone users can't hover, so a tile tap has nothing to preview before
+  // the advisor takes over the screen. On a coarse pointer OR a narrow viewport
+  // a tap opens a lightweight bottom sheet with the same data the tooltip shows,
+  // then hands off to the advisor on request. (Coarse-pointer detection alone
+  // misses some phones, so width is an OR fallback — a comma is media-query OR.)
+  const tapPreview = useMediaQuery('(pointer: coarse), (max-width: 639px)')
+  const [previewCip, setPreviewCip] = useState<string | null>(null)
   const [advisorOpen, setAdvisorOpen] = useState(false)
   const [showChat, setShowChat] = useState(false)
   // The footer always shows the caveat (hard rule 4), so the panel's copy only
@@ -100,6 +107,10 @@ export default function Explore({
   const selected = useMemo(
     () => majors.find((m) => m.cip === selectedCip) ?? null,
     [majors, selectedCip],
+  )
+  const preview = useMemo(
+    () => majors.find((m) => m.cip === previewCip) ?? null,
+    [majors, previewCip],
   )
 
   // Live count of majors matching the active query — same predicate the viz
@@ -144,6 +155,27 @@ export default function Explore({
     },
     [handleSelect],
   )
+  // Tile taps from the viz: on touch (and only when the advisor isn't already
+  // open) show the preview sheet first; otherwise fall straight through to the
+  // advisor as before. Keyboard/mouse selection is unaffected.
+  const handleTileSelect = useCallback(
+    (cip: string) => {
+      if (tapPreview && !advisorOpen) {
+        setTip(null)
+        setPreviewCip(cip)
+      } else {
+        handleSelect(cip)
+      }
+    },
+    [tapPreview, advisorOpen, handleSelect],
+  )
+  const closePreview = useCallback(() => setPreviewCip(null), [])
+  const askAdvisorFromPreview = useCallback(() => {
+    setPreviewCip((cip) => {
+      if (cip) handleSelect(cip)
+      return null
+    })
+  }, [handleSelect])
   const handleTip = useCallback((t: TipData | null) => setTip(t), [])
   const closeAdvisor = useCallback(() => {
     setAdvisorOpen(false)
@@ -165,10 +197,15 @@ export default function Explore({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Escape: close the advisor, then clear the selection, then the search.
+  // Escape: close the preview sheet, then the advisor, then clear the selection,
+  // then the search.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
+      if (previewCip !== null) {
+        setPreviewCip(null)
+        return
+      }
       setAdvisorOpen((open) => {
         if (open) return false
         setSelectedCip((cip) => {
@@ -181,7 +218,7 @@ export default function Explore({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [previewCip])
 
   const switchView = (v: View) => {
     setTip(null)
@@ -323,7 +360,7 @@ export default function Explore({
                 payExtent={payExtent}
                 query={query}
                 selectedCip={selectedCip}
-                onSelect={handleSelect}
+                onSelect={handleTileSelect}
                 onTip={handleTip}
                 geomRef={geomRef}
               />
@@ -336,7 +373,7 @@ export default function Explore({
               layer={layer}
               payExtent={payExtent}
               selectedCip={selectedCip}
-              onSelect={handleSelect}
+              onSelect={handleTileSelect}
               onTip={handleTip}
               geomRef={geomRef}
             />
@@ -501,7 +538,133 @@ export default function Explore({
       </AnimatePresence>
 
       <Tooltip tip={tip} mode={mode} />
+
+      {/* Touch preview: the tooltip's data as a dismissible bottom sheet, with a
+          hand-off to the advisor. Sits above the pinned footer so hard rule 4's
+          caveat stays visible. */}
+      <PreviewSheet
+        major={preview}
+        mode={mode}
+        reduce={!!reduce}
+        onClose={closePreview}
+        onAsk={askAdvisorFromPreview}
+      />
     </>
+  )
+}
+
+/** Bottom-sheet preview for touch: the same figures the hover tooltip shows,
+ *  plus a hand-off to the advisor. Dismissible via the scrim, the close button,
+ *  or Escape (handled in Explore). Floats above the footer so the caveat stays
+ *  visible (hard rule 4). */
+function PreviewSheet({
+  major,
+  mode,
+  reduce,
+  onClose,
+  onAsk,
+}: {
+  major: Major | null
+  mode: Mode
+  reduce: boolean
+  onClose: () => void
+  onAsk: () => void
+}) {
+  const sheetRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (major) sheetRef.current?.focus()
+  }, [major])
+
+  const growth = major && growthOf(major.growth)
+  return (
+    <AnimatePresence>
+      {major && growth && (
+        <>
+          <motion.button
+            key="preview-scrim"
+            aria-label="Dismiss preview"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 cursor-default"
+            style={{ background: 'color-mix(in srgb, var(--ink) 28%, transparent)' }}
+          />
+          <motion.div
+            key="preview-sheet"
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${major.major} — quick facts`}
+            tabIndex={-1}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: '110%' }}
+            animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: '110%' }}
+            transition={reduce ? REDUCED_TWEEN : SPRING}
+            className="glass fixed inset-x-3 bottom-16 z-50 mx-auto max-w-[560px] rounded-panel p-4 shadow-2xl shadow-black/25 focus:outline-none"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="title text-ink">{major.major}</div>
+                <div className="micro mt-0.5 text-ink3">{major.family}</div>
+              </div>
+              <button
+                onClick={onClose}
+                aria-label="Close preview"
+                className="grid size-7 shrink-0 place-items-center rounded-md text-ink3 transition-colors hover:bg-raised hover:text-ink"
+              >
+                <svg width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden>
+                  <path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+              <SheetMetric label="AI exposure">
+                <span
+                  aria-hidden
+                  className="mr-1.5 inline-block size-2.5 rounded-full align-[-1px]"
+                  style={{ background: exposureColor(mode)(major.exposure) }}
+                />
+                <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtExposure(major.exposure)}</b>
+                <span className="text-ink3"> /10</span>
+              </SheetMetric>
+              <SheetMetric label="Median pay">
+                <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtPay(major.median_pay)}</b>
+              </SheetMetric>
+              <SheetMetric label="Bachelor's grads / yr">
+                <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtCount(major.completions)}</b>
+              </SheetMetric>
+              <SheetMetric label="Job growth">
+                <span aria-hidden>{growth.glyph} </span>
+                <b>{growth.label}</b>
+              </SheetMetric>
+            </div>
+
+            <p className="mt-3 border-t border-line pt-3 text-[12.5px] leading-relaxed text-ink2">
+              {major.rationale}
+            </p>
+
+            <button
+              onClick={onAsk}
+              className="mt-3 w-full rounded-md bg-ink px-4 py-2.5 text-sm font-semibold text-page transition-opacity hover:opacity-90"
+            >
+              Ask the advisor about this major
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  )
+}
+
+function SheetMetric({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="micro text-ink3">{label}</div>
+      <div className="mt-0.5 text-[13px] text-ink">{children}</div>
+    </div>
   )
 }
 

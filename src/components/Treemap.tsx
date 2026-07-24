@@ -229,6 +229,9 @@ function TileView({
         }
       }}
       onPointerMove={(e) => {
+        // Touch taps fire a synthetic pointermove; skip it so the hover tooltip
+        // never flashes on touch — those users get the tap preview sheet instead.
+        if (e.pointerType === 'touch') return
         setHover(true)
         onTip({ major: m, x: e.clientX, y: e.clientY })
       }}
@@ -256,7 +259,7 @@ function TileView({
         animate={{ width: t.w, height: t.h, fill }}
         transition={{ ...spr, delay, fill: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
         stroke="var(--surface)"
-        strokeWidth={1.5}
+        strokeWidth={1}
       />
       {showName && (
         <text x={9} y={19} fill={ink} style={{ fontSize: 12.5, fontWeight: 600 }}>

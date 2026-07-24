@@ -285,6 +285,10 @@ export default memo(function HeatmapGrid({
               const delay = revealed ? 0 : Math.min(i * 0.022, 0.4)
               const hoverProps = (key: ColKey | null) => ({
                 onPointerMove: (e: React.PointerEvent) => {
+                  // Touch taps fire a synthetic pointermove; skip it so the
+                  // hover tooltip/crosshair never flash on touch — those users
+                  // get the tap preview sheet instead.
+                  if (e.pointerType === 'touch') return
                   setHoverRow(i)
                   setHoverCol(key)
                   onTip({ major: m, x: e.clientX, y: e.clientY })
