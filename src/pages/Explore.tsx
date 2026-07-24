@@ -25,7 +25,7 @@ interface Props {
   url: string
   retry: () => void
   mode: Mode
-  nav: (page: Page) => void
+  nav: (page: Page, sub?: string) => void
   toggle: () => void
   initialQuery?: string
   /** Arriving from a landing tile click: select this major on mount. */
@@ -428,12 +428,20 @@ export default function Explore({
                 <div className="min-h-0 flex-1 overflow-y-auto p-3">
                   <MajorDetailCard major={selected} mode={mode} />
                 </div>
-                <div className="border-t border-line p-3">
+                <div className="space-y-2 border-t border-line p-3">
                   <button
                     onClick={() => setShowChat(true)}
                     className="w-full rounded-md bg-ink px-4 py-2 text-sm font-semibold text-surface transition-opacity hover:opacity-90"
                   >
                     Ask the advisor about this major
+                  </button>
+                  {/* Bridge to the roomy home: carry this major into /chat, where
+                      the school context and national-estimates rail live. */}
+                  <button
+                    onClick={() => nav('chat', selected.cip)}
+                    className="w-full rounded-md px-4 py-2 text-[13px] font-medium text-ink2 transition-colors hover:text-ink"
+                  >
+                    Open in the full chat →
                   </button>
                 </div>
               </>

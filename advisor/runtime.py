@@ -153,15 +153,16 @@ class AdvisorRuntime:
 
         norm_major = _normalize_text(major_name)
         norm_query = _normalize_text(raw_query)
-        # The university layer changes the answer, so it MUST be part of the key.
-        # Without it a national reply and a school reply (and two different
-        # schools) collide on major:query — the personalization silently loses to
-        # whatever was cached first. Absent a school these stay empty, so the
-        # national path keeps a stable key.
-        norm_uni = _normalize_text(getattr(req, "university", None))
-        norm_domain = _normalize_text(getattr(req, "university_domain", None))
-        norm_intended = _normalize_text(getattr(req, "intended_major", None))
-        cache_key = f"{norm_major}:{norm_query}:{norm_uni}:{norm_domain}:{norm_intended}"
+        cache_key = f"{norm_major}:{norm_query}"
+        # The university layer changes the answer, so it MUST be part of the key —
+        # otherwise a national reply and a school reply (or two different schools)
+        # would collide on major:query and personalization would silently lose to
+        # whatever was cached first. Fold it in ONLY when personalizing, so a
+        # national request keeps the exact same key (and cache behavior) as before.
+        if getattr(req, "is_university_compare", False):
+            norm_school = _normalize_text(getattr(req, "university", "") or "")
+            norm_intended = _normalize_text(getattr(req, "intended_major", "") or "")
+            cache_key = f"{cache_key}:{norm_school}:{norm_intended}"
 
         async with _CACHE_LOCK:
             if cache_key in RESPONSE_CACHE:

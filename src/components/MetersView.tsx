@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { bandOf, exposureColor, fmtExposure, fmtRatio, normalize } from '../design/scales'
 import type { Mode } from '../design/tokens'
 import type { Major } from '../types'
+import DataChip from './DataChip'
 
 export type SortKey = 'payToDebt' | 'versatility'
 
@@ -59,7 +60,7 @@ export default function MetersView({
           the hairline rows carry the structure, matching the grid. */}
       <div
         role="row"
-        className="sticky top-0 z-10 grid grid-cols-[2rem_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_5rem] items-center gap-5 border-b border-line bg-page/95 px-2 py-3 backdrop-blur"
+        className="sticky top-0 z-10 grid grid-cols-[2rem_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_7rem] items-center gap-5 border-b border-line bg-page/95 px-2 py-3 backdrop-blur"
       >
         <span className="micro text-right text-ink3">#</span>
         <span className="micro text-ink3">Major</span>
@@ -81,7 +82,7 @@ export default function MetersView({
           <li key={m.cip} role="row">
             <button
               onClick={() => onSelect(m.cip)}
-              className="grid w-full grid-cols-[2rem_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_5rem] items-center gap-5 rounded-md border-b border-line px-2 py-3 text-left transition-colors last:border-b-0 hover:bg-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+              className="grid w-full grid-cols-[2rem_minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,1fr)_7rem] items-center gap-5 rounded-md border-b border-line px-2 py-3 text-left transition-colors last:border-b-0 hover:bg-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
             >
               <span
                 className="text-right text-[13px] font-semibold text-ink3"
@@ -95,11 +96,11 @@ export default function MetersView({
               </span>
               <RowMeter
                 fill={m.payToDebtRank ?? 0}
-                value={m.payToDebt != null ? fmtRatio(m.payToDebt) : '—'}
+                value={m.payToDebt != null ? fmtRatio(m.payToDebt) : null}
               />
               <RowMeter
                 fill={m.versatilityRank ?? 0}
-                value={m.versatility != null ? bandOf(m.versatility) : '—'}
+                value={m.versatility != null ? bandOf(m.versatility) : null}
               />
               <ExposureCell value={m.exposure} color={expC(m.exposure)} />
             </button>
@@ -136,8 +137,16 @@ function SortHeader({
 }
 
 /* Compact meter for a board row: neutral ink bar + value text. Same neutral
-   fill as the detail card's meters — never the exposure/pay ramp (hard rule 5). */
-function RowMeter({ fill, value }: { fill: number; value: string }) {
+   fill as the detail card's meters — never the exposure/pay ramp (hard rule 5).
+   With no value, the whole cell becomes a "No data" chip instead of an empty bar
+   and a lone dash. */
+function RowMeter({ fill, value }: { fill: number; value: string | null }) {
+  if (value === null)
+    return (
+      <span className="flex items-center">
+        <DataChip label="No data" />
+      </span>
+    )
   return (
     <span className="flex items-center gap-2">
       <span className="h-1.5 flex-1 overflow-hidden rounded-full bg-line" aria-hidden>
@@ -160,11 +169,17 @@ function RowMeter({ fill, value }: { fill: number; value: string }) {
    score (color is never the only signal, hard rule 2). A dot, not a filled bar,
    so the ramp stays a small indicator and never encodes area on a data row. */
 function ExposureCell({ value, color }: { value: number | null; color: string }) {
+  if (value === null)
+    return (
+      <span className="flex items-center justify-end">
+        <DataChip label="Not scored" />
+      </span>
+    )
   return (
     <span
       className="flex items-center justify-end gap-1.5 text-[13px] font-semibold text-ink"
       style={{ fontVariantNumeric: 'tabular-nums' }}
-      aria-label={value === null ? 'exposure not scored' : `exposure ${fmtExposure(value)} out of 10`}
+      aria-label={`exposure ${fmtExposure(value)} out of 10`}
     >
       <span aria-hidden className="size-2 shrink-0 rounded-full" style={{ background: color }} />
       {fmtExposure(value)}
