@@ -235,9 +235,13 @@ export default function Explore({
               <NavCluster page="explore" mode={mode} onNav={nav} onToggle={toggle} />
             </div>
           </div>
-          {/* Row 2 — search on its own hairlined row, roomy and full-width at
-              every breakpoint. */}
-          <div className="flex items-center border-t border-line py-2.5">
+          {/* Row 2 — search, roomy and full-width, with the compact reference
+              trailing right. The color encoding must never be unreadable, so
+              below xl (where row 1 drops the inline legend) it reappears here:
+              the compact color scale for the tile views, the value caption for
+              the board. At xl this row is search only — the inline legend in
+              row 1 takes over. */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-line py-2.5">
             <div className="w-full max-w-[420px]">
               <SearchSpotlight
                 compact
@@ -247,6 +251,13 @@ export default function Explore({
                 onQuery={setQuery}
                 onPick={handlePick}
               />
+            </div>
+            <div className="ms-auto xl:hidden">
+              {view === 'meters' ? (
+                <p className="text-[12px] text-ink3">Early-career pay per $1 of typical student debt</p>
+              ) : (
+                <Legend compact layer={layer} mode={mode} payExtent={payExtent} />
+              )}
             </div>
           </div>
         </div>
