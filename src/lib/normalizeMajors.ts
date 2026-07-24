@@ -64,15 +64,72 @@ const CIP_FAMILY: Record<string, Family> = {
   '39': 'Humanities', // Theology & religious vocations
   '54': 'Humanities', // History
   '50': 'Arts', // Visual & performing arts
-  '10': 'Trades', // Communications technologies
+  // Communications technologies — Graphic Communications and Audiovisual
+  // Technologies are design/media production, not a trade. Filing them under
+  // Trades put 4,657 of that family's 11,255 graduates in the wrong bucket and
+  // made "Trades" look like it was mostly graphic designers.
+  '10': 'Arts',
   '12': 'Trades', // Culinary & personal services
   '46': 'Trades', // Construction trades
   '47': 'Trades', // Mechanic & repair technologies
   '48': 'Trades', // Precision production
   '49': 'Trades', // Transportation & materials moving
-  '25': 'Other', // Library science
+  '25': 'Humanities', // Library science
   '29': 'Other', // Military technologies
-  '30': 'Other', // Multi / interdisciplinary studies
+  '30': 'Other', // Multi / interdisciplinary studies — see CIP30_FAMILY
+}
+
+/** CIP 30 ("Multi/Interdisciplinary Studies") is a 42-major grab bag, and
+ *  bucketing it wholesale into 'Other' built a junk drawer: Cognitive Science,
+ *  Nutrition Sciences, Data Science and International Studies are real majors
+ *  with obvious homes, and burying them cost 'Other' its meaning. The series is
+ *  the only case where the 2-digit code genuinely cannot decide the family, so
+ *  it gets an explicit per-major table — matched on the exact `major` string.
+ *
+ *  Anything not listed stays 'Other', which is now honest: it holds the two
+ *  genuinely unclassifiable "Multi-/Interdisciplinary Studies, General/Other"
+ *  rows plus the military series. */
+const CIP30_FAMILY: Record<string, Family> = {
+  'Nutrition Sciences': 'STEM',
+  'Biological and Physical Sciences': 'STEM',
+  'Cognitive Science': 'STEM',
+  'Human Biology': 'STEM',
+  'Mathematics and Computer Science': 'STEM',
+  'Natural Sciences': 'STEM',
+  'Human Computer Interaction': 'STEM',
+  'Systems Science and Theory': 'STEM',
+  'Data Analytics': 'STEM',
+  'Computational Science': 'STEM',
+  Biopsychology: 'STEM',
+  'Marine Sciences': 'STEM',
+  'Data Science': 'STEM',
+  'Earth Systems Science': 'STEM',
+  'Environmental Geosciences': 'STEM',
+  Anthrozoology: 'STEM',
+  'Accounting and Computer Science': 'STEM',
+  'Economics and Computer Science': 'STEM',
+  'International/Globalization Studies': 'Social sci',
+  'Behavioral Sciences': 'Social sci',
+  'Sustainability Studies': 'Social sci',
+  'Science, Technology and Society': 'Social sci',
+  'Peace Studies and Conflict Resolution': 'Social sci',
+  Gerontology: 'Social sci',
+  'Intercultural/Multicultural and Diversity Studies': 'Social sci',
+  'Philosophy, Politics, and Economics': 'Social sci',
+  'History and Political Science': 'Social sci',
+  'Geography and Environmental Studies': 'Social sci',
+  'Mathematical Economics': 'Social sci',
+  'Dispute Resolution': 'Social sci',
+  'Classical and Ancient Studies': 'Humanities',
+  'Cultural Studies/Critical Theory and Analysis': 'Humanities',
+  'Historic Preservation and Conservation': 'Humanities',
+  'Museology/Museum Studies': 'Humanities',
+  'Medieval and Renaissance Studies': 'Humanities',
+  'Maritime Studies': 'Humanities',
+  'Holocaust and Related Studies': 'Humanities',
+  'Cultural Studies and Comparative Literature': 'Humanities',
+  'Digital Humanities and Textual Studies': 'Humanities',
+  'History and Language/Literature': 'Humanities',
 }
 
 const GROWTH_VALUES: readonly Growth[] = ['declining', 'slower', 'average', 'faster']
@@ -110,7 +167,8 @@ function toMajor(raw: RawMajor, index: number): Major | null {
   if (!major) return null
 
   const series = str(raw.family) ?? ''
-  const family: Family = CIP_FAMILY[series] ?? 'Other'
+  const family: Family =
+    (series === '30' ? CIP30_FAMILY[major] : undefined) ?? CIP_FAMILY[series] ?? 'Other'
   // The pipeline dropped the detailed CIP code, keeping only the 2-digit
   // series. Synthesize a stable, unique id from series + ordinal so it can key
   // React lists and drive selection; it reads like a CIP for the detail card.

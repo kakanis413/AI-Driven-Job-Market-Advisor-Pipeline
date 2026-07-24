@@ -92,21 +92,28 @@ export default memo(function Treemap({
         layer === 'exposure' ? 'AI exposure' : 'median pay'
       }`}
     >
-      {bands.map(
-        (b) =>
-          b.w > 100 && (
-            <motion.text
-              key={b.family}
-              initial={false}
-              animate={{ x: b.x + 2, y: b.y + 15 }}
-              transition={spr}
-              fill="var(--ink3)"
-              style={{ fontSize: 10.5, fontWeight: 580, letterSpacing: '0.08em' }}
-            >
-              {b.family.toUpperCase()}
-            </motion.text>
-          ),
-      )}
+      {bands.map((b) => {
+        // Every band gets a label, truncated to fit rather than suppressed. The
+        // old `w > 100` cutoff silently unlabelled the smallest families — Trades
+        // is 0.5% of all graduates and lays out as a ~60px sliver, so the one
+        // family a reader is most likely to be hunting for was the one with no
+        // name on it. ~7.3px per character at this size/tracking.
+        const room = Math.floor((b.w - 6) / 7.3)
+        if (room < 3) return null
+        const name = b.family.toUpperCase()
+        return (
+          <motion.text
+            key={b.family}
+            initial={false}
+            animate={{ x: b.x + 2, y: b.y + 15 }}
+            transition={spr}
+            fill="var(--ink3)"
+            style={{ fontSize: 10.5, fontWeight: 580, letterSpacing: '0.08em' }}
+          >
+            {name.length > room ? `${name.slice(0, room - 1)}…` : name}
+          </motion.text>
+        )
+      })}
       {tiles.map((t, i) => {
         let dim = 1
         if (q && !matches(t.major)) dim = 0.18

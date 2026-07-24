@@ -8,6 +8,7 @@ import Legend from '../components/Legend'
 import MajorDetailCard from '../components/MajorDetailCard'
 import MetersView, { type SortKey } from '../components/MetersView'
 import SearchSpotlight from '../components/SearchSpotlight'
+import StatsStrip, { STATS_STRIP_H } from '../components/StatsStrip'
 import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
 import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
@@ -96,7 +97,10 @@ export default function Explore({
   // wrapping to its own line on mid-width screens, plus the tightened search
   // row); subtract that, the pinned footer (~48), and a little breathing room so
   // the map always clears the footer at every breakpoint.
-  const mapH = Math.max(440, vh - 242)
+  // The stats strip only shows from lg up: below that it would wrap into four
+  // ragged rows and eat the map, and narrow viewports already open on Table.
+  const showStats = useMediaQuery('(min-width: 1024px)')
+  const mapH = Math.max(480, vh - 218 - (showStats ? STATS_STRIP_H : 0))
 
   const payExtent = useMemo<[number, number]>(() => {
     const pays = majors.map((m) => m.median_pay).filter((p): p is number => p != null)
@@ -334,6 +338,14 @@ export default function Explore({
       </div>
 
       <div className="mx-auto mt-3 max-w-[1400px] px-5 md:px-8">
+        {/* The read-out sits above the map for both tile views. The ROI board is
+            its own ranked table with its own framing, so the strip would double
+            up on it. */}
+        {status === 'ready' && showStats && view !== 'meters' && (
+          <div className="mb-3">
+            <StatsStrip majors={majors} layer={layer} mode={mode} payExtent={payExtent} />
+          </div>
+        )}
         <div ref={vizRef} className="relative min-w-0">
           {status === 'loading' && vizW > 0 && <SkeletonViz width={vizW} height={mapH} />}
           {status === 'error' && <ErrorCard height={mapH} url={url} retry={retry} />}

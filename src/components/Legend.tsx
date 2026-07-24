@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { exposureColor, fmtPay, payColor } from '../design/scales'
+import { exposureColor, exposureRampDomain, fmtExposure, fmtPay, payColor } from '../design/scales'
 import type { Layer, Mode } from '../design/tokens'
 
 const SEGMENTS = 28
@@ -17,19 +17,23 @@ export default function Legend({
    *  inline legend doesn't fit. Same encoding, less chrome. */
   compact?: boolean
 }) {
+  // The exposure ramp is fitted to the observed range, not to 0–10, so the bar
+  // is swept across THAT domain and labelled with its real endpoints. Printing
+  // "0" and "10" here would key the map to colors it never paints.
+  const [expLo, expHi] = exposureRampDomain()
   const scale =
     layer === 'exposure'
-      ? (t: number) => exposureColor(mode)(t * 10)
+      ? (t: number) => exposureColor(mode)(expLo + t * (expHi - expLo))
       : (t: number) => payColor(mode, payExtent)(payExtent[0] + t * (payExtent[1] - payExtent[0]))
 
   const title = layer === 'exposure' ? 'AI exposure /10' : 'Median pay'
-  const lo = layer === 'exposure' ? '0' : fmtPay(payExtent[0])
-  const hi = layer === 'exposure' ? '10' : fmtPay(payExtent[1])
+  const lo = layer === 'exposure' ? fmtExposure(expLo) : fmtPay(payExtent[0])
+  const hi = layer === 'exposure' ? fmtExposure(expHi) : fmtPay(payExtent[1])
   // Hue-neutral: describes the ramp by depth (pale → deep), not by a specific
   // color name, so it stays accurate whichever ramp ships.
   const ariaLabel =
     layer === 'exposure'
-      ? 'Legend: AI exposure color scale, pale at 0 (low) to deep at 10 (high)'
+      ? `Legend: AI exposure color scale, pale at ${fmtExposure(expLo)} (lowest scored) to deep at ${fmtExposure(expHi)} (highest scored), on a 0 to 10 scale`
       : `Legend: median-pay color scale, pale at ${fmtPay(payExtent[0])} to deep at ${fmtPay(payExtent[1])}`
 
   const bar = (
@@ -76,8 +80,8 @@ export default function Legend({
               className="micro flex justify-between text-ink3"
               style={{ fontVariantNumeric: 'tabular-nums' }}
             >
-              <span>{layer === 'exposure' ? '0 · low' : fmtPay(payExtent[0])}</span>
-              <span>{layer === 'exposure' ? '10 · high' : fmtPay(payExtent[1])}</span>
+              <span>{layer === 'exposure' ? `${fmtExposure(expLo)} · low` : fmtPay(payExtent[0])}</span>
+              <span>{layer === 'exposure' ? `${fmtExposure(expHi)} · high` : fmtPay(payExtent[1])}</span>
             </div>
             {/* The other half of the encoding: color is exposure/pay, area is size. */}
             <div className="micro text-ink3">Tile area ≈ grads · small majors sized up</div>
