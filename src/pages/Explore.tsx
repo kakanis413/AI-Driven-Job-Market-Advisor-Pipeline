@@ -191,9 +191,9 @@ export default function Explore({
               value={view}
               onChange={switchView}
               options={[
-                { value: 'map', label: 'Heatmap' },
-                { value: 'grid', label: 'HashTable' },
-                { value: 'meters', label: 'Value' },
+                { value: 'map', label: 'Treemap' },
+                { value: 'grid', label: 'Table' },
+                { value: 'meters', label: 'ROI' },
               ]}
             />
             {view === 'meters' ? (
