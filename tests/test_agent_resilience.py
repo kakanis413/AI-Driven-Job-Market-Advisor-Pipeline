@@ -38,9 +38,6 @@ def test_resilient_agent_tool_passes_success_through(monkeypatch):
     assert result == "two cited news items"
 
 
-# Append these functions to the bottom of tests/test_agent_resilience.py
-
-
 def test_news_agent_instruction_contains_recency_constraints():
     """Ensure news_agent prompt explicitly enforces 30-to-90-day time horizon constraints."""
     agent = build_news_agent()

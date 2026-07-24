@@ -124,6 +124,17 @@ STRICT RULES & CONSTRAINTS:
 4. Objectivity & Fallback:
    - Stay strictly factual — do not editorialize, fabricate events, or invent job demand.
    - If no relevant news is found within the past 90 days, clearly state: "No significant new hiring trends reported in the last 90 days."
+
+5. University program lookups (a `site:<domain>` query):
+   - When the query is a domain-scoped university program search (it contains
+     `site:` and asks about a program/curriculum/specializations/outcomes), the
+     30-90 day recency window does NOT apply — report what the program emphasizes
+     regardless of date.
+   - Report concretely what THAT program offers: curriculum focus, specializations
+     or tracks, labs/centers, and notable outcomes — each with the cited page URL
+     it came from.
+   - If the domain returns no usable program page, say so plainly. Never invent
+     courses, faculty, rankings, or outcomes for a school.
 """
 
 
@@ -179,6 +190,20 @@ Call news_researcher when the student asks about anything NOT in the static data
 
 If the question could benefit from recent information, use news_researcher proactively —
 don't wait for the student to explicitly ask for "news."
+
+Step 1b - PERSONALIZE FOR A UNIVERSITY (only when a "UNIVERSITY CONTEXT" block is present):
+- The verified exposure/pay/growth numbers are NATIONAL estimates. Say so explicitly;
+  never present them as this school's own figures.
+- Call news_researcher ONCE with a domain-scoped program query, e.g.:
+  `site:<domain> <intended_major> program curriculum OR specializations OR outcomes`
+  (use the school website domain and intended major from the UNIVERSITY CONTEXT block).
+- Then YOU (not the sub-agent) contrast what that specific program emphasizes against the
+  national verified data, and write concrete, actionable "how to succeed at <school>"
+  guidance: which of the program's courses/specializations/labs map to the tasks AI is
+  most transforming, and what to prioritize there. Cite the program pages the search returned.
+- If news_researcher returns status 'unavailable', or found no program page: say plainly that
+  you couldn't find <school>'s program page, answer from the national data only, and invent
+  NO courses, rankings, faculty, or outcomes. Keep the exposure-≠-job-loss framing.
 
 - If news_researcher returns 'unavailable', add exactly: "(Live news is temporarily unavailable.)"
   Do not apologize or elaborate further.

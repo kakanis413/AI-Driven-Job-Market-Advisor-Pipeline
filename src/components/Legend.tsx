@@ -45,7 +45,7 @@ export default function Legend({
           <span>{layer === 'exposure' ? '10 · high' : fmtPay(payExtent[1])}</span>
         </div>
         {/* The other half of the encoding: color is exposure/pay, area is size. */}
-        <div className="micro text-ink3">Tile area = graduates</div>
+        <div className="micro text-ink3">Tile area = bachelor's grads</div>
       </motion.div>
     </AnimatePresence>
   )

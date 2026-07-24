@@ -24,7 +24,7 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
 
       <dl className="mt-1 grid grid-cols-3 gap-2">
         <Stat label="Median pay" value={fmtPay(major.median_pay)} />
-        <Stat label="Graduates" value={fmtCount(major.completions)} />
+        <Stat label="Bachelor's grads" value={fmtCount(major.completions)} />
         <Stat
           label="Job growth"
           value={
@@ -50,7 +50,7 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
           {major.versatility != null && (
             <Meter
               label="Career versatility"
-              value={bandOf(major.versatilityRank ?? 0)}
+              value={bandOf(major.versatility ?? 0)}
               fill={major.versatilityRank ?? 0}
               caption={`maps to ${major.versatility} related occupation${major.versatility === 1 ? '' : 's'}`}
             />

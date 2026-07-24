@@ -1,30 +1,20 @@
 """Per-family news feed: search-grounded, cached, honest about URLs.
 
-NEWS_TAB.md §6: family buckets, precomputed lazily with a TTL — the first
-request for a family pays the search, everyone after gets the cache.
-
-Hard rule 1 lives here: item URLs are taken ONLY from Google Search grounding
-chunks. Two phases, because Vertex only attaches grounding chunks to natural
-prose (structured JSON output suppresses citation mapping — verified against
-gemini-3.5-flash):
-
-  1. the same prose `news_agent` the chat uses runs with google_search and
-     yields cited prose + grounding chunks (domain + redirect URI);
-  2. a toolless structured-output call extracts card items from that prose,
-     with `source_domain` constrained to the grounded domains.
-
-Items are then joined to chunks by domain; an item that matches no chunk is
-dropped, not rendered. The model never composes a URL.
+Implements Stale-While-Revalidate: stale disk cache entries are served
+instantly so users never wait 20-30s, while a background task silently refreshes
+the news data for the next visit.
 """
 
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import re
 import time
 import uuid
 from datetime import datetime, timedelta, timezone
+from pathlib import Path
 from urllib.parse import urlparse
 
 import httpx
@@ -39,14 +29,17 @@ from advisor.schemas import NewsFeed, NewsItem
 
 log = logging.getLogger(__name__)
 
-# Mirrors FAMILY_ORDER in src/design/tokens.ts — the buckets are the contract.
 FAMILIES = ["STEM", "Business", "Health", "Social sci", "Humanities", "Arts", "Trades", "Other"]
 _CANON = {f.lower(): f for f in FAMILIES}
 
 MAX_ITEMS = 5
-# Recent signal only: an article older than this is dropped, so the tab never
-# labels a months-old piece "just now".
 MAX_AGE_DAYS = 180
+
+CACHE_FILE = Path(__file__).parent / ".news_cache.json"
+
+REFRESH_MARGIN_S = 300
+REFRESH_CHECK_INTERVAL_S = 60
+PREWARM_CONCURRENCY = 2
 
 _EXTRACT_SCHEMA = {
     "type": "array",
@@ -75,7 +68,6 @@ def _norm_domain(raw: str) -> str:
 
 
 def _meta(html: str, prop: str) -> str | None:
-    """Read an og/meta tag content (either attribute order), decoded."""
     pat = re.escape(prop)
     m = re.search(
         r'<meta[^>]+(?:property|name)=["\']' + pat + r'["\'][^>]+content=["\']([^"\']+)',
@@ -92,14 +84,11 @@ def _meta(html: str, prop: str) -> str | None:
 
 
 def _clean_headline(title: str, source: str) -> str:
-    """Strip a trailing " | Publisher" / " - Publisher" site-name suffix."""
     t = re.sub(r'\s*[|–—-]\s*[^|–—-]{2,40}$', '', title).strip()
     return t or title
 
 
 def _headline_from_slug(url: str) -> str | None:
-    """Fallback headline from a REAL resolved-URL slug when og:title is blocked
-    (e.g. Cloudflare). Derived from fetched page data, not invented."""
     path = urlparse(url).path.rstrip("/")
     slug = path.rsplit("/", 1)[-1] if path else ""
     slug = re.sub(r"\.(html?|php|aspx?)$", "", slug, flags=re.I)
@@ -110,16 +99,13 @@ def _headline_from_slug(url: str) -> str | None:
 
 
 def _is_source_title(title: str, source: str) -> bool:
-    """The model sometimes uses the publication as the 'headline'. Detect it so
-    such items get a real headline or get dropped — never shown source-as-title."""
     return _norm_domain(title) == _norm_domain(source) or title.strip().lower() in (
         source.strip().lower(),
-        re.sub(r"\s*\([^)]*\)\s*$", "", source).strip().lower(),  # strip "(BPC)"
+        re.sub(r"\s*\([^)]*\)\s*$", "", source).strip().lower(),
     )
 
 
 def _is_recent(published: str | None) -> bool:
-    """Keep items with no date (can't judge) or dated within MAX_AGE_DAYS."""
     if not published:
         return True
     m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", published)
@@ -133,10 +119,6 @@ def _is_recent(published: str | None) -> bool:
 
 
 async def _enrich(client: httpx.AsyncClient, item: NewsItem) -> NewsItem:
-    """Fetch the REAL article page behind the grounded URL and pull the true
-    headline (og:title), thumbnail (og:image) and published date. Favicon is
-    derived from the resolved publisher domain. Everything is from the fetched
-    page or dropped — nothing invented. Failure degrades to no image."""
     final_url = item.url
     try:
         r = await client.get(item.url, follow_redirects=True)
@@ -146,7 +128,6 @@ async def _enrich(client: httpx.AsyncClient, item: NewsItem) -> NewsItem:
         if r.status_code == 200 and "text/html" in r.headers.get("content-type", ""):
             html = r.text[:200_000]
             og_title = _meta(html, "og:title") or _meta(html, "twitter:title")
-            # The page's own og:title is the real headline; prefer it.
             if og_title and _norm_domain(og_title) != _norm_domain(item.source):
                 cleaned = _clean_headline(og_title, item.source)
                 if len(cleaned) >= 12:
@@ -159,8 +140,6 @@ async def _enrich(client: httpx.AsyncClient, item: NewsItem) -> NewsItem:
                 item.published = pub[:10]
     except (httpx.HTTPError, ValueError):
         pass
-    # If we still don't have a real headline (page blocked / model used the
-    # source name), derive one from the real resolved-URL slug.
     if _is_source_title(item.title, item.source):
         slug_title = _headline_from_slug(final_url)
         if slug_title:
@@ -172,8 +151,6 @@ async def _enrich_all(items: list[NewsItem]) -> list[NewsItem]:
     headers = {"User-Agent": "Mozilla/5.0 (compatible; MajorVisualizerBot/1.0)"}
     async with httpx.AsyncClient(timeout=8.0, headers=headers) as client:
         enriched = await asyncio.gather(*(_enrich(client, it) for it in items))
-    # Drop stale items, and any still showing the source as the headline (no
-    # real article headline could be obtained) — better nothing than a fake card.
     return [
         it
         for it in enriched
@@ -182,7 +159,6 @@ async def _enrich_all(items: list[NewsItem]) -> list[NewsItem]:
 
 
 def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]]) -> list[NewsItem]:
-    """chunks: (domain, uri). An item keeps only a grounded URL or dies."""
     items: list[NewsItem] = []
     for raw in raw_items:
         title = str(raw.get("title") or "").strip()
@@ -192,7 +168,7 @@ def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]]) 
             continue
         url = next((uri for domain, uri in chunks if uri and want == domain), None)
         if not url:
-            continue  # hard rule 1: no grounded URL, no card
+            continue
         published = str(raw.get("published") or "").strip()
         items.append(
             NewsItem(
@@ -209,7 +185,7 @@ def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]]) 
 
 
 class NewsRuntime:
-    """One runner + a per-family TTL cache. Built lazily at first request."""
+    """Manages search-grounded news feeds with Stale-While-Revalidate caching."""
 
     def __init__(self) -> None:
         self._session_service = InMemorySessionService()
@@ -221,9 +197,41 @@ class NewsRuntime:
         self._client = Client()
         self._cache: dict[str, tuple[float, NewsFeed]] = {}
         self._locks: dict[str, asyncio.Lock] = {f: asyncio.Lock() for f in FAMILIES}
+        self._refreshing: set[str] = set()
+        self._load_cache_from_disk()
+
+    def _load_cache_from_disk(self) -> None:
+        """Loads cached items regardless of expiry so users get instant responses."""
+        if not CACHE_FILE.exists():
+            log.info("no news cache file found at %s — starting cold", CACHE_FILE)
+            return
+        try:
+            raw = json.loads(CACHE_FILE.read_text())
+            now = time.time()
+            fresh, stale = 0, 0
+            for family, entry in raw.items():
+                expires_at = entry["expires_at"]
+                feed = NewsFeed.model_validate(entry["feed"])
+                self._cache[family] = (expires_at, feed)
+                if expires_at > now:
+                    fresh += 1
+                else:
+                    stale += 1
+            log.info("loaded news cache from disk | fresh=%d stale=%d", fresh, stale)
+        except Exception as exc:
+            log.warning("failed to load news cache from disk, starting cold: %s", exc)
+
+    def _save_cache_to_disk(self) -> None:
+        try:
+            payload = {
+                family: {"expires_at": expires_at, "feed": feed.model_dump(mode="json")}
+                for family, (expires_at, feed) in self._cache.items()
+            }
+            CACHE_FILE.write_text(json.dumps(payload))
+        except Exception as exc:
+            log.warning("failed to persist news cache to disk: %s", exc)
 
     async def _grounded_prose(self, family: str) -> tuple[str, list[tuple[str, str]]]:
-        """Phase 1: cited prose + (domain, uri) grounding chunks."""
         user_id = "news"
         session_id = f"n-{uuid.uuid4().hex[:16]}"
         await self._session_service.create_session(
@@ -244,7 +252,6 @@ class NewsRuntime:
             for chunk in (getattr(gm, "grounding_chunks", None) or []):
                 web = getattr(chunk, "web", None)
                 if web is not None and web.uri:
-                    # On Vertex the domain arrives in `title`; `domain` is often unset.
                     chunks.append((_norm_domain(web.domain or web.title or ""), web.uri))
             if event.is_final_response() and event.content and event.content.parts:
                 text = event.content.parts[0].text
@@ -253,7 +260,6 @@ class NewsRuntime:
         return prose, chunks
 
     async def _extract_items(self, prose: str, domains: list[str]) -> list[dict]:
-        """Phase 2: structured extraction, no tools, domains constrained."""
         resp = await self._client.aio.models.generate_content(
             model=settings.model,
             contents=(
@@ -271,8 +277,6 @@ class NewsRuntime:
                 response_schema=_EXTRACT_SCHEMA,
             ),
         )
-        import json
-
         try:
             parsed = json.loads(resp.text or "[]")
         except json.JSONDecodeError:
@@ -286,13 +290,6 @@ class NewsRuntime:
             domains = sorted({d for d, _ in chunks if d})
             raw = await self._extract_items(prose, domains)
             items = _join_items_to_chunks(raw, chunks)
-            if len(raw) > len(items):
-                log.info(
-                    "news[%s]: dropped %d item(s) without a grounded URL",
-                    family, len(raw) - len(items),
-                )
-            # Enrich from the real pages (headline, thumbnail, favicon, date) and
-            # drop anything that turns out to be stale.
             before = len(items)
             items = await _enrich_all(items)
             if before != len(items):
@@ -305,24 +302,59 @@ class NewsRuntime:
 
     async def get_feed(self, family: str) -> NewsFeed:
         hit = self._cache.get(family)
-        if hit and hit[0] > time.monotonic():
-            return hit[1]
-        async with self._locks[family]:
-            hit = self._cache.get(family)  # a queued waiter finds it fresh
-            if hit and hit[0] > time.monotonic():
-                return hit[1]
-            try:
-                feed = await asyncio.wait_for(
-                    self._fetch(family), timeout=settings.request_timeout_s
-                )
-            except asyncio.TimeoutError as exc:
-                raise errors.UpstreamTimeout() from exc
-            except errors.AdvisorError:
-                raise
-            except Exception as exc:  # noqa: BLE001 - surfaced as structured error
-                raise errors.classify(exc) from exc
-            self._cache[family] = (time.monotonic() + settings.news_ttl_s, feed)
+        now = time.time()
+
+        if hit is not None:
+            expires_at, feed = hit
+            if expires_at > now:
+                log.info("news cache HIT (fresh) | family=%s remaining=%.0fs", family, expires_at - now)
+            else:
+                log.info("news cache HIT (stale) | family=%s — refreshing in background", family)
+                self._kick_off_background_refresh(family)
             return feed
+
+        async with self._locks[family]:
+            hit = self._cache.get(family)
+            if hit is not None:
+                return hit[1]
+
+            log.info("news cache MISS | fetching live for family=%s", family)
+            return await self._live_fetch_and_store(family)
+
+    def _kick_off_background_refresh(self, family: str) -> None:
+        if family in self._refreshing:
+            return
+        self._refreshing.add(family)
+
+        async def _run():
+            try:
+                async with self._locks[family]:
+                    await self._live_fetch_and_store(family)
+                    log.info("background refresh complete | family=%s", family)
+            except Exception as exc:
+                log.error("background refresh failed | family=%s: %s", family, exc, exc_info=True)
+            finally:
+                self._refreshing.discard(family)
+
+        asyncio.create_task(_run())
+
+    async def _live_fetch_and_store(self, family: str) -> NewsFeed:
+        t0 = time.time()
+        try:
+            feed = await asyncio.wait_for(
+                self._fetch(family), timeout=settings.request_timeout_s
+            )
+        except asyncio.TimeoutError as exc:
+            raise errors.UpstreamTimeout() from exc
+        except errors.AdvisorError:
+            raise
+        except Exception as exc:
+            raise errors.classify(exc) from exc
+
+        log.info("news live fetch done | family=%s took=%.1fs", family, time.time() - t0)
+        self._cache[family] = (time.time() + settings.news_ttl_s, feed)
+        self._save_cache_to_disk()
+        return feed
 
 
 _runtime: NewsRuntime | None = None
@@ -333,3 +365,33 @@ def get_news_runtime() -> NewsRuntime:
     if _runtime is None:
         _runtime = NewsRuntime()
     return _runtime
+
+
+async def prewarm_all_families() -> None:
+    runtime = get_news_runtime()
+    sem = asyncio.Semaphore(PREWARM_CONCURRENCY)
+    log.info("pre-warming news cache | families=%s", FAMILIES)
+
+    async def _warm_one(family: str):
+        async with sem:
+            try:
+                await runtime.get_feed(family)
+            except Exception as exc:
+                log.warning("failed to pre-warm | family=%s: %s", family, exc)
+
+    await asyncio.gather(*(_warm_one(f) for f in FAMILIES))
+
+
+async def background_refresh_loop() -> None:
+    runtime = get_news_runtime()
+    await asyncio.sleep(REFRESH_CHECK_INTERVAL_S)
+    while True:
+        for family in FAMILIES:
+            try:
+                hit = runtime._cache.get(family)
+                remaining = (hit[0] - time.time()) if hit else 0
+                if hit is None or remaining < REFRESH_MARGIN_S:
+                    await runtime.get_feed(family)
+            except Exception as exc:
+                log.error("background refresh failed | family=%s: %s", family, exc)
+        await asyncio.sleep(REFRESH_CHECK_INTERVAL_S)
