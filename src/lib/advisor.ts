@@ -11,6 +11,13 @@ import type { Major } from '../types'
 
 const AGENT_URL = import.meta.env.VITE_AGENT_URL
 
+/** The SSE twin of AGENT_URL. Derived rather than configured so an existing
+ *  deployment picks up streaming without a second env var; set
+ *  VITE_AGENT_STREAM_URL to override when the routes don't share a prefix. */
+const STREAM_URL: string | undefined =
+  import.meta.env.VITE_AGENT_STREAM_URL ||
+  (AGENT_URL ? `${String(AGENT_URL).replace(/\/+$/, '')}/stream` : undefined)
+
 export const advisorIsLive = Boolean(AGENT_URL)
 
 export interface AdvisorPayload {
@@ -22,28 +29,28 @@ export interface AdvisorPayload {
   university?: string
   universityDomain?: string
   intendedMajor?: string
+  /** Called with each chunk as it arrives. Supplying it opts into the SSE route:
+   *  time-to-first-token drops from whole-answer latency (~9s) to ~1s. Omit it and
+   *  the blocking JSON route is used, unchanged. */
+  onToken?: (chunk: string) => void
+  /** Named hop the backend is currently running ("Searching recent news…"). A turn
+   *  that calls a slow tool emits no token for seconds; this is what fills that gap
+   *  with something true. */
+  onStatus?: (label: string) => void
+  signal?: AbortSignal
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 
-export async function askAdvisor({
+/** The FastAPI AdvisorRequest body. With no major selected we send the question
+ *  alone; `major_name` is optional and the backend switches to general mode. */
+function buildBody({
   major,
   message,
   university,
   universityDomain,
   intendedMajor,
-}: AdvisorPayload): Promise<string> {
-  // Offline preview ONLY when there is no endpoint to call.
-  if (!AGENT_URL) {
-    await wait(700)
-    const who = major ? `${major.major} (CIP ${major.cip})` : 'your question'
-    const school = university ? ` for ${university}` : ''
-    return `Offline preview — no advisor endpoint is configured (VITE_AGENT_URL). Echoing ${who}${school}: “${message}”.`
-  }
-
-  // Body matches the FastAPI AdvisorRequest (/api/v1/analyze-major). With no
-  // major selected we send the question alone; `major_name` is optional and the
-  // backend switches to general mode.
+}: AdvisorPayload): Record<string, unknown> {
   const base = major
     ? {
         major_name: major.major,
@@ -66,20 +73,124 @@ export async function askAdvisor({
 
   // Only fold in the school when one is set, so with no school the body is
   // byte-for-byte today's request (backward compatible; same backend cache key).
-  const body =
-    university && universityDomain
-      ? {
-          ...base,
-          university,
-          university_domain: universityDomain,
-          intended_major: intendedMajor,
-        }
-      : base
+  return university && universityDomain
+    ? {
+        ...base,
+        university,
+        university_domain: universityDomain,
+        intended_major: intendedMajor,
+      }
+    : base
+}
+
+function offlineEcho({ major, message, university }: AdvisorPayload): string {
+  const who = major ? `${major.major} (CIP ${major.cip})` : 'your question'
+  const school = university ? ` for ${university}` : ''
+  return `Offline preview — no advisor endpoint is configured (VITE_AGENT_URL). Echoing ${who}${school}: “${message}”.`
+}
+
+/** Read one SSE event block into its name and JSON payload. The backend
+ *  JSON-encodes the payload because advisor answers are markdown, and a bare
+ *  newline in a `data:` field would end the event and truncate the reply. */
+function parseEvent(block: string): { name: string; data: Record<string, unknown> } | null {
+  let name = 'message'
+  let raw: string | null = null
+  for (const line of block.split('\n')) {
+    if (line.startsWith('event: ')) name = line.slice(7)
+    else if (line.startsWith('data: ')) raw = line.slice(6)
+  }
+  if (raw === null) return null
+  try {
+    const data: unknown = JSON.parse(raw)
+    return { name, data: typeof data === 'object' && data !== null ? (data as Record<string, unknown>) : {} }
+  } catch {
+    return null
+  }
+}
+
+/** Streams the answer, invoking `onToken` per chunk, and resolves with the full
+ *  text. Throws on a terminal `error` event — whatever streamed before the throw
+ *  is already on screen, so the panel keeps it and appends the error state. */
+async function streamAdvisor(payload: AdvisorPayload, url: string): Promise<string> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(buildBody(payload)),
+    signal: payload.signal,
+  })
+  if (!res.ok) throw new Error(`Advisor responded ${res.status}`)
+  if (!res.body) throw new Error('Advisor returned no stream')
+
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let buffer = ''
+  let full = ''
+  let failure: Error | null = null
+
+  for (;;) {
+    const { done, value } = await reader.read()
+    if (done) break
+    buffer += decoder.decode(value, { stream: true })
+
+    // Events are \n\n-delimited; the trailing fragment is an incomplete event.
+    const blocks = buffer.split('\n\n')
+    buffer = blocks.pop() ?? ''
+
+    for (const block of blocks) {
+      if (!block.trim()) continue
+      const evt = parseEvent(block)
+      if (!evt) continue
+      if (evt.name === 'token' && typeof evt.data.text === 'string') {
+        full += evt.data.text
+        payload.onToken?.(evt.data.text)
+      } else if (evt.name === 'status' && typeof evt.data.label === 'string') {
+        payload.onStatus?.(evt.data.label)
+      } else if (evt.name === 'error') {
+        failure = new Error(
+          typeof evt.data.error === 'string' && evt.data.error
+            ? evt.data.error
+            : 'the advisor stream failed',
+        )
+      }
+    }
+  }
+
+  if (failure) throw failure
+  if (!full.trim()) throw new Error('Advisor returned an empty response')
+  return full
+}
+
+export async function askAdvisor(payload: AdvisorPayload): Promise<string> {
+  const { onToken } = payload
+
+  // Offline preview ONLY when there is no endpoint to call.
+  if (!AGENT_URL) {
+    await wait(700)
+    const echo = offlineEcho(payload)
+    onToken?.(echo)
+    return echo
+  }
+
+  // Streaming is opt-in per call: no onToken → the blocking route, unchanged.
+  if (onToken && STREAM_URL) {
+    try {
+      return await streamAdvisor(payload, STREAM_URL)
+    } catch (err) {
+      // A 404 means the deployed backend predates /stream, not that the advisor
+      // is down. Fall back once to the blocking route rather than showing an
+      // error state for a backend that answers fine.
+      if (err instanceof Error && err.message.includes('404')) {
+        return askAdvisor({ ...payload, onToken: undefined })
+      }
+      throw err
+    }
+  }
 
   const res = await fetch(AGENT_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify(buildBody(payload)),
+    signal: payload.signal,
   })
   if (!res.ok) throw new Error(`Advisor responded ${res.status}`)
 
