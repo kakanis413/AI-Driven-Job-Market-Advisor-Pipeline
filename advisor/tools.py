@@ -14,6 +14,7 @@ from typing import Any
 import google.auth
 from google.adk.integrations.bigquery import BigQueryCredentialsConfig, BigQueryToolset
 from google.adk.integrations.bigquery.config import BigQueryToolConfig, WriteMode
+from google.cloud import bigquery
 
 from advisor import data_source
 from advisor.config import settings
@@ -189,42 +190,260 @@ def get_top_majors(metric: str = "median_pay", n: int = 3, order: str = "desc") 
 # -----------------------------------------------------------------------------
 # Dynamic Real-Time Career Blending Tool
 # -----------------------------------------------------------------------------
-def get_dynamic_top_careers(major_name: str, news_insights: str = "") -> dict[str, Any]:
-    """Blends static baseline dataset metrics with recent news agent findings
-    to generate an up-to-date 'Top 3 Careers' list for a given major.
+@lru_cache(maxsize=128)
+def get_dynamic_top_careers(
+    major_name: str,
+    n: int = 3,
+) -> dict[str, Any]:
+    """Return the top occupations for a major using a deterministic score.
 
-    Args:
-        major_name: College major to evaluate.
-        news_insights: Recent (30-90 day) hiring news or trend context from news_agent.
+    Ranking:
+    - 50% median-pay percentile
+    - 30% growth percentile
+    - 20% balanced AI exposure
 
-    Returns:
-        A dict containing status, top careers, and merged market context.
+    Exposure values from 4.0 through 8.0 receive the full AI-balance score.
     """
-    base_data = get_major_data(major_name)
-    if base_data.get("status") == "not_found":
+
+    major = data_source.find(major_name)
+    if major is None:
         return {
-            "status": "partial",
+            "status": "not_found",
             "major": major_name,
-            "message": "Major not found in local baseline data; relying on news insights.",
-            "news_context": news_insights,
+            "message": "The major was not found in the local dataset.",
         }
 
-    occupations = base_data.get("top_occupations", []) or base_data.get("occupations", [])
-    
-    # Sort baseline candidates by pay/growth where available
-    sorted_careers = sorted(
-        occupations,
-        key=lambda x: x.get("median_pay", 0) if isinstance(x, dict) else 0,
-        reverse=True
+    cip = major.get("cip")
+    if not cip:
+        return {
+            "status": "no_data",
+            "major": major.get("major", major_name),
+            "message": "This major does not have a CIP code for occupation matching.",
+        }
+
+    limit = max(1, min(int(n), 10))
+
+    query = f"""
+    WITH
+
+    -- Deduplicate major-to-occupation mappings.
+    crosswalk AS (
+      SELECT
+        cip4_code,
+        soc_code,
+        ARRAY_AGG(
+          occupation_name IGNORE NULLS
+          ORDER BY relationship_weight DESC
+          LIMIT 1
+        )[SAFE_OFFSET(0)] AS occupation_name,
+        MAX(relationship_weight) AS relationship_weight
+      FROM `{BQ_PROJECT}.{BQ_DATASET}.cip4_to_soc_crosswalk_clean`
+      WHERE soc_code IS NOT NULL
+      GROUP BY cip4_code, soc_code
+    ),
+
+    -- Use the latest occupation exposure result for the approved v2 run.
+    exposure_scores AS (
+      SELECT
+        soc_code,
+        occupation_title,
+        occupation_exposure_score
+      FROM `{BQ_PROJECT}.{BQ_DATASET}.occupation_ai_scores_v2`
+      WHERE scoring_run_id = 'occupation_karpathy_v2'
+        AND scoring_status = 'scored'
+        AND occupation_exposure_score IS NOT NULL
+      QUALIFY ROW_NUMBER() OVER (
+        PARTITION BY soc_code
+        ORDER BY scored_at DESC
+      ) = 1
+    ),
+
+    -- Gather occupation-level metrics across all crosswalk occupations.
+    occupation_metrics AS (
+      SELECT
+        soc.soc_code,
+        COALESCE(
+          exposure.occupation_title,
+          occupations.occupation_title,
+          oews.occupation_title
+        ) AS occupation_title,
+        oews.median_wage_annual,
+        occupations.outlook_pct,
+        occupations.employment_2024,
+        exposure.occupation_exposure_score
+      FROM (
+        SELECT DISTINCT soc_code
+        FROM crosswalk
+      ) AS soc
+      LEFT JOIN `{BQ_PROJECT}.{BQ_DATASET}.occupations_oews_clean` AS oews
+        ON soc.soc_code = oews.soc_code
+      LEFT JOIN `{BQ_PROJECT}.{BQ_DATASET}.dim_occupations` AS occupations
+        ON soc.soc_code = occupations.soc_code
+      LEFT JOIN exposure_scores AS exposure
+        ON soc.soc_code = exposure.soc_code
+    ),
+
+    -- Normalize pay and growth globally across occupations.
+    normalized_metrics AS (
+      SELECT
+        *,
+        PERCENT_RANK() OVER (
+          ORDER BY median_wage_annual
+        ) AS pay_score,
+        PERCENT_RANK() OVER (
+          ORDER BY outlook_pct
+        ) AS growth_score
+      FROM occupation_metrics
+      WHERE median_wage_annual IS NOT NULL
+        AND outlook_pct IS NOT NULL
+        AND occupation_exposure_score IS NOT NULL
+    ),
+
+    -- Restrict ranking to the 20 most relevant occupations for this major.
+    relevant_candidates AS (
+      SELECT
+        crosswalk.cip4_code,
+        crosswalk.soc_code,
+        crosswalk.occupation_name,
+        crosswalk.relationship_weight,
+        occupations.employment_2024,
+        ROW_NUMBER() OVER (
+          ORDER BY
+            crosswalk.relationship_weight DESC,
+            occupations.employment_2024 DESC NULLS LAST,
+            crosswalk.soc_code
+        ) AS relevance_rank
+      FROM crosswalk
+      LEFT JOIN `{BQ_PROJECT}.{BQ_DATASET}.dim_occupations` AS occupations
+        ON crosswalk.soc_code = occupations.soc_code
+      WHERE crosswalk.cip4_code = @cip
+    ),
+
+    scored_candidates AS (
+      SELECT
+        candidate.soc_code,
+        COALESCE(
+          metrics.occupation_title,
+          candidate.occupation_name
+        ) AS occupation_title,
+        candidate.relationship_weight,
+        metrics.median_wage_annual,
+        metrics.outlook_pct,
+        metrics.occupation_exposure_score,
+        metrics.pay_score,
+        metrics.growth_score,
+
+        CASE
+          WHEN metrics.occupation_exposure_score BETWEEN 4.0 AND 8.0
+            THEN 1.0
+          WHEN metrics.occupation_exposure_score < 4.0
+            THEN GREATEST(
+              0.0,
+              metrics.occupation_exposure_score / 4.0
+            )
+          ELSE GREATEST(
+            0.0,
+            (10.0 - metrics.occupation_exposure_score) / 2.0
+          )
+        END AS ai_balance_score
+
+      FROM relevant_candidates AS candidate
+      JOIN normalized_metrics AS metrics
+        ON candidate.soc_code = metrics.soc_code
+      WHERE candidate.relevance_rank <= 20
+    ),
+
+    final_scores AS (
+      SELECT
+        *,
+        ROUND(
+          100 * (
+            0.50 * pay_score
+            + 0.30 * growth_score
+            + 0.20 * ai_balance_score
+          ),
+          1
+        ) AS career_score
+      FROM scored_candidates
     )
 
-    top_3 = sorted_careers[:3] if sorted_careers else []
+    SELECT
+      soc_code,
+      occupation_title,
+      median_wage_annual,
+      outlook_pct,
+      occupation_exposure_score,
+      ROUND(pay_score, 4) AS pay_score,
+      ROUND(growth_score, 4) AS growth_score,
+      ROUND(ai_balance_score, 4) AS ai_balance_score,
+      career_score,
+      relationship_weight
+    FROM final_scores
+    ORDER BY
+      career_score DESC,
+      relationship_weight DESC,
+      soc_code
+    LIMIT @limit
+    """
+
+    job_config = bigquery.QueryJobConfig(
+        query_parameters=[
+            bigquery.ScalarQueryParameter("cip", "STRING", str(cip)),
+            bigquery.ScalarQueryParameter("limit", "INT64", limit),
+        ]
+    )
+
+    try:
+        rows = list(
+            _career_query_client()
+            .query(query, job_config=job_config)
+            .result()
+        )
+    except Exception as exc:
+        log.exception(
+            "Top-career query failed for major=%r cip=%r",
+            major_name,
+            cip,
+        )
+        return {
+            "status": "unavailable",
+            "major": major.get("major", major_name),
+            "message": "Career ranking data is temporarily unavailable.",
+            "error_type": type(exc).__name__,
+        }
+
+    careers = [
+        {
+            "rank": index,
+            "soc": row["soc_code"],
+            "title": row["occupation_title"],
+            "median_pay": row["median_wage_annual"],
+            "growth": row["outlook_pct"],
+            "ai_exposure": row["occupation_exposure_score"],
+            "pay_score": row["pay_score"],
+            "growth_score": row["growth_score"],
+            "ai_balance_score": row["ai_balance_score"],
+            "career_score": row["career_score"],
+        }
+        for index, row in enumerate(rows, start=1)
+    ]
 
     return {
-        "status": "success",
-        "major": base_data.get("major", major_name),
-        "top_3_careers": top_3,
-        "baseline_pay": base_data.get("median_pay"),
-        "ai_exposure": base_data.get("exposure"),
-        "news_context": news_insights if news_insights else "Based on baseline annual metrics.",
+        "status": "success" if len(careers) == limit else "partial",
+        "major": major.get("major", major_name),
+        "cip": cip,
+        "method": {
+            "median_pay_weight": 0.50,
+            "growth_weight": 0.30,
+            "ai_balance_weight": 0.20,
+            "preferred_ai_exposure_range": [4.0, 8.0],
+            "candidate_relevance_limit": 20,
+        },
+        "count": len(careers),
+        "careers": careers,
     }
+
+
+@lru_cache(maxsize=1)
+def _career_query_client() -> bigquery.Client:
+    return bigquery.Client(project=BQ_PROJECT)
