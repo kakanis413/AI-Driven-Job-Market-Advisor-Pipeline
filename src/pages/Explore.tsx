@@ -369,6 +369,7 @@ export default function Explore({
             <HeatmapGrid
               majors={majors}
               width={vizW}
+              height={mapH}
               mode={mode}
               layer={layer}
               payExtent={payExtent}

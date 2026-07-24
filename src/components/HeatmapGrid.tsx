@@ -1,6 +1,14 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
+import {
+  FAMILY_ORDER,
+  REDUCED_TWEEN,
+  SPRING,
+  TABLE_HEAD_H,
+  TABLE_ROW_H,
+  type Layer,
+  type Mode,
+} from '../design/tokens'
 import {
   NULL_FILL,
   exposureColor,
@@ -14,8 +22,8 @@ import {
 import type { Rect } from '../lib/layout'
 import type { Family, Major, TipData } from '../types'
 
-const ROW_H = 44
-const HEAD_H = 34
+const ROW_H = TABLE_ROW_H
+const HEAD_H = TABLE_HEAD_H
 const GAP = 6
 
 type ColKey = 'exposure' | 'pay' | 'completions' | 'growth'
@@ -33,6 +41,8 @@ const GROWTH_RANK = { declining: 0, slower: 1, average: 2, faster: 3 } as const
 interface Props {
   majors: Major[]
   width: number
+  /** Max height of the scroll container — the sort bar sticks to its top. */
+  height: number
   mode: Mode
   layer: Layer
   payExtent: [number, number]
@@ -45,6 +55,7 @@ interface Props {
 export default memo(function HeatmapGrid({
   majors,
   width,
+  height,
   mode,
   layer,
   payExtent,
@@ -118,7 +129,9 @@ export default memo(function HeatmapGrid({
       const c = typeof va === 'string' ? va.localeCompare(vb as string) : va - (vb as number)
       return c * dir
     })
-    return sorted.map((m, i) => ({ m, y: HEAD_H + i * ROW_H }))
+    // `y` is relative to the BODY container, which sits below the sticky sort
+    // bar — so it no longer carries the HEAD_H offset itself.
+    return sorted.map((m, i) => ({ m, y: i * ROW_H }))
   }, [majors, fams, sort])
 
   const heroKey: ColKey = layer === 'pay' ? 'pay' : 'exposure'
@@ -127,8 +140,10 @@ export default memo(function HeatmapGrid({
   useEffect(() => {
     const g = geomRef.current
     g.clear()
+    // Stored in the view's own space (header included), so a cross-view morph
+    // lands where the cell actually appears on screen.
     for (const { m, y } of rows)
-      g.set(m.cip, { x: heroCol.x, y: y + 4, w: heroCol.w - GAP, h: ROW_H - 8 })
+      g.set(m.cip, { x: heroCol.x, y: HEAD_H + y + 4, w: heroCol.w - GAP, h: ROW_H - 8 })
   }, [rows, heroCol, geomRef])
 
   const expC = useMemo(() => exposureColor(mode), [mode])
@@ -151,7 +166,13 @@ export default memo(function HeatmapGrid({
       : `Sort by ${label.toLowerCase()}`
 
   const selIdx = rows.findIndex((r) => r.m.cip === selectedCip)
-  const gridH = HEAD_H + rows.length * ROW_H
+  const bodyH = rows.length * ROW_H
+  // Entry geometry comes from the other view's space (header included); the body
+  // container starts below the sort bar, so shift it back into body space.
+  const entryOf = (cip: string): Rect | undefined => {
+    const e = entryGeom.current!.get(cip)
+    return e && { ...e, y: e.y - HEAD_H }
+  }
 
   const cellText = (m: Major, key: ColKey): string =>
     key === 'exposure'
@@ -206,40 +227,47 @@ export default memo(function HeatmapGrid({
       </div>
 
       <div
-        className="overflow-x-auto"
+        className="overflow-auto"
+        style={{ maxHeight: height }}
         onPointerLeave={() => {
           setHoverRow(null)
           setHoverCol(null)
           onTip(null)
         }}
       >
-        <div className="relative" style={{ width: bodyW, height: gridH }}>
-          {/* column headers */}
-          <button
-            onClick={() => toggleSort('major')}
-            aria-label={sortLabel('major', 'Major')}
-            className={`micro absolute left-0 top-0 flex h-[26px] items-center gap-1 rounded-md px-2 text-left transition-colors ${
-              sort.key === 'major' ? 'text-ink' : 'text-ink3 hover:text-ink'
-            }`}
-            style={{ width: labelW - GAP }}
-          >
-            Major {sort.key === 'major' && <span aria-hidden>{sort.dir === 1 ? '▲' : '▼'}</span>}
-          </button>
-          {cols.map((c) => (
-            <button
-              key={c.key}
-              onClick={() => toggleSort(c.key)}
-              aria-label={sortLabel(c.key, c.label)}
-              className={`micro absolute top-0 flex h-[26px] items-center gap-1 rounded-md px-2 text-left transition-colors ${
-                sort.key === c.key || hoverCol === c.key ? 'text-ink' : 'text-ink3 hover:text-ink'
-              }`}
-              style={{ left: c.x, width: c.w - GAP }}
-            >
-              {c.label}{' '}
-              {sort.key === c.key && <span aria-hidden>{sort.dir === 1 ? '▲' : '▼'}</span>}
-            </button>
-          ))}
+        {/* Sticky sort bar: every column header is its own sort toggle, pinned
+            to the top of the scroll container with a hairline under it. The
+            caret slot is always rendered (hidden when inactive) so labels never
+            shift and the carets stay on one baseline. */}
+        <div
+          className="sticky top-0 z-20 border-b border-line bg-page/95 backdrop-blur"
+          style={{ width: bodyW, height: HEAD_H }}
+        >
+          <div className="relative h-full">
+            <SortHeader
+              label="Major"
+              active={sort.key === 'major'}
+              dir={sort.dir}
+              ariaLabel={sortLabel('major', 'Major')}
+              onClick={() => toggleSort('major')}
+              style={{ left: 0, width: labelW - GAP }}
+            />
+            {cols.map((c) => (
+              <SortHeader
+                key={c.key}
+                label={c.label}
+                active={sort.key === c.key}
+                hovered={hoverCol === c.key}
+                dir={sort.dir}
+                ariaLabel={sortLabel(c.key, c.label)}
+                onClick={() => toggleSort(c.key)}
+                style={{ left: c.x, width: c.w - GAP }}
+              />
+            ))}
+          </div>
+        </div>
 
+        <div className="relative" style={{ width: bodyW, height: bodyH }}>
           {/* crosshair: one row wash + one column wash that travel */}
           {hoverRow !== null && rows[hoverRow] && (
             <motion.div
@@ -250,7 +278,7 @@ export default memo(function HeatmapGrid({
                 background: 'color-mix(in srgb, var(--ink) 5%, transparent)',
               }}
               initial={false}
-              animate={{ y: HEAD_H + hoverRow * ROW_H + 1 }}
+              animate={{ y: hoverRow * ROW_H + 1 }}
               transition={spr}
             />
           )}
@@ -258,9 +286,9 @@ export default memo(function HeatmapGrid({
             <motion.div
               className="pointer-events-none absolute rounded-lg"
               style={{
-                top: HEAD_H,
+                top: 0,
                 width: (cols.find((c) => c.key === hoverCol)?.w ?? 0) - GAP,
-                height: rows.length * ROW_H,
+                height: bodyH,
                 background: 'color-mix(in srgb, var(--ink) 3%, transparent)',
               }}
               initial={false}
@@ -275,7 +303,7 @@ export default memo(function HeatmapGrid({
               className="pointer-events-none absolute left-0 z-10 rounded-[10px] border-2"
               style={{ width: bodyW, borderColor: 'color-mix(in srgb, var(--ink) 45%, transparent)' }}
               initial={false}
-              animate={{ y: HEAD_H + selIdx * ROW_H, height: ROW_H }}
+              animate={{ y: selIdx * ROW_H, height: ROW_H }}
               transition={spr}
             />
           )}
@@ -318,7 +346,7 @@ export default memo(function HeatmapGrid({
               ]
               for (const c of cols) {
                 const isHero = c.key === heroKey
-                const entry = isHero ? entryGeom.current!.get(m.cip) : undefined
+                const entry = isHero ? entryOf(m.cip) : undefined
                 const fill =
                   c.key === 'exposure'
                     ? expC(m.exposure)
@@ -393,3 +421,41 @@ export default memo(function HeatmapGrid({
     </div>
   )
 })
+
+/** One column header in the sticky sort bar. Label + a fixed caret slot: the
+ *  glyph shows only on the active column, but the slot is always reserved so
+ *  labels never shift and every caret sits on the same baseline. The direction
+ *  is spelled out in `ariaLabel` because the glyph is aria-hidden. */
+function SortHeader({
+  label,
+  active,
+  hovered,
+  dir,
+  ariaLabel,
+  onClick,
+  style,
+}: {
+  label: string
+  active: boolean
+  hovered?: boolean
+  dir: 1 | -1
+  ariaLabel: string
+  onClick: () => void
+  style: React.CSSProperties
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className={`micro absolute inset-y-0 flex items-center gap-1 rounded-md px-2 text-left transition-colors ${
+        active || hovered ? 'text-ink' : 'text-ink3 hover:text-ink'
+      }`}
+      style={style}
+    >
+      <span className="truncate">{label}</span>
+      <span aria-hidden className={`shrink-0 ${active ? 'opacity-100' : 'opacity-0'}`}>
+        {dir === 1 ? '▲' : '▼'}
+      </span>
+    </button>
+  )
+}

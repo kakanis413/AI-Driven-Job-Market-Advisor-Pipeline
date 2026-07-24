@@ -57,6 +57,12 @@ export const REDUCED_TWEEN = { duration: 0.15 } as const
 
 export const EASE = [0.22, 1, 0.36, 1] as const
 
+/** Row rhythm shared by the Table (grid) and the ROI board, so the two list
+ *  views keep the same height and hairline cadence and switching between them
+ *  never shifts the reading line. */
+export const TABLE_ROW_H = 44
+export const TABLE_HEAD_H = 34
+
 /** Fixed family order: clusters the treemap and orders filter chips. */
 export const FAMILY_ORDER: Family[] = [
   'STEM',
