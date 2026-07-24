@@ -46,6 +46,7 @@ export async function askAdvisor({ major, message }: AdvisorPayload): Promise<st
           title: o.title,
           exposure: o.exposure,
         })),
+        rationale: major.rationale || null,
         query_context: message,
       }
     : { query_context: message }

@@ -81,22 +81,76 @@ async def healthz() -> dict:
     }
 
 
+def _build_fallback_response(req: AdvisorRequest) -> AdvisorResponse:
+    """Generate a helpful fallback response using available data when the agent fails."""
+    from advisor.schemas import RouteInfo
+
+    major = req.major_name or "your chosen field"
+
+    # Build response based on available data
+    parts = []
+
+    if req.exposure is not None:
+        exposure_level = "high" if req.exposure >= 7 else "moderate" if req.exposure >= 4 else "lower"
+        parts.append(
+            f"{major} has a {exposure_level} AI exposure score of {req.exposure}/10. "
+            "This measures how much the daily tasks in this field will be augmented by AI tools — "
+            "it does not mean jobs will disappear, but rather that the work will evolve."
+        )
+
+    if req.median_pay:
+        parts.append(f"The median early-career pay is ${req.median_pay:,}.")
+
+    if req.growth:
+        growth_text = {
+            "faster": "faster than average",
+            "average": "at an average pace",
+            "slower": "slower than average",
+            "declining": "declining"
+        }.get(req.growth, req.growth)
+        parts.append(f"Employment in this field is projected to grow {growth_text}.")
+
+    if req.occupations:
+        top_occs = [o.title for o in req.occupations[:3]]
+        parts.append(f"Common career paths include: {', '.join(top_occs)}.")
+
+    # Add helpful closing
+    parts.append(
+        "\n\nFor more detailed guidance, please try your question again in a moment. "
+        "If you're asking about specific companies hiring or current trends, "
+        "the live search may need more time to gather results."
+    )
+
+    guidance = " ".join(parts) if parts else (
+        "I wasn't able to complete your request at this time. Please try again with a simpler "
+        "question, or select a specific major from the map to see its AI exposure data."
+    )
+
+    return AdvisorResponse(
+        status="active_reasoning",
+        generated_guidance=guidance,
+        route=RouteInfo(path="fallback", agents_called=[], used_search=False, latency_ms=0),
+    )
+
+
 @app.post("/api/v1/analyze-major", response_model=AdvisorResponse)
 async def analyze_major(req: AdvisorRequest) -> AdvisorResponse:
     """Primary endpoint the React AdvisorPanel calls. Returns grounded guidance."""
     log.info("request | major=%r q=%r", req.major_name, req.query_context[:80])
     try:
         resp = await get_runtime().advise(req)
-    except errors.AdvisorError:
-        raise
+        log.info(
+            "response | path=%s agents=%s search=%s latency=%dms",
+            resp.route.path, resp.route.agents_called, resp.route.used_search,
+            resp.route.latency_ms,
+        )
+        return resp
+    except errors.AdvisorError as exc:
+        log.warning("Advisor error, returning fallback: %s", exc.error_code)
+        return _build_fallback_response(req)
     except Exception as exc:  # noqa: BLE001 - classify anything unexpected
-        raise errors.classify(exc) from exc
-    log.info(
-        "response | path=%s agents=%s search=%s latency=%dms",
-        resp.route.path, resp.route.agents_called, resp.route.used_search,
-        resp.route.latency_ms,
-    )
-    return resp
+        log.warning("Unexpected error, returning fallback: %s", exc)
+        return _build_fallback_response(req)
 
 
 @app.get("/api/v1/news", response_model=NewsFeed)

@@ -38,6 +38,7 @@ class AdvisorRequest(BaseModel):
     median_pay: int | None = Field(default=None, ge=0)
     growth: str | None = Field(default=None, max_length=40)
     occupations: list[OccupationInfo] = Field(default_factory=list, max_length=50)
+    rationale: str | None = Field(default=None, max_length=1000)
     query_context: str = Field(..., min_length=1, max_length=2000)
     cip: str | None = Field(default=None, max_length=20)
 
@@ -71,7 +72,7 @@ class AdvisorRequest(BaseModel):
         return not (self.major_name and self.major_name.strip())
 
     def grounding_block(self) -> str:
-        """The verified-facts block handed to the agents. Unknowns are explicit."""
+        """The verified-facts block handed to the agents. Structured for selective use."""
         if self.is_general:
             return (
                 "NO MAJOR SELECTED — GENERAL MODE.\n"
@@ -85,22 +86,33 @@ class AdvisorRequest(BaseModel):
         pay = f"${self.median_pay:,}" if self.median_pay else "not available"
         exposure = f"{self.exposure}/10" if self.exposure is not None else "not available"
         growth = self.growth or "not available"
+
+        # Build occupations list
         if self.occupations:
             occs = "\n".join(
-                f"  - {o.title}"
+                f"    • {o.title}"
                 + (f" (AI exposure {o.exposure}/10)" if o.exposure is not None else "")
                 for o in self.occupations[:12]
             )
         else:
-            occs = "  - not available"
+            occs = "    • not available"
+
+        # Build rationale line if present
+        rationale_line = ""
+        if self.rationale:
+            rationale_line = f"  rationale: \"{self.rationale}\"\n"
+
         return (
-            "VERIFIED DATA FOR THIS MAJOR (the only numbers you may state):\n"
-            f"  major: {self.major_name}\n"
+            f"CONTEXT FOR THIS MAJOR: {self.major_name}\n"
+            f"(Use only what's relevant to the student's question — do not dump all data)\n\n"
             f"  AI exposure: {exposure}\n"
+            f"{rationale_line}"
             f"  median pay: {pay}\n"
             f"  growth outlook: {growth}\n"
-            "  occupations this major feeds into:\n"
-            f"{occs}"
+            f"  occupations:\n{occs}\n\n"
+            "IMPORTANT: Only cite data fields that answer the question. If they ask about "
+            "exposure, you don't need to mention pay. If a rationale is provided, use it "
+            "to explain the score."
         )
 
 

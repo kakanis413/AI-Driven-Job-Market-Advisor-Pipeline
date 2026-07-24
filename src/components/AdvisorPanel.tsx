@@ -149,8 +149,16 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
               }`}
             >
               {msg.role === 'advisor' ? (
-                <div className="prose prose-invert max-w-none space-y-2 [&>p]:m-0 [&>ul]:my-1.5 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_h3]:my-1 [&_h3]:text-[14px] [&_h3]:font-semibold">
-                  <ReactMarkdown>{msg.text}</ReactMarkdown>
+                <div className="prose prose-invert max-w-none space-y-3 [&>p]:m-0 [&>p]:mb-2 [&>ul]:my-2 [&>ul]:list-disc [&>ul]:pl-4 [&>ol]:my-2 [&>ol]:list-decimal [&>ol]:pl-4 [&_strong]:font-semibold [&_strong]:text-ink [&_h3]:mt-3 [&_h3]:mb-1 [&_h3]:text-[14px] [&_h3]:font-semibold [&_a]:text-accent [&_a]:underline [&_a]:hover:opacity-80 [&_h4]:mt-2 [&_h4]:mb-1 [&_h4]:text-[13.5px] [&_h4]:font-semibold">
+                  <ReactMarkdown
+                    components={{
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-accent underline hover:opacity-80">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >{msg.text}</ReactMarkdown>
                 </div>
               ) : (
                 <span>{msg.text}</span>
