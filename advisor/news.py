@@ -1,4 +1,9 @@
-"""Per-family news feed: search-grounded, cached, honest about URLs."""
+"""Per-family news feed: search-grounded, cached, honest about URLs.
+
+Implements Stale-While-Revalidate: stale disk cache entries are served
+instantly so users never wait 20-30s, while a background task silently refreshes
+the news data for the next visit.
+"""
 
 from __future__ import annotations
 
@@ -180,6 +185,8 @@ def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]]) 
 
 
 class NewsRuntime:
+    """Manages search-grounded news feeds with Stale-While-Revalidate caching."""
+
     def __init__(self) -> None:
         self._session_service = InMemorySessionService()
         self._runner = Runner(
@@ -190,28 +197,27 @@ class NewsRuntime:
         self._client = Client()
         self._cache: dict[str, tuple[float, NewsFeed]] = {}
         self._locks: dict[str, asyncio.Lock] = {f: asyncio.Lock() for f in FAMILIES}
+        self._refreshing: set[str] = set()
         self._load_cache_from_disk()
 
     def _load_cache_from_disk(self) -> None:
+        """Loads cached items regardless of expiry so users get instant responses."""
         if not CACHE_FILE.exists():
             log.info("no news cache file found at %s — starting cold", CACHE_FILE)
             return
         try:
             raw = json.loads(CACHE_FILE.read_text())
             now = time.time()
-            loaded, skipped_expired = 0, 0
+            fresh, stale = 0, 0
             for family, entry in raw.items():
                 expires_at = entry["expires_at"]
-                if expires_at <= now:
-                    skipped_expired += 1
-                    continue
                 feed = NewsFeed.model_validate(entry["feed"])
                 self._cache[family] = (expires_at, feed)
-                loaded += 1
-            log.info(
-                "loaded news cache from disk | families=%d skipped_expired=%d",
-                loaded, skipped_expired,
-            )
+                if expires_at > now:
+                    fresh += 1
+                else:
+                    stale += 1
+            log.info("loaded news cache from disk | fresh=%d stale=%d", fresh, stale)
         except Exception as exc:
             log.warning("failed to load news cache from disk, starting cold: %s", exc)
 
@@ -284,11 +290,6 @@ class NewsRuntime:
             domains = sorted({d for d, _ in chunks if d})
             raw = await self._extract_items(prose, domains)
             items = _join_items_to_chunks(raw, chunks)
-            if len(raw) > len(items):
-                log.info(
-                    "news[%s]: dropped %d item(s) without a grounded URL",
-                    family, len(raw) - len(items),
-                )
             before = len(items)
             items = await _enrich_all(items)
             if before != len(items):
@@ -302,35 +303,58 @@ class NewsRuntime:
     async def get_feed(self, family: str) -> NewsFeed:
         hit = self._cache.get(family)
         now = time.time()
-        if hit and hit[0] > now:
-            log.info("news cache HIT | family=%s remaining=%.0fs", family, hit[0] - now)
-            return hit[1]
+
+        if hit is not None:
+            expires_at, feed = hit
+            if expires_at > now:
+                log.info("news cache HIT (fresh) | family=%s remaining=%.0fs", family, expires_at - now)
+            else:
+                log.info("news cache HIT (stale) | family=%s — refreshing in background", family)
+                self._kick_off_background_refresh(family)
+            return feed
 
         async with self._locks[family]:
             hit = self._cache.get(family)
-            if hit and hit[0] > now:
-                log.info("news cache HIT (after lock wait) | family=%s", family)
+            if hit is not None:
                 return hit[1]
 
             log.info("news cache MISS | fetching live for family=%s", family)
-            t0 = time.time()
+            return await self._live_fetch_and_store(family)
+
+    def _kick_off_background_refresh(self, family: str) -> None:
+        if family in self._refreshing:
+            return
+        self._refreshing.add(family)
+
+        async def _run():
             try:
-                feed = await asyncio.wait_for(
-                    self._fetch(family), timeout=settings.request_timeout_s
-                )
-            except asyncio.TimeoutError as exc:
-                raise errors.UpstreamTimeout() from exc
-            except errors.AdvisorError:
-                raise
+                async with self._locks[family]:
+                    await self._live_fetch_and_store(family)
+                    log.info("background refresh complete | family=%s", family)
             except Exception as exc:
-                raise errors.classify(exc) from exc
+                log.error("background refresh failed | family=%s: %s", family, exc, exc_info=True)
+            finally:
+                self._refreshing.discard(family)
 
-            elapsed = time.time() - t0
-            log.info("news live fetch done | family=%s took=%.1fs", family, elapsed)
+        asyncio.create_task(_run())
 
-            self._cache[family] = (time.time() + settings.news_ttl_s, feed)
-            self._save_cache_to_disk()
-            return feed
+    async def _live_fetch_and_store(self, family: str) -> NewsFeed:
+        t0 = time.time()
+        try:
+            feed = await asyncio.wait_for(
+                self._fetch(family), timeout=settings.request_timeout_s
+            )
+        except asyncio.TimeoutError as exc:
+            raise errors.UpstreamTimeout() from exc
+        except errors.AdvisorError:
+            raise
+        except Exception as exc:
+            raise errors.classify(exc) from exc
+
+        log.info("news live fetch done | family=%s took=%.1fs", family, time.time() - t0)
+        self._cache[family] = (time.time() + settings.news_ttl_s, feed)
+        self._save_cache_to_disk()
+        return feed
 
 
 _runtime: NewsRuntime | None = None
@@ -344,10 +368,9 @@ def get_news_runtime() -> NewsRuntime:
 
 
 async def prewarm_all_families() -> None:
-    """Warms every family concurrently (throttled), on startup."""
     runtime = get_news_runtime()
     sem = asyncio.Semaphore(PREWARM_CONCURRENCY)
-    log.info("pre-warming news cache | families=%s concurrency=%d", FAMILIES, PREWARM_CONCURRENCY)
+    log.info("pre-warming news cache | families=%s", FAMILIES)
 
     async def _warm_one(family: str):
         async with sem:
@@ -357,13 +380,10 @@ async def prewarm_all_families() -> None:
                 log.warning("failed to pre-warm | family=%s: %s", family, exc)
 
     await asyncio.gather(*(_warm_one(f) for f in FAMILIES))
-    log.info("news prewarm complete")
 
 
 async def background_refresh_loop() -> None:
-    """Keeps every family's cache warm proactively."""
     runtime = get_news_runtime()
-    log.info("news background refresh loop started")
     await asyncio.sleep(REFRESH_CHECK_INTERVAL_S)
     while True:
         for family in FAMILIES:
@@ -373,5 +393,5 @@ async def background_refresh_loop() -> None:
                 if hit is None or remaining < REFRESH_MARGIN_S:
                     await runtime.get_feed(family)
             except Exception as exc:
-                log.error("background refresh failed | family=%s: %s", family, exc, exc_info=True)
+                log.error("background refresh failed | family=%s: %s", family, exc)
         await asyncio.sleep(REFRESH_CHECK_INTERVAL_S)
