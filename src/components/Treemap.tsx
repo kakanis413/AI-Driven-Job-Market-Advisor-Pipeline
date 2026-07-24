@@ -92,21 +92,28 @@ export default memo(function Treemap({
         layer === 'exposure' ? 'AI exposure' : 'median pay'
       }`}
     >
-      {bands.map(
-        (b) =>
-          b.w > 70 && (
-            <motion.text
-              key={b.family}
-              initial={false}
-              animate={{ x: b.x + 2, y: b.y + 15 }}
-              transition={spr}
-              fill="var(--ink3)"
-              style={{ fontSize: 10.5, fontWeight: 580, letterSpacing: '0.08em' }}
-            >
-              {b.family.toUpperCase()}
-            </motion.text>
-          ),
-      )}
+      {bands.map((b) => {
+        // Every band gets a label, truncated to fit rather than suppressed. The
+        // old `w > 100` cutoff silently unlabelled the smallest families — Trades
+        // is 0.5% of all graduates and lays out as a ~60px sliver, so the one
+        // family a reader is most likely to be hunting for was the one with no
+        // name on it. ~7.3px per character at this size/tracking.
+        const room = Math.floor((b.w - 6) / 7.3)
+        if (room < 3) return null
+        const name = b.family.toUpperCase()
+        return (
+          <motion.text
+            key={b.family}
+            initial={false}
+            animate={{ x: b.x + 2, y: b.y + 15 }}
+            transition={spr}
+            fill="var(--ink3)"
+            style={{ fontSize: 10.5, fontWeight: 580, letterSpacing: '0.08em' }}
+          >
+            {name.length > room ? `${name.slice(0, room - 1)}…` : name}
+          </motion.text>
+        )
+      })}
       {tiles.map((t, i) => {
         let dim = 1
         if (q && !matches(t.major)) dim = 0.18
@@ -229,6 +236,9 @@ function TileView({
         }
       }}
       onPointerMove={(e) => {
+        // Touch taps fire a synthetic pointermove; skip it so the hover tooltip
+        // never flashes on touch — those users get the tap preview sheet instead.
+        if (e.pointerType === 'touch') return
         setHover(true)
         onTip({ major: m, x: e.clientX, y: e.clientY })
       }}
@@ -256,7 +266,7 @@ function TileView({
         animate={{ width: t.w, height: t.h, fill }}
         transition={{ ...spr, delay, fill: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
         stroke="var(--surface)"
-        strokeWidth={1.5}
+        strokeWidth={1}
       />
       {showName && (
         <text x={9} y={19} fill={ink} style={{ fontSize: 12.5, fontWeight: 600 }}>
