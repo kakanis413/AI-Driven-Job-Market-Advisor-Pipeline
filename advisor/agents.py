@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import os
 import sys
 
@@ -12,6 +13,7 @@ from typing import Any
 from google.adk import Agent
 from google.adk.tools import google_search
 from google.adk.tools.agent_tool import AgentTool
+from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
 
 from advisor.config import settings
@@ -53,6 +55,66 @@ class ResilientAgentTool(AgentTool):
                     "Answer without its input and do not invent what it would have said."
                 ),
             }
+
+
+# -----------------------------------------------------------------------------
+# Parallel Research Tool: runs data_agent and news_agent concurrently
+# -----------------------------------------------------------------------------
+class ParallelResearchTool(BaseTool):
+    """Runs data_agent and news_agent in parallel for faster comprehensive responses.
+
+    Instead of sequential calls (data → news), this tool executes both concurrently,
+    reducing total latency from sum(data_time + news_time) to max(data_time, news_time).
+    """
+
+    _TOOL_NAME: str = "parallel_research"
+    _TOOL_DESC: str = (
+        "Fetches BOTH major/career data AND recent news/trends in parallel "
+        "(faster than calling data_agent and news_researcher separately). "
+        "Use for comprehensive career advice that needs facts AND current market info. "
+        "Input: topic (the major or career field). Returns: {data: ..., news: ...}"
+    )
+
+    def __init__(self, data_tool: AgentTool, news_tool: AgentTool):
+        super().__init__(name=self._TOOL_NAME, description=self._TOOL_DESC)
+        self._data_tool = data_tool
+        self._news_tool = news_tool
+
+    async def _safe_run(
+        self, tool: AgentTool, args: dict[str, Any], ctx: ToolContext, agent_name: str
+    ) -> Any:
+        """Run a tool with error handling, returning structured error on failure."""
+        try:
+            return await tool.run_async(args=args, tool_context=ctx)
+        except Exception as exc:
+            log.warning("Parallel research: %s failed: %s", agent_name, exc)
+            return {
+                "status": "unavailable",
+                "agent": agent_name,
+                "message": f"{agent_name} could not complete. Continue without its data.",
+            }
+
+    async def run_async(self, *, args: dict[str, Any], tool_context: ToolContext) -> Any:
+        """Execute both data_agent and news_agent concurrently."""
+        # Extract the topic from various possible arg names
+        topic = args.get("topic") or args.get("query") or args.get("request") or ""
+
+        # Build specific requests for each agent
+        data_request = {"request": f"Get complete data for: {topic}"}
+        news_request = {"request": f"Find recent hiring trends and news for: {topic}"}
+
+        # Run both agents in parallel
+        log.info("parallel_research: starting concurrent fetch for %r", topic)
+        data_result, news_result = await asyncio.gather(
+            self._safe_run(self._data_tool, data_request, tool_context, "data_agent"),
+            self._safe_run(self._news_tool, news_request, tool_context, "news_researcher"),
+        )
+        log.info("parallel_research: both agents completed")
+
+        return {
+            "data": data_result,
+            "news": news_result,
+        }
 
 
 # -----------------------------------------------------------------------------
@@ -160,6 +222,8 @@ news_agent = build_news_agent()
 data_tool = AgentTool(agent=data_agent)
 news_tool = ResilientAgentTool(agent=news_agent)  # Resilient: degrades gracefully if search fails
 
+# Parallel tool: runs both agents concurrently for faster comprehensive answers
+parallel_research_tool = ParallelResearchTool(data_tool=data_tool, news_tool=news_tool)
 
 
 # -----------------------------------------------------------------------------
@@ -172,14 +236,33 @@ root_agent = Agent(
     instruction="""You are a friendly, knowledgeable career advisor helping students understand AI's impact on their major. Be warm and conversational, but professional and grounded in facts.
 
 STEP 1 — GATHER WHAT YOU NEED:
+
+TOOL SELECTION (choose the fastest path):
+• **parallel_research** — Use when you need BOTH data AND news (career advice, "what should
+  I do", comprehensive guidance, questions about trends + facts). This runs both lookups
+  concurrently and is FASTER than calling data_agent then news_researcher separately.
+• **data_agent alone** — Use for simple factual questions that only need data (exposure
+  scores, pay, comparing majors) when no current trends are needed.
+• **news_researcher alone** — Use for pure news queries with no data needed (e.g., "what
+  companies are hiring" when you already have the major's data from context).
+
+WHEN TO USE PARALLEL_RESEARCH:
+Use parallel_research for questions like:
+  • "What should I do with this major?" (needs data + market context)
+  • "Is this a good career choice?" (needs facts + current hiring trends)
+  • "How is AI affecting this field?" (needs exposure data + recent news)
+  • Any career advice that benefits from both grounded facts AND current information
+
+CONTEXT BLOCK RULES:
 - If the message includes a "CONTEXT FOR THIS MAJOR" block, use ONLY the data relevant to
   the student's question. Do not call data_agent unless they ask about something beyond it
   (e.g., comparing to another major).
-- If no context block exists, call data_agent for the specific data question.
+- If no context block exists, call the appropriate tool for the question.
 - If data_agent returns "not_found", say so honestly — never guess numbers.
 
 USE news_researcher FOR REAL-TIME INFORMATION:
-Call news_researcher when the student asks about anything NOT in the static data, including:
+Call news_researcher (directly or via parallel_research) when the student asks about anything
+NOT in the static data, including:
   • Recent news, trends, or current events in a field
   • Current job market conditions or hiring activity
   • Specific companies hiring or their practices
@@ -294,5 +377,5 @@ Based on recent reports, several major companies are actively hiring data scient
 **What employers want**
 With data science roles having an AI exposure of **8.2/10**, employers increasingly value candidates who can work alongside AI tools rather than just traditional statistical methods."
 """,
-    tools=[data_tool, news_tool],
+    tools=[parallel_research_tool, data_tool, news_tool],
 )
