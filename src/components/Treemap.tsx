@@ -175,6 +175,10 @@ function TileView({
 }) {
   const [hover, setHover] = useState(false)
   const [focus, setFocus] = useState(false)
+  const reduce = useReducedMotion()
+  // A tactile lift on hover / keyboard focus, so the map reads as interactive —
+  // only on live (non-dimmed) tiles, and never under reduced motion.
+  const liftable = !reduce && dim === 1
   const m = t.major
   const ink = inkFor(fill)
   const showName = t.w > 78 && t.h > 46
@@ -206,6 +210,11 @@ function TileView({
       }
       animate={{ x: t.x, y: t.y, opacity: dim, scale: 1 }}
       transition={transition}
+      // Tactile lift on hover/focus via framer's gesture props — only on live
+      // tiles, never under reduced motion. Framer sets transform-box: fill-box,
+      // so the scale is centered on the tile.
+      whileHover={liftable ? { scale: 1.02 } : undefined}
+      whileFocus={liftable ? { scale: 1.02 } : undefined}
       onClick={() => onSelect(m.cip)}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

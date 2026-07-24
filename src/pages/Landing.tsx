@@ -281,6 +281,9 @@ function ResultsMap({
               animate={{ opacity: 1, x: t.x, y: t.y }}
               exit={{ opacity: 0 }}
               transition={spring}
+              // Same tactile hover-lift as the Explore treemap, disabled under
+              // reduced motion.
+              whileHover={reduce ? undefined : { scale: 1.02 }}
               className="cursor-pointer"
               onPointerMove={(e) => onHover({ major: t.major, x: e.clientX, y: e.clientY })}
               onPointerLeave={() => onHover(null)}

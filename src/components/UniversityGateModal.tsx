@@ -105,12 +105,13 @@ export default function UniversityGateModal({ open, major, onClose }: Props) {
           exit={{ opacity: 0 }}
           transition={{ duration: reduce ? 0.12 : 0.2 }}
         >
-          {/* Backdrop — click dismisses. */}
+          {/* Backdrop — click dismisses. Deep enough that the modal reads as the
+              only focus and page content never bleeds through the glass. */}
           <button
             aria-label="Dismiss"
             tabIndex={-1}
             onClick={dismiss}
-            className="absolute inset-0 cursor-default bg-black/40"
+            className="absolute inset-0 cursor-default bg-black/60"
           />
           <motion.div
             ref={dialogRef}

@@ -1,39 +1,105 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { REDUCED_TWEEN, SPRING, type Mode } from '../design/tokens'
-import { bandOf, exposureColor, fmtCount, fmtExposure, fmtPay, fmtRatio, growthOf } from '../design/scales'
+import { EXPOSURE_STOPS, REDUCED_TWEEN, SPRING, type Mode } from '../design/tokens'
+import {
+  bandOf,
+  exposureBand,
+  exposureColor,
+  fmtCount,
+  fmtExposure,
+  fmtPay,
+  fmtRatio,
+  growthOf,
+} from '../design/scales'
 import type { Major } from '../types'
+import DataChip from './DataChip'
+import ShareCard from './ShareCard'
+
+// The band pill's violet — existing exposure-ramp stops, not a new token.
+const BAND_FILL = EXPOSURE_STOPS.light[0]
+const BAND_INK = EXPOSURE_STOPS.light[4]
+
+// One plain-language line per band — the exposure-≠-job-loss framing in words.
+const VERDICT: Record<string, string> = {
+  Rewired: 'A lot of the day-to-day is AI-reachable, so the skill mix shifts fast — the field doesn’t vanish.',
+  Reshaped: 'Many tasks are AI-reachable, so the skill mix shifts while the field itself holds.',
+  'Barely touched': 'Most of the work stays hands-on; AI mostly assists at the edges for now.',
+}
 
 export default function MajorDetailCard({ major, mode }: { major: Major; mode: Mode }) {
   const growth = growthOf(major.growth)
   const expC = useMemo(() => exposureColor(mode), [mode])
+  const band = exposureBand(major.exposure)
+  const [shareOpen, setShareOpen] = useState(false)
   // "99-9999 / NO MATCH" is the source's placeholder for unmapped employment.
   const occupations = major.occupations.filter((o) => o.soc !== '99-9999')
   const hasRoi = major.payToDebt != null || major.versatility != null
 
   return (
     <div className="rounded-card border border-line bg-surface p-5">
-      <h2 className="text-xl font-semibold tracking-tight text-ink">{major.major}</h2>
-      <div className="micro mt-1 flex items-center gap-2 text-ink3">
-        <span>{major.family}</span>
-        <span aria-hidden>·</span>
-        <span>CIP {major.cip}</span>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="text-xl font-semibold tracking-tight text-ink">{major.major}</h2>
+          <div className="micro mt-1 flex items-center gap-2 text-ink3">
+            <span>{major.family}</span>
+            <span aria-hidden>·</span>
+            <span>CIP {major.cip}</span>
+          </div>
+        </div>
+        <button
+          onClick={() => setShareOpen(true)}
+          aria-label={`Share ${major.major}`}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-line px-2.5 py-1 text-[12px] font-medium text-ink2 transition-colors hover:bg-raised hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        >
+          <svg width="13" height="13" viewBox="0 0 15 15" fill="none" aria-hidden>
+            <circle cx="11.5" cy="3" r="1.9" stroke="currentColor" strokeWidth="1.3" />
+            <circle cx="3.5" cy="7.5" r="1.9" stroke="currentColor" strokeWidth="1.3" />
+            <circle cx="11.5" cy="12" r="1.9" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M9.8 4 5.2 6.5M5.2 8.5 9.8 11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+          </svg>
+          Share
+        </button>
       </div>
 
       <Gauge value={major.exposure} mode={mode} />
 
+      {/* Plain-language band + verdict — the number's memorable read, always shown
+          with the score above, never instead of it. */}
+      {major.exposure !== null ? (
+        <div className="mt-3 flex items-start gap-2.5">
+          <span
+            className="micro shrink-0 rounded-full px-2 py-0.5"
+            style={{ background: BAND_FILL, color: BAND_INK }}
+          >
+            {band.label}
+          </span>
+          <p className="text-[12.5px] leading-snug text-ink2">{VERDICT[band.label]}</p>
+        </div>
+      ) : (
+        <div className="mt-3">
+          <DataChip label="Not scored yet" clock />
+        </div>
+      )}
+
       <dl className="mt-1 grid grid-cols-3 gap-2">
-        <Stat label="Median pay" value={fmtPay(major.median_pay)} />
+        <Stat
+          label="Median pay"
+          value={major.median_pay != null ? fmtPay(major.median_pay) : <DataChip label="No data" />}
+        />
         <Stat label="Bachelor's grads" value={fmtCount(major.completions)} />
         <Stat
           label="Job growth"
           value={
-            <>
-              <span aria-hidden>{growth.glyph} </span>
-              {growth.label}
-            </>
+            major.growth ? (
+              <>
+                <span aria-hidden>{growth.glyph} </span>
+                {growth.label}
+              </>
+            ) : (
+              <DataChip label="No data" />
+            )
           }
-          tone={growth.tone?.[mode]}
+          tone={major.growth ? growth.tone?.[mode] : undefined}
         />
       </dl>
 
@@ -84,6 +150,8 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
           </li>
         ))}
       </ul>
+
+      <ShareCard major={major} mode={mode} open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
   )
 }

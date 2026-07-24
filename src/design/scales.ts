@@ -137,6 +137,18 @@ export const fmtCount = (v: number) => compact.format(v).toLowerCase()
 /** Pay-to-debt ratio → "2.7×". */
 export const fmtRatio = (v: number) => `${v.toFixed(1)}×`
 
+/** Plain-language read of the AI-exposure score — a memorable band ALWAYS shown
+ *  alongside the number, never instead of it (hard rule 2: color/number is never
+ *  the only signal). Unscored is stated as a fact, never faked as "low". */
+export const exposureBand = (v: number | null) =>
+  v === null
+    ? { label: 'Not scored yet', range: '' }
+    : v < 4
+      ? { label: 'Barely touched', range: '0–3' }
+      : v < 8
+        ? { label: 'Reshaped', range: '4–7' }
+        : { label: 'Rewired', range: '8–10' }
+
 /** Career-versatility band from the *count* of mapped occupations. The min-max
  *  normalized rank is far too skewed to split into thirds (the median major maps
  *  to ~2 of ~22 possible occupations, so a 1/3–2/3 split on the rank labels

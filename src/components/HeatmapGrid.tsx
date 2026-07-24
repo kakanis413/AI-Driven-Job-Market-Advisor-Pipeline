@@ -62,6 +62,8 @@ export default memo(function HeatmapGrid({
     [majors],
   )
   const [fams, setFams] = useState<Set<Family>>(() => new Set(allFamilies))
+  // Every family selected ⇒ no real filter, so chips render quiet (see below).
+  const allSelected = fams.size === allFamilies.length
   const [hoverRow, setHoverRow] = useState<number | null>(null)
   const [hoverCol, setHoverCol] = useState<ColKey | null>(null)
 
@@ -162,10 +164,15 @@ export default memo(function HeatmapGrid({
 
   return (
     <div className="w-full">
-      {/* family filter chips */}
+      {/* family filter chips. When every family is on, nothing is actually
+          narrowed, so all chips read as quiet outlines instead of eight solid
+          black pills fighting the data. The filled emphasis only appears once
+          the user narrows to a subset. `aria-pressed` always tracks real
+          membership regardless of styling. */}
       <div className="mb-3 flex flex-wrap items-center gap-2" role="group" aria-label="Filter by family">
         {allFamilies.map((f) => {
           const on = fams.has(f)
+          const filled = on && !allSelected
           return (
             <button
               key={f}
@@ -179,7 +186,7 @@ export default memo(function HeatmapGrid({
                 })
               }
               className={`micro h-8 rounded-full border px-3 transition-colors ${
-                on
+                filled
                   ? 'border-transparent bg-ink text-page'
                   : 'border-line bg-surface text-ink3 hover:text-ink'
               }`}
