@@ -59,7 +59,13 @@ export default function Explore({
   const reduce = useReducedMotion()
   const spr = reduce ? REDUCED_TWEEN : SPRING
 
-  const [view, setView] = useState<View>(initialView)
+  // Tiles are unreadable at phone widths, so a fresh Explore on a narrow
+  // viewport opens on the Table instead of the treemap. This is only the mount
+  // default — read once, never reactive — so it never yanks a view the user
+  // later picks with the toggle. An explicit `grid` route already wins here.
+  const [view, setView] = useState<View>(() =>
+    initialView === 'map' && matchMedia('(max-width: 639px)').matches ? 'grid' : initialView,
+  )
   const [layer, setLayer] = useState<Layer>('exposure')
   // The value board's sort lives here so the toolbar's "Sort by" segment (which
   // occupies the same slot as "Color by") is the primary control.
