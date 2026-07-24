@@ -10,6 +10,7 @@ apply_vertex_env()
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, ConfigDict, Field
 
 from advisor.runtime import get_runtime
@@ -57,12 +58,8 @@ class MajorQueryRequest(BaseModel):
     intended_major: str | None = None
 
 
-@app.post("/api/v1/analyze-major")
-@app.post("/api/advise")
-async def analyze_major(request: MajorQueryRequest):
-    # No major → leave it None so the schema enters general mode. Never default
-    # to a placeholder string like "General": that would masquerade as a real
-    # major and suppress general-mode grounding.
+def _build_advisor_request(request: MajorQueryRequest) -> AdvisorRequest:
+    """Helper to convert API incoming Pydantic payload into AdvisorRequest domain schema."""
     target_major = request.major_name or request.major or None
     user_query = (
         request.query_context
@@ -75,23 +72,27 @@ async def analyze_major(request: MajorQueryRequest):
         )
     )
 
+    return AdvisorRequest(
+        query_context=user_query,
+        major_name=target_major,
+        cip=request.cip,
+        exposure=request.exposure,
+        median_pay=request.median_pay,
+        growth=request.growth,
+        occupations=request.occupations,
+        university=request.university,
+        university_domain=request.university_domain,
+        intended_major=request.intended_major,
+    )
+
+
+@app.post("/api/v1/analyze-major")
+@app.post("/api/advise")
+async def analyze_major(request: MajorQueryRequest):
+    target_major = request.major_name or request.major or None
     try:
         runtime = get_runtime()
-        # Forward the WHOLE request — national data and the university layer —
-        # not just the question. AdvisorRequest.grounding_block() appends the
-        # UNIVERSITY CONTEXT block when both university + domain are present.
-        advisor_req = AdvisorRequest(
-            query_context=user_query,
-            major_name=target_major,
-            cip=request.cip,
-            exposure=request.exposure,
-            median_pay=request.median_pay,
-            growth=request.growth,
-            occupations=request.occupations,
-            university=request.university,
-            university_domain=request.university_domain,
-            intended_major=request.intended_major,
-        )
+        advisor_req = _build_advisor_request(request)
 
         response = await runtime.advise(advisor_req)
         guidance_text = response.generated_guidance
@@ -104,22 +105,45 @@ async def analyze_major(request: MajorQueryRequest):
             exc_info=True,
         )
         route_used = "fallback_handler"
-
-        # Structured Markdown fallback response for seamless UI rendering
-    guidance_text = (
-        f"I couldn’t retrieve grounded guidance for {target_major} right now. "
-        "I don’t want to replace verified data with a generic or estimated answer. "
-        "Please try again later."
-    )
+        guidance_text = (
+            f"I couldn’t retrieve grounded guidance for {display_major} right now. "
+            "I don’t want to replace verified data with a generic or estimated answer. "
+            "Please try again later."
+        )
 
     return {
         "status": "success",
         "major": target_major,
-        # `generated_guidance` is what src/lib/advisor.ts reads first; keep the
-        # other keys as fallbacks for any plainer caller.
         "generated_guidance": guidance_text,
         "guidance": guidance_text,
         "response": guidance_text,
         "message": guidance_text,
         "route": route_used,
     }
+
+
+@app.post("/api/v1/analyze-major-stream")
+async def analyze_major_stream(request: MajorQueryRequest):
+    runtime = get_runtime()
+    advisor_req = _build_advisor_request(request)
+
+    async def event_generator():
+        try:
+            async for chunk in runtime.advise_stream(advisor_req):
+                # Clean up newlines inside SSE data payloads
+                sanitized_chunk = chunk.replace("\n", "\\n")
+                yield f"data: {sanitized_chunk}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as exc:
+            logger.error(f"Error in streaming endpoint: {exc}", exc_info=True)
+            yield "data: [ERROR]\n\n"
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",  # Disables proxy buffering (e.g. Nginx) for immediate delivery
+        },
+    )

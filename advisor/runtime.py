@@ -20,6 +20,7 @@ from advisor import errors
 from advisor.agents import root_agent
 from advisor.config import settings
 from advisor.schemas import AdvisorRequest, AdvisorResponse, RouteInfo
+from advisor.tools import get_top_majors
 
 log = logging.getLogger(__name__)
 
@@ -54,17 +55,34 @@ class AdvisorRuntime:
             getattr(req, "query_context", "")
             or getattr(req, "query", "")
             or getattr(req, "message", "")
+            or ""
         )
+        
+        preloaded_context = ""
+        norm_q = _normalize_text(query_text)
+        if any(w in norm_q for w in ["exposed", "exposure", "highest ai", "top ai", "most exposed"]):
+            try:
+                # Matches exact tools.py signature: metric="exposure", n=5, order="desc"
+                top_ai = get_top_majors(metric="exposure", n=5, order="desc")
+                preloaded_context = f"\nPRE-LOADED TOP AI EXPOSURE DATA:\n{top_ai}\n"
+                log.info("⚡ Fast-path successfully injected top major data into prompt context.")
+            except Exception as e:
+                log.warning("Fast-path preloaded data fetch skipped: %s", e)
+
         closing = (
             "Answer the student's question generally and conversationally. State no "
-            "specific numbers you were not given by a tool. Apply the "
+            "specific numbers you were not given by a tool or context. Apply the "
             "exposure-is-not-job-loss framing."
             if req.is_general
             else "Answer the student's question, grounded strictly in the verified data "
             "above (and any tool results). Apply the exposure-is-not-job-loss framing."
         )
+        
+        grounding = req.grounding_block() if hasattr(req, "grounding_block") else ""
+        
         return (
-            f"{req.grounding_block()}\n\n"
+            f"{grounding}\n"
+            f"{preloaded_context}\n"
             f"STUDENT QUESTION: {query_text}\n\n"
             f"{closing}"
         )
@@ -154,11 +172,7 @@ class AdvisorRuntime:
         norm_major = _normalize_text(major_name)
         norm_query = _normalize_text(raw_query)
         cache_key = f"{norm_major}:{norm_query}"
-        # The university layer changes the answer, so it MUST be part of the key —
-        # otherwise a national reply and a school reply (or two different schools)
-        # would collide on major:query and personalization would silently lose to
-        # whatever was cached first. Fold it in ONLY when personalizing, so a
-        # national request keeps the exact same key (and cache behavior) as before.
+
         if getattr(req, "is_university_compare", False):
             norm_school = _normalize_text(getattr(req, "university", "") or "")
             norm_intended = _normalize_text(getattr(req, "intended_major", "") or "")
