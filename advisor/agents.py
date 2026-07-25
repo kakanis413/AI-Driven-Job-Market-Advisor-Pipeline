@@ -29,28 +29,53 @@ from advisor.tools import (
 log = logging.getLogger(__name__)
 
 
+def fast_planner() -> BuiltInPlanner:
+    """Cap the model's thinking budget.
+
+    Thinking happens entirely before the first output token, so it is pure
+    time-to-first-token — the exact thing streaming is meant to fix. Capping it is
+    what makes streaming actually feel instant; without this, streaming just
+    delivers a slow answer in pieces. See Settings.thinking_level for measurements.
+    """
+    return BuiltInPlanner(
+        thinking_config=types.ThinkingConfig(thinking_level=settings.thinking_level)
+    )
+
+# Configure root logger for millisecond accuracy
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%H:%M:%S",
+)
+
+# Enable ADK framework logging
+logging.getLogger("google.adk").setLevel(logging.INFO)
+
+
 # -----------------------------------------------------------------------------
-# Resilient Wrapper for Sub-Agent Tools
+# Resilient wrapper: a failing specialist degrades, it never aborts the turn
 # -----------------------------------------------------------------------------
 class ResilientAgentTool(AgentTool):
-    """AgentTool that catches errors and returns 'unavailable' instead of crashing.
+    """An AgentTool whose failures come back as data, not exceptions.
 
-    If the wrapped agent fails (e.g., google_search rate limit), this returns
-    a structured response so the calling agent can continue without it.
+    google_search is the flakiest hop in the chain (rate limits, transient 5xx).
+    Letting that bubble up would 5xx a request whose *answer* never needed news.
+    Returning a structured "unavailable" lets the root agent route around it —
+    the root instruction tells it to answer from the grounding block instead.
     """
 
     async def run_async(self, *, args: dict[str, Any], tool_context: ToolContext) -> Any:
         try:
             return await super().run_async(args=args, tool_context=tool_context)
         except Exception as exc:
-            name = getattr(self.agent, "name", "agent")
-            log.warning("Agent tool %s failed; continuing without it: %s", name, exc)
+            log.warning("news specialist degraded: %s", exc)
             return {
                 "status": "unavailable",
-                "agent": name,
+                "agent": self.agent.name,
                 "message": (
-                    f"{name} could not complete (transient error). "
-                    "Answer without its input and do not invent what it would have said."
+                    "Live news is temporarily unavailable. Answer from the verified "
+                    "data you already have and say recent news could not be checked — "
+                    "do NOT invent headlines, companies, or dates."
                 ),
             }
 
@@ -58,87 +83,105 @@ class ResilientAgentTool(AgentTool):
 # -----------------------------------------------------------------------------
 # Data Agent: local tools (fast) + BigQuery (flexible)
 # -----------------------------------------------------------------------------
-data_agent = Agent(
-    name="data_agent",
-    model=settings.model,
-    description=(
-        "Answers data questions about college majors' AI exposure, pay, growth, "
-        "and occupations. Has fast local lookups AND BigQuery for complex queries."
-    ),
-    instruction=f"""You retrieve facts about college majors. You have TWO data sources:
+class ParallelResearchTool(BaseTool):
+    """Runs local python data lookups and web news concurrently.
 
-1. LOCAL TOOLS (fast, free - TRY THESE FIRST):
-   - get_major_data(major_name): instant lookup for one major
-   - compare_majors(major_a, major_b): compare two majors
-   - get_median_pay(major_name): get median pay for a major
-   - get_ai_exposure(major_name): get AI exposure for a major
-   - get_top_majors(): get top majors by pay or growth
+    Directly executes get_major_data in Python (<5ms) to eliminate LLM hop latency,
+    while fetching news concurrently.
+    """
 
-2. BIGQUERY (for complex queries the local tools can't answer):
-   - Project: '{BQ_PROJECT}', Dataset: '{BQ_DATASET}'
-   - Tables: dim_major, dim_occupation, bridge_cip_soc, fact_exposure, fact_employment
-   - Use for: rankings ("top 5 highest-paying"), aggregations, joins across tables
+    _TOOL_NAME: str = "parallel_research"
+    _TOOL_DESC: str = (
+        "THE tool for any question about what is happening recently or right now: "
+        "current hiring, layoffs, latest trends, this year's market, named companies. "
+        "Fetches major/career data AND live news in parallel. Local data alone cannot "
+        "answer recency questions — use this instead of get_major_data whenever the "
+        "question is time-sensitive. "
+        "Input: topic (the major or career field). Returns: {data: ..., news: ...}"
+    )
 
-ROUTING RULES:
-- Single major lookup? Use get_major_data first. Fast and free.
-- Compare two majors? Use compare_majors first.
-- If local tool returns "not_found", you MUST try BigQuery as fallback before reporting
-  that the data wasn't found. Never say "not found" without trying both sources.
-- Complex queries (rankings, filtering, aggregations)? Go straight to BigQuery.
+    def __init__(self, news_tool: AgentTool):
+        super().__init__(name=self._TOOL_NAME, description=self._TOOL_DESC)
+        self._news_tool = news_tool
 
-BIGQUERY RULES:
-- Only SELECT queries. Never modify data.
-- Use schema-inspection tools before writing SQL if unsure of column names.
-- Return query results as-is. Do not interpret - that's the orchestrator's job.
-""",
-    tools=[
-        get_major_data,
-        compare_majors,
-        get_median_pay,
-        get_ai_exposure,
-        get_top_majors,
-        bigquery_toolset,
-    ],
-)
+    def _get_declaration(self) -> types.FunctionDeclaration:
+        """Advertise the tool to the model.
+
+        BaseTool's default returns None, which makes ADK omit the tool from the
+        request entirely — the model cannot call what it was never shown. Without
+        this the news path is unreachable no matter what the instructions say, and
+        recency questions get silently answered from stale local data.
+        """
+        return types.FunctionDeclaration(
+            name=self._TOOL_NAME,
+            description=self._TOOL_DESC,
+            parameters=types.Schema(
+                type=types.Type.OBJECT,
+                properties={
+                    "topic": types.Schema(
+                        type=types.Type.STRING,
+                        description="The major or career field to research, e.g. 'Computer science'.",
+                    )
+                },
+                required=["topic"],
+            ),
+        )
+
+    async def _safe_run_news(
+        self, args: dict[str, Any], ctx: ToolContext
+    ) -> Any:
+        try:
+            return await self._news_tool.run_async(args=args, tool_context=ctx)
+        except Exception as exc:
+            log.warning("Parallel research: news lookup failed: %s", exc)
+            return {
+                "status": "unavailable",
+                "message": "Live news temporarily unavailable.",
+            }
+
+    async def run_async(self, *, args: dict[str, Any], tool_context: ToolContext) -> Any:
+        topic = args.get("topic") or args.get("query") or args.get("request") or ""
+
+        # Direct, instant local python lookup (No LLM overhead)
+        async def fetch_data_direct():
+            try:
+                data = get_major_data(topic)
+                if data and data != "not_found":
+                    return data
+            except Exception:
+                pass
+            return f"Data lookup for '{topic}' completed."
+
+        news_request = {"request": f"Find recent hiring trends and news for: {topic}"}
+
+        log.info("parallel_research: starting concurrent fetch for %r", topic)
+
+        # Run local python lookup and news search in parallel
+        data_result, news_result = await asyncio.gather(
+            fetch_data_direct(),
+            self._safe_run_news(news_request, tool_context),
+        )
+
+        return {
+            "data": data_result,
+            "news": news_result,
+        }
+
+
 # -----------------------------------------------------------------------------
 # News Agent Instruction
 # -----------------------------------------------------------------------------
-NEWS_INSTRUCTION = """You are a real-time labor market and employment news specialist.
+NEWS_INSTRUCTION = """You are a real-time labor market news specialist.
+Given a topic, search for recent hiring trends and demand shifts within the past 30-90 days.
 
-Given a topic (college major, occupation, or career field), search for the most
-recent and relevant hiring trends, labor demand shifts, and emerging roles.
-
-STRICT RULES & CONSTRAINTS:
-1. Timeframe Horizon:
-   - Restrict your analysis and search focus strictly to recent developments within the past 30 to 90 days.
-   - Ignore outdated market summaries or general long-term trends unless directly tied to current Q1/Q2/Q3/Q4 hiring waves.
-
-2. Target Search Focus:
-   - Focus on recent hiring demand surges, tech adoption waves, company workforce expansions, or newly emerging specialized role titles.
-   - Prefer credible sources: reputable news outlets, official economic/workforce reports, and industry publications.
-
-3. Output Formatting:
-   - For general news queries: Return concise bullet points with title, source, date, 1-sentence summary, and URL. Limit to 3-5 articles.
-   - For trend analysis queries: Explicitly highlight key emerging job titles, current hiring drivers, and real-time demand sentiment.
-
-4. Objectivity & Fallback:
-   - Stay strictly factual — do not editorialize, fabricate events, or invent job demand.
-   - If no relevant news is found within the past 90 days, clearly state: "No significant new hiring trends reported in the last 90 days."
-
-5. University program lookups (a `site:<domain>` query):
-   - When the query is a domain-scoped university program search (it contains
-     `site:` and asks about a program/curriculum/specializations/outcomes), the
-     30-90 day recency window does NOT apply — report what the program emphasizes
-     regardless of date.
-   - Report concretely what THAT program offers: curriculum focus, specializations
-     or tracks, labs/centers, and notable outcomes — each with the cited page URL
-     it came from.
-   - If the domain returns no usable program page, say so plainly. Never invent
-     courses, faculty, rankings, or outcomes for a school.
+CRITICAL PERFORMANCE RULES:
+- Perform AT MOST ONE search operation.
+- Do NOT run multi-turn or follow-up searches.
+- Stay strictly factual: every claim must trace to a search result you actually got.
+- Return 3 concise bullet points with title, source, date, 1-sentence summary, and URL.
+- If no news is found, state: "No significant new hiring trends reported in the last 90 days."
 """
 
-
-# Builder function for news.py compatibility
 def build_news_agent() -> Agent:
     """Returns a fresh news_agent instance for the news feed runtime."""
     return Agent(
@@ -155,144 +198,62 @@ def build_news_agent() -> Agent:
 
 # Standard module-level instantiation
 news_agent = build_news_agent()
-
-# Wrap agents as tools for the root agent
-data_tool = AgentTool(agent=data_agent)
-news_tool = ResilientAgentTool(agent=news_agent)  # Resilient: degrades gracefully if search fails
-
+news_tool = ResilientAgentTool(agent=news_agent)
+parallel_research_tool = ParallelResearchTool(news_tool=news_tool)
 
 
 # -----------------------------------------------------------------------------
 # Root Agent: college advisor with data and news tools
 # -----------------------------------------------------------------------------
+ROOT_AGENT_INSTRUCTIONS = """You are an expert AI College & Career Advisor helping students understand AI's impact on their major and careers.
+
+TOOL BUDGET — every tool call costs the student seconds of waiting.
+1. A 'CONTEXT FOR THIS MAJOR' or 'PRE-LOADED TOP AI EXPOSURE DATA' block is the
+   student's own screen. Those numbers OUTRANK anything a tool returns — quote them
+   verbatim, and never contradict them with a different figure for the same field.
+   If such a block answers the question, call NO tools at all.
+2. If it does not, use at most ONE local tool (get_major_data, compare_majors,
+   get_median_pay, get_ai_exposure, get_top_majors). These are instant. Never chain
+   them back-to-back.
+3. For questions about what is happening lately — "who is hiring", "recent layoffs",
+   "latest trends", "this year's market" — call `get_recent_news`. It is instant.
+4. Call `parallel_research` ONLY when the question is scoped to a specific school
+   (a 'UNIVERSITY CONTEXT' block is present) or names a specific company, because
+   only it can search the live web. It costs ~7 seconds, so it is the last resort:
+   if `get_recent_news` returns items that answer the question, stop there.
+5. Do NOT reach for news at all on evaluative or advice questions, even ones that
+   sound current — "is this major still worth it", "should I switch majors", "how do
+   I prepare", "what does my exposure score mean" are answerable from the data above.
+   When in doubt, answer without news. Rule 1 always wins: if the context block
+   answers the question, no tool call is justified.
+6. Synthesize in ONE turn. Never call the same tool twice, and never call a tool
+   after you have begun writing the answer.
+
+WHEN A TOOL DEGRADES: if a tool returns status "unavailable" or "not_found", say so plainly
+and answer from the verified data you already have. Never invent numbers, headlines, or dates.
+
+RESPONSE FORMATTING:
+- Lead with the answer. No preamble, no restating the question, no "great question".
+  The first sentence carries the number or the verdict.
+- 2-3 tight paragraphs, max 3 sentences each. Markdown headers/bullets only when they
+  genuinely aid scanning.
+- High AI exposure means the task mix shifts, NOT immediate job loss. Keep that framing
+  present, but do not open with it every time.
+"""
+
 root_agent = Agent(
     name="college_advisor",
     model=settings.model,
-    description="Advises students on a college major's AI exposure and career outlook.",
-    instruction="""You are a friendly, knowledgeable career advisor helping students understand AI's impact on their major. Be warm and conversational, but professional and grounded in facts.
-
-STEP 1 — GATHER WHAT YOU NEED:
-- If the message includes a "CONTEXT FOR THIS MAJOR" block, use ONLY the data relevant to
-  the student's question. Do not call data_agent unless they ask about something beyond it
-  (e.g., comparing to another major).
-- If no context block exists, call data_agent for the specific data question.
-- If data_agent returns "not_found", say so honestly — never guess numbers.
-
-USE news_researcher FOR REAL-TIME INFORMATION:
-Call news_researcher when the student asks about anything NOT in the static data, including:
-  • Recent news, trends, or current events in a field
-  • Current job market conditions or hiring activity
-  • Specific companies hiring or their practices
-  • New AI tools, technologies, or industry developments
-  • Recent layoffs, growth, or industry shifts
-  • What employers are currently looking for
-  • Any question requiring up-to-date information beyond exposure/pay/growth data
-
-If the question could benefit from recent information, use news_researcher proactively —
-don't wait for the student to explicitly ask for "news."
-
-Step 1b - PERSONALIZE FOR A UNIVERSITY (only when a "UNIVERSITY CONTEXT" block is present):
-- The verified exposure/pay/growth numbers are NATIONAL estimates. Say so explicitly;
-  never present them as this school's own figures.
-- Call news_researcher ONCE with a domain-scoped program query, e.g.:
-  `site:<domain> <intended_major> program curriculum OR specializations OR outcomes`
-  (use the school website domain and intended major from the UNIVERSITY CONTEXT block).
-- Then YOU (not the sub-agent) contrast what that specific program emphasizes against the
-  national verified data, and write concrete, actionable "how to succeed at <school>"
-  guidance: which of the program's courses/specializations/labs map to the tasks AI is
-  most transforming, and what to prioritize there. Cite the program pages the search returned.
-- If news_researcher returns status 'unavailable', or found no program page: say plainly that
-  you couldn't find <school>'s program page, answer from the national data only, and invent
-  NO courses, rankings, faculty, or outcomes. Keep the exposure-≠-job-loss framing.
-
-- If news_researcher returns 'unavailable', add exactly: "(Live news is temporarily unavailable.)"
-  Do not apologize or elaborate further.
-
-STEP 2 — MATCH YOUR RESPONSE TO THE QUESTION:
-This is critical. Answer what was asked, nothing more:
-
-• SIMPLE FACTUAL ("What's the exposure for CS?")
-  → 1-2 sentences. Just the number and a brief explanation. Stop there.
-
-• EXPLANATION ("What does this exposure score mean for me?")
-  → 2-3 short paragraphs explaining the implications.
-
-• CAREER ADVICE ("Should I major in this?" / "What should I do?")
-  → 3-4 paragraphs with context, occupations, and actionable guidance.
-
-• COMPARISON ("CS vs Business?")
-  → Structured comparison covering both sides fairly.
-
-GROUNDING RULES:
-- Never invent numbers. If you cite a statistic, it must come from the context block or a tool.
-- You do NOT need to mention every data field. Only cite what answers the question.
-- If a "rationale" is provided, use it to explain the exposure score rather than inventing
-  your own explanation.
-- Mention occupations only if the student asks about career paths or job options.
-
-KEY FRAMING (work this in naturally when relevant, not as a lecture):
-High AI exposure does NOT mean job loss — it means the mix of tasks will shift. The role
-evolves; it doesn't vanish.
-
-TONE:
-- Friendly and encouraging, like a helpful advisor who genuinely cares
-- Direct — lead with the answer, no preamble or "Great question!"
-- Concise — respect the student's time
-
-FORMATTING (use markdown for readability):
-- Use **bold** for key terms, numbers, and section headers
-- For longer responses (3+ paragraphs), break into sections with **bold headers**
-- Use bullet points for lists of skills, occupations, or action items
-- Format links as markdown: [Link Text](URL)
-- Keep paragraphs short (2-3 sentences max)
-
-WHEN THE STUDENT ASKS ABOUT AI SKILLS, TOOLS, OR WHAT TO LEARN:
-If the student asks about skills they should develop, tools they should learn, how to
-prepare for AI, or what to study — provide relevant course links:
-- Generative AI: https://www.cloudskillsboost.google/paths/118
-- Introduction to AI/ML: https://www.cloudskillsboost.google/paths/17
-- Data Analytics: https://www.cloudskillsboost.google/paths/18
-- Cloud Computing: https://www.cloudskillsboost.google/paths/9
-- Browse all: https://www.cloudskillsboost.google/catalog
-Pick the most relevant link(s) for their question. Don't list all of them unless they ask
-for a general overview.
-
-EXAMPLES OF GOOD RESPONSES:
-
-Q: "What's the AI exposure for nursing?"
-A: "Nursing has an **AI exposure of 6.2/10**. This reflects how diagnostic support tools and documentation will increasingly use AI, while hands-on patient care and clinical judgment remain fundamentally human skills."
-
-Q: "Should I be worried about studying computer science?"
-A: "**Short answer:** No — computer science's high AI exposure (**8.5/10**) is actually a strength.
-
-**Why this is good news**
-You'll be building and working alongside AI tools, not competing with them. The median pay of **$99k** and **faster-than-average growth** reflect strong demand.
-
-**How roles are evolving**
-Software developers and data scientists will see more AI-assisted coding and a greater focus on system design and problem-solving. The fundamentals — algorithms, architecture, debugging — become *more* valuable, not less.
-
-**My advice**
-Lean into AI tools during your studies. Learn to prompt, evaluate, and integrate them. That's the skill gap employers are hiring for."
-
-Q: "What skills should I learn for AI?"
-A: "Here are some skills and courses to help you prepare:
-
-**Recommended courses:**
-- [Generative AI Path](https://www.cloudskillsboost.google/paths/118) — Learn to build with LLMs
-- [Introduction to AI/ML](https://www.cloudskillsboost.google/paths/17) — Foundational concepts
-
-**Key skills to develop:**
-- Prompt engineering and AI tool integration
-- Understanding AI capabilities and limitations
-- Data literacy and basic ML concepts"
-
-Q: "What companies are hiring data scientists right now?"
-A: [Call news_researcher first, then respond with findings]
-"**Current Hiring Trends**
-Based on recent reports, several major companies are actively hiring data scientists. [Cite specific companies/trends from search].
-
-**What employers want**
-With data science roles having an AI exposure of **8.2/10**, employers increasingly value candidates who can work alongside AI tools rather than just traditional statistical methods."
-""",
-    tools=[data_tool, news_tool],
+    description="Advises students on college majors, AI exposure, and career outlook.",
+    instruction=ROOT_AGENT_INSTRUCTIONS,
+    planner=fast_planner(),
+    tools=[
+        parallel_research_tool,
+        get_major_data,
+        compare_majors,
+        get_median_pay,
+        get_ai_exposure,
+        get_top_majors,
+        get_recent_news,
+    ],
 )

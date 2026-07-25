@@ -143,37 +143,12 @@ class AdvisorRuntime:
         raise errors.classify(last) if last else errors.AdvisorError()
 
     async def advise(self, req: AdvisorRequest) -> AdvisorResponse:
-        major_name = getattr(req, "major", "") or getattr(req, "major_name", "") or ""
-        raw_query = (
-            getattr(req, "query_context", "")
-            or getattr(req, "query", "")
-            or getattr(req, "message", "")
-            or ""
-        )
+        cache_key = self._cache_key(req)
 
-        norm_major = _normalize_text(major_name)
-        norm_query = _normalize_text(raw_query)
-        cache_key = f"{norm_major}:{norm_query}"
-        # The university layer changes the answer, so it MUST be part of the key —
-        # otherwise a national reply and a school reply (or two different schools)
-        # would collide on major:query and personalization would silently lose to
-        # whatever was cached first. Fold it in ONLY when personalizing, so a
-        # national request keeps the exact same key (and cache behavior) as before.
-        if getattr(req, "is_university_compare", False):
-            norm_school = _normalize_text(getattr(req, "university", "") or "")
-            norm_intended = _normalize_text(getattr(req, "intended_major", "") or "")
-            cache_key = f"{cache_key}:{norm_school}:{norm_intended}"
-
-        async with _CACHE_LOCK:
-            if cache_key in RESPONSE_CACHE:
-                timestamp, cached_response = RESPONSE_CACHE[cache_key]
-                if time.time() - timestamp < CACHE_TTL_SECONDS:
-                    log.info("⚡ Runtime TTL Cache HIT for key: %r", cache_key)
-                    cached_response.route.path = "cache_hit"
-                    return cached_response
-                else:
-                    log.info("Expired TTL Cache entry for key: %r", cache_key)
-                    del RESPONSE_CACHE[cache_key]
+        cached = await self._cache_get(cache_key)
+        if cached is not None:
+            log.info("⚡ Runtime TTL Cache HIT for key: %r", cache_key)
+            return cached
 
         log.info("🐢 Runtime TTL Cache MISS for key: %r", cache_key)
         prompt = self._prompt(req)
