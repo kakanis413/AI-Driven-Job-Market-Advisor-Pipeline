@@ -8,11 +8,13 @@ import Legend from '../components/Legend'
 import MajorDetailCard from '../components/MajorDetailCard'
 import MetersView, { type SortKey } from '../components/MetersView'
 import SearchSpotlight from '../components/SearchSpotlight'
+import StatsStrip, { STATS_STRIP_H } from '../components/StatsStrip'
 import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
 import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
 import { advisorIsLive } from '../lib/advisor'
-import { useMeasure, useViewportHeight } from '../hooks/useMeasure'
+import { exposureColor, fmtCount, fmtExposure, fmtPay, growthOf, normalize } from '../design/scales'
+import { useMeasure, useMediaQuery, useViewportHeight } from '../hooks/useMeasure'
 import { layoutTreemap, type Rect } from '../lib/layout'
 import type { Page } from '../hooks/useRoute'
 import type { Major, TipData } from '../types'
@@ -59,7 +61,13 @@ export default function Explore({
   const reduce = useReducedMotion()
   const spr = reduce ? REDUCED_TWEEN : SPRING
 
-  const [view, setView] = useState<View>(initialView)
+  // Tiles are unreadable at phone widths, so a fresh Explore on a narrow
+  // viewport opens on the Table instead of the treemap. This is only the mount
+  // default — read once, never reactive — so it never yanks a view the user
+  // later picks with the toggle. An explicit `grid` route already wins here.
+  const [view, setView] = useState<View>(() =>
+    initialView === 'map' && matchMedia('(max-width: 639px)').matches ? 'grid' : initialView,
+  )
   const [layer, setLayer] = useState<Layer>('exposure')
   // The value board's sort lives here so the toolbar's "Sort by" segment (which
   // occupies the same slot as "Color by") is the primary control.
@@ -67,6 +75,13 @@ export default function Explore({
   const [query, setQuery] = useState(initialQuery ?? '')
   const [selectedCip, setSelectedCip] = useState<string | null>(null)
   const [tip, setTip] = useState<TipData | null>(null)
+  // Touch/phone users can't hover, so a tile tap has nothing to preview before
+  // the advisor takes over the screen. On a coarse pointer OR a narrow viewport
+  // a tap opens a lightweight bottom sheet with the same data the tooltip shows,
+  // then hands off to the advisor on request. (Coarse-pointer detection alone
+  // misses some phones, so width is an OR fallback — a comma is media-query OR.)
+  const tapPreview = useMediaQuery('(pointer: coarse), (max-width: 639px)')
+  const [previewCip, setPreviewCip] = useState<string | null>(null)
   const [advisorOpen, setAdvisorOpen] = useState(false)
   const [showChat, setShowChat] = useState(false)
   // The footer always shows the caveat (hard rule 4), so the panel's copy only
@@ -78,11 +93,14 @@ export default function Explore({
 
   const vh = useViewportHeight()
   const { ref: vizRef, width: vizW } = useMeasure<HTMLDivElement>()
-  // Glass chrome is now up to ~194 tall (controls + inline legend, with the nav
-  // wrapping to its own line on mid-width screens) plus the search row; subtract
-  // that, the pinned footer (~48), and a little breathing room so the map always
-  // clears the footer at every breakpoint.
-  const mapH = Math.max(440, vh - 250)
+  // Glass chrome is up to ~186 tall (controls + inline legend, with the nav
+  // wrapping to its own line on mid-width screens, plus the tightened search
+  // row); subtract that, the pinned footer (~48), and a little breathing room so
+  // the map always clears the footer at every breakpoint.
+  // The stats strip only shows from lg up: below that it would wrap into four
+  // ragged rows and eat the map, and narrow viewports already open on Table.
+  const showStats = useMediaQuery('(min-width: 1024px)')
+  const mapH = Math.max(480, vh - 218 - (showStats ? STATS_STRIP_H : 0))
 
   const payExtent = useMemo<[number, number]>(() => {
     const pays = majors.map((m) => m.median_pay).filter((p): p is number => p != null)
@@ -94,6 +112,20 @@ export default function Explore({
     () => majors.find((m) => m.cip === selectedCip) ?? null,
     [majors, selectedCip],
   )
+  const preview = useMemo(
+    () => majors.find((m) => m.cip === previewCip) ?? null,
+    [majors, previewCip],
+  )
+
+  // Live count of majors matching the active query — same predicate the viz
+  // uses to dim non-matches, so the number the user reads matches what they see.
+  const trimmedQuery = query.trim()
+  const matchCount = useMemo(() => {
+    const q = normalize(query)
+    if (!q) return 0
+    return majors.filter((m) => normalize(m.major).includes(q) || normalize(m.family).includes(q))
+      .length
+  }, [majors, query])
 
   /** Open the panel, morphing from `from` (tile or FAB center in client coords). */
   const openAdvisor = useCallback((from?: { x: number; y: number }) => {
@@ -127,6 +159,27 @@ export default function Explore({
     },
     [handleSelect],
   )
+  // Tile taps from the viz: on touch (and only when the advisor isn't already
+  // open) show the preview sheet first; otherwise fall straight through to the
+  // advisor as before. Keyboard/mouse selection is unaffected.
+  const handleTileSelect = useCallback(
+    (cip: string) => {
+      if (tapPreview && !advisorOpen) {
+        setTip(null)
+        setPreviewCip(cip)
+      } else {
+        handleSelect(cip)
+      }
+    },
+    [tapPreview, advisorOpen, handleSelect],
+  )
+  const closePreview = useCallback(() => setPreviewCip(null), [])
+  const askAdvisorFromPreview = useCallback(() => {
+    setPreviewCip((cip) => {
+      if (cip) handleSelect(cip)
+      return null
+    })
+  }, [handleSelect])
   const handleTip = useCallback((t: TipData | null) => setTip(t), [])
   const closeAdvisor = useCallback(() => {
     setAdvisorOpen(false)
@@ -148,10 +201,15 @@ export default function Explore({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Escape: close the advisor, then clear the selection, then the search.
+  // Escape: close the preview sheet, then the advisor, then clear the selection,
+  // then the search.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
+      if (previewCip !== null) {
+        setPreviewCip(null)
+        return
+      }
       setAdvisorOpen((open) => {
         if (open) return false
         setSelectedCip((cip) => {
@@ -164,7 +222,7 @@ export default function Explore({
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
+  }, [previewCip])
 
   const switchView = (v: View) => {
     setTip(null)
@@ -191,9 +249,9 @@ export default function Explore({
               value={view}
               onChange={switchView}
               options={[
-                { value: 'map', label: 'Heatmap' },
-                { value: 'grid', label: 'HashTable' },
-                { value: 'meters', label: 'Value' },
+                { value: 'map', label: 'Treemap' },
+                { value: 'grid', label: 'Table' },
+                { value: 'meters', label: 'ROI' },
               ]}
             />
             {view === 'meters' ? (
@@ -229,10 +287,14 @@ export default function Explore({
               <NavCluster page="explore" mode={mode} onNav={nav} onToggle={toggle} />
             </div>
           </div>
-          {/* Row 2 — search on its own hairlined row, roomy and full-width at
-              every breakpoint. */}
-          <div className="flex items-center border-t border-line py-2.5">
-            <div className="w-full max-w-[420px]">
+          {/* Row 2 — search, roomy and full-width, with the compact reference
+              trailing right. The color encoding must never be unreadable, so
+              below xl (where row 1 drops the inline legend) it reappears here:
+              the compact color scale for the tile views, the value caption for
+              the board. At xl this row is search only — the inline legend in
+              row 1 takes over. */}
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-line py-1.5">
+            <div className="w-full max-w-[560px]">
               <SearchSpotlight
                 compact
                 majors={majors}
@@ -242,11 +304,48 @@ export default function Explore({
                 onPick={handlePick}
               />
             </div>
+            {/* Match feedback while a query is active — mirrors the landing's
+                no-match copy. Live region so the count is announced as it
+                changes. */}
+            {trimmedQuery && (
+              <p role="status" aria-live="polite" className="text-[12.5px] text-ink3">
+                {matchCount === 0 ? (
+                  <>
+                    No majors match <span className="text-ink2">“{trimmedQuery}”</span>
+                  </>
+                ) : (
+                  <>
+                    <span
+                      className="font-semibold text-ink2"
+                      style={{ fontVariantNumeric: 'tabular-nums' }}
+                    >
+                      {matchCount}
+                    </span>{' '}
+                    {matchCount === 1 ? 'major matches' : 'majors match'}
+                  </>
+                )}
+              </p>
+            )}
+            <div className="ms-auto xl:hidden">
+              {view === 'meters' ? (
+                <p className="text-[12px] text-ink3">Early-career pay per $1 of typical student debt</p>
+              ) : (
+                <Legend compact layer={layer} mode={mode} payExtent={payExtent} />
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       <div className="mx-auto mt-3 max-w-[1400px] px-5 md:px-8">
+        {/* The read-out sits above the map for both tile views. The ROI board is
+            its own ranked table with its own framing, so the strip would double
+            up on it. */}
+        {status === 'ready' && showStats && view !== 'meters' && (
+          <div className="mb-3">
+            <StatsStrip majors={majors} layer={layer} mode={mode} payExtent={payExtent} />
+          </div>
+        )}
         <div ref={vizRef} className="relative min-w-0">
           {status === 'loading' && vizW > 0 && <SkeletonViz width={vizW} height={mapH} />}
           {status === 'error' && <ErrorCard height={mapH} url={url} retry={retry} />}
@@ -273,7 +372,7 @@ export default function Explore({
                 payExtent={payExtent}
                 query={query}
                 selectedCip={selectedCip}
-                onSelect={handleSelect}
+                onSelect={handleTileSelect}
                 onTip={handleTip}
                 geomRef={geomRef}
               />
@@ -282,11 +381,12 @@ export default function Explore({
             <HeatmapGrid
               majors={majors}
               width={vizW}
+              height={mapH}
               mode={mode}
               layer={layer}
               payExtent={payExtent}
               selectedCip={selectedCip}
-              onSelect={handleSelect}
+              onSelect={handleTileSelect}
               onTip={handleTip}
               geomRef={geomRef}
             />
@@ -451,7 +551,133 @@ export default function Explore({
       </AnimatePresence>
 
       <Tooltip tip={tip} mode={mode} />
+
+      {/* Touch preview: the tooltip's data as a dismissible bottom sheet, with a
+          hand-off to the advisor. Sits above the pinned footer so hard rule 4's
+          caveat stays visible. */}
+      <PreviewSheet
+        major={preview}
+        mode={mode}
+        reduce={!!reduce}
+        onClose={closePreview}
+        onAsk={askAdvisorFromPreview}
+      />
     </>
+  )
+}
+
+/** Bottom-sheet preview for touch: the same figures the hover tooltip shows,
+ *  plus a hand-off to the advisor. Dismissible via the scrim, the close button,
+ *  or Escape (handled in Explore). Floats above the footer so the caveat stays
+ *  visible (hard rule 4). */
+function PreviewSheet({
+  major,
+  mode,
+  reduce,
+  onClose,
+  onAsk,
+}: {
+  major: Major | null
+  mode: Mode
+  reduce: boolean
+  onClose: () => void
+  onAsk: () => void
+}) {
+  const sheetRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (major) sheetRef.current?.focus()
+  }, [major])
+
+  const growth = major && growthOf(major.growth)
+  return (
+    <AnimatePresence>
+      {major && growth && (
+        <>
+          <motion.button
+            key="preview-scrim"
+            aria-label="Dismiss preview"
+            onClick={onClose}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 cursor-default"
+            style={{ background: 'color-mix(in srgb, var(--ink) 28%, transparent)' }}
+          />
+          <motion.div
+            key="preview-sheet"
+            ref={sheetRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`${major.major} — quick facts`}
+            tabIndex={-1}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: '110%' }}
+            animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: '110%' }}
+            transition={reduce ? REDUCED_TWEEN : SPRING}
+            className="glass fixed inset-x-3 bottom-16 z-50 mx-auto max-w-[560px] rounded-panel p-4 shadow-2xl shadow-black/25 focus:outline-none"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="title text-ink">{major.major}</div>
+                <div className="micro mt-0.5 text-ink3">{major.family}</div>
+              </div>
+              <button
+                onClick={onClose}
+                aria-label="Close preview"
+                className="grid size-7 shrink-0 place-items-center rounded-md text-ink3 transition-colors hover:bg-raised hover:text-ink"
+              >
+                <svg width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden>
+                  <path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3">
+              <SheetMetric label="AI exposure">
+                <span
+                  aria-hidden
+                  className="mr-1.5 inline-block size-2.5 rounded-full align-[-1px]"
+                  style={{ background: exposureColor(mode)(major.exposure) }}
+                />
+                <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtExposure(major.exposure)}</b>
+                <span className="text-ink3"> /10</span>
+              </SheetMetric>
+              <SheetMetric label="Median pay">
+                <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtPay(major.median_pay)}</b>
+              </SheetMetric>
+              <SheetMetric label="Bachelor's grads / yr">
+                <b style={{ fontVariantNumeric: 'tabular-nums' }}>{fmtCount(major.completions)}</b>
+              </SheetMetric>
+              <SheetMetric label="Job growth">
+                <span aria-hidden>{growth.glyph} </span>
+                <b>{growth.label}</b>
+              </SheetMetric>
+            </div>
+
+            <p className="mt-3 border-t border-line pt-3 text-[12.5px] leading-relaxed text-ink2">
+              {major.rationale}
+            </p>
+
+            <button
+              onClick={onAsk}
+              className="mt-3 w-full rounded-md bg-ink px-4 py-2.5 text-sm font-semibold text-page transition-opacity hover:opacity-90"
+            >
+              Ask the advisor about this major
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  )
+}
+
+function SheetMetric({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <div className="micro text-ink3">{label}</div>
+      <div className="mt-0.5 text-[13px] text-ink">{children}</div>
+    </div>
   )
 }
 

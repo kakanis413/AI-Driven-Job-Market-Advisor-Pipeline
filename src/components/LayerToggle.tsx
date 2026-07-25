@@ -25,11 +25,10 @@ export function Segmented<T extends string>({
   const lg = size === 'lg'
   return (
     <div className={`flex shrink-0 items-center ${lg ? 'gap-3' : 'gap-2'}`}>
-      <span
-        className={`micro hidden whitespace-nowrap text-ink3 lg:block ${lg ? 'text-[12px]' : ''}`}
-      >
-        {label}
-      </span>
+      {/* One `micro` token for every small label in the app — no per-size
+          overrides, so VIEW / COLOR BY / SORT BY render identically to the
+          legend and column headers. */}
+      <span className="micro hidden whitespace-nowrap text-ink3 lg:block">{label}</span>
       <div
         role="group"
         aria-label={label}

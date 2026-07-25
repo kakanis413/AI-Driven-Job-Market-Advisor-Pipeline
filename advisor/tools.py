@@ -1,24 +1,25 @@
-"""Tools for the data agent: local lookups (fast, free) + BigQuery (flexible, dynamic SQL).
+"""Tools attached directly to root_agent: local lookups over the in-memory dataset.
 
-Local tools (get_major_data, compare_majors, etc.) use the in-memory data_source
-for instant lookups. BigQuery toolset lets Gemini write SQL for complex queries
-the local data can't answer.
+There is no `data_agent` and no live BigQuery in the served path — root_agent calls
+these functions itself, which is why a data question costs ~0ms of lookup instead of
+an SQL-generating LLM hop. `get_bigquery_toolset()` still exists but nothing calls
+it; wiring it back in would make it an escalation tool for questions the local
+dataset cannot answer, not the default path. Measured on the `majors` dataset, a
+bare BigQuery round-trip is 0.85-1.35s against ~0ms for `data_source.find`.
 """
 
 from __future__ import annotations
 
 import logging
+import time
 from functools import lru_cache
 from typing import Any
-
-import google.auth
-from google.adk.integrations.bigquery import BigQueryCredentialsConfig, BigQueryToolset
-from google.adk.integrations.bigquery.config import BigQueryToolConfig, WriteMode
 
 from advisor import data_source
 from advisor.config import settings
 
 log = logging.getLogger(__name__)
+#reverting!!!
 
 # -----------------------------------------------------------------------------
 # BigQuery toolset (for complex/dynamic queries)
@@ -26,16 +27,30 @@ log = logging.getLogger(__name__)
 BQ_PROJECT = settings.project
 BQ_DATASET = settings.bigquery_dataset
 
-_credentials, _ = google.auth.default()
-_credentials_config = BigQueryCredentialsConfig(credentials=_credentials)
-_tool_config = BigQueryToolConfig(write_mode=WriteMode.BLOCKED)  # READ-ONLY
 
-bigquery_toolset = BigQueryToolset(
-    credentials_config=_credentials_config,
-    bigquery_tool_config=_tool_config,
-)
+@lru_cache(maxsize=1)
+def get_bigquery_toolset():
+    """Build the read-only BigQuery toolset on first use, not at import.
 
-log.info("BigQuery toolset initialized (project=%s, dataset=%s)", BQ_PROJECT, BQ_DATASET)
+    Constructed eagerly this cost every process start (including the test suite and
+    every `--reload`) an ADC resolution plus a BigQuery client handshake — for a
+    toolset no agent currently attaches. Behind a cached accessor the cost is paid
+    only if something actually escalates to SQL.
+    """
+    import google.auth
+    from google.adk.integrations.bigquery import (
+        BigQueryCredentialsConfig,
+        BigQueryToolset,
+    )
+    from google.adk.integrations.bigquery.config import BigQueryToolConfig, WriteMode
+
+    credentials, _ = google.auth.default()
+    toolset = BigQueryToolset(
+        credentials_config=BigQueryCredentialsConfig(credentials=credentials),
+        bigquery_tool_config=BigQueryToolConfig(write_mode=WriteMode.BLOCKED),  # READ-ONLY
+    )
+    log.info("BigQuery toolset initialized (project=%s, dataset=%s)", BQ_PROJECT, BQ_DATASET)
+    return toolset
 
 
 # -----------------------------------------------------------------------------
@@ -61,7 +76,10 @@ def get_major_data(major_name: str) -> dict[str, Any]:
         return {
             "status": "not_found",
             "requested": major_name,
-            "message": "That major is not in the local dataset. You may try BigQuery for more data.",
+            "message": (
+                "That major is not in the dataset. Say so plainly and offer the closest "
+                "names below — there is no other data source to fall back on."
+            ),
             "did_you_mean": near,
         }
     log.info("tool get_major_data: HIT for %r", major_name)
@@ -87,7 +105,10 @@ def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
         return {
             "status": "not_found",
             "missing": missing,
-            "message": "At least one major is not in the local dataset. Try BigQuery for more data.",
+            "message": (
+                "At least one major is not in the dataset. Name which one and say you "
+                "cannot compare it — there is no other data source to fall back on."
+            ),
         }
 
     sa, sb = data_source.summarize(a), data_source.summarize(b)
@@ -182,6 +203,65 @@ def get_top_majors(metric: str = "median_pay", n: int = 3, order: str = "desc") 
         "majors": [
             {"major_name": m.get("major") or m.get("major_name"), metric: m.get(metric)}
             for m in top_n
+        ],
+    }
+
+
+def get_recent_news(major_name: str) -> dict[str, Any]:
+    """Recent labor-market news for the field a major belongs to.
+
+    Reads the news feed the server already keeps warm — prewarmed at startup,
+    refreshed in the background, persisted to disk — so it costs a dict lookup
+    instead of the ~6.4s a live web search takes. Prefer this for general
+    "what's happening lately" questions; it cannot answer questions scoped to a
+    specific school, which still need `parallel_research`.
+
+    Args:
+        major_name: Name of the college major, e.g. "Computer science".
+
+    Returns:
+        status="found" with dated, cited items, or status="unavailable" when this
+        field's feed has not been fetched yet (say so; do not invent headlines).
+    """
+    # Imported here, not at module scope: advisor.news imports advisor.agents,
+    # which imports this module. A lazy import keeps that cycle from closing.
+    from advisor import news
+
+    row = data_source.find(major_name)
+    family = (row or {}).get("family") or "Other"
+    canon = news.canonical_family(str(family)) or "Other"
+
+    runtime = news.get_news_runtime()
+    hit = runtime._cache.get(canon)
+    if hit is None:
+        log.info("tool get_recent_news: no warm feed for family=%s", canon)
+        return {
+            "status": "unavailable",
+            "family": canon,
+            "message": (
+                "No cached news for this field yet. Answer from the verified data "
+                "and say recent news could not be checked."
+            ),
+        }
+
+    expires_at, feed = hit
+    log.info(
+        "tool get_recent_news: HIT family=%s items=%d stale=%s",
+        canon, len(feed.items), expires_at <= time.time(),
+    )
+    return {
+        "status": "found",
+        "family": canon,
+        "fetched_at": feed.fetched_at,
+        "items": [
+            {
+                "title": i.title,
+                "source": i.source,
+                "published": i.published,
+                "summary": i.summary,
+                "url": i.url,
+            }
+            for i in feed.items
         ],
     }
 

@@ -34,10 +34,13 @@ def test_get_major_data_miss_does_not_invent():
     out = get_major_data("Underwater Basket Weaving")
     assert out["status"] == "not_found"
     # The point is that a miss is reported as a fact, not filled in. Assert the
-    # behaviour (says it isn't in the dataset, carries no number) rather than the
-    # exact wording, which the refactor changed.
-    assert "not in the local dataset" in out["message"].lower()
+    # behaviour, not the phrasing — matching exact wording is what made this test
+    # fail on a copy edit that changed nothing about what the tool does.
+    msg = out["message"].lower()
+    assert "not in the" in msg and "dataset" in msg
     assert "exposure" not in out  # no fabricated number
+    # A miss must not send the model after a data source that no longer exists.
+    assert "bigquery" not in msg
 
 
 def test_get_major_data_is_not_hardcoded_cs():

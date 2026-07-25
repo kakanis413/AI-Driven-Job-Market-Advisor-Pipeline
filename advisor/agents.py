@@ -1,28 +1,29 @@
 from __future__ import annotations
 
+import asyncio
+import logging
 import os
 import sys
+from typing import Any
 
 # Add project root to sys.path so 'advisor' imports work when executed directly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import logging
-from typing import Any
-
 from google.adk import Agent
+from google.adk.planners import BuiltInPlanner
 from google.adk.tools import google_search
 from google.adk.tools.agent_tool import AgentTool
+from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
+from google.genai import types
 
 from advisor.config import settings
 from advisor.tools import (
-    BQ_DATASET,
-    BQ_PROJECT,
-    bigquery_toolset,
     compare_majors,
     get_ai_exposure,
     get_major_data,
     get_median_pay,
+    get_recent_news,
     get_top_majors,
 )
 
@@ -81,7 +82,7 @@ class ResilientAgentTool(AgentTool):
 
 
 # -----------------------------------------------------------------------------
-# Data Agent: local tools (fast) + BigQuery (flexible)
+# Optimized Parallel Research Tool: Direct Local Python Lookup + Fast Web Search
 # -----------------------------------------------------------------------------
 class ParallelResearchTool(BaseTool):
     """Runs local python data lookups and web news concurrently.
@@ -169,7 +170,11 @@ class ParallelResearchTool(BaseTool):
 
 
 # -----------------------------------------------------------------------------
+<<<<<<< HEAD
 # News Agent Instruction
+=======
+# News Agent Specialist (Strict 1-Turn Enforcement)
+>>>>>>> 28e828c5ab46fd94259dc36af54c5a16f5b5ce47
 # -----------------------------------------------------------------------------
 NEWS_INSTRUCTION = """You are a real-time labor market news specialist.
 Given a topic, search for recent hiring trends and demand shifts within the past 30-90 days.
@@ -183,6 +188,7 @@ CRITICAL PERFORMANCE RULES:
 """
 
 def build_news_agent() -> Agent:
+<<<<<<< HEAD
     """Returns a fresh news_agent instance for the news feed runtime."""
     return Agent(
         name="news_researcher",
@@ -197,13 +203,28 @@ def build_news_agent() -> Agent:
 
 
 # Standard module-level instantiation
+=======
+    return Agent(
+        name="news_researcher",
+        model=settings.model,
+        description="Fetches real-time labor market news within the past 30-90 days.",
+        instruction=NEWS_INSTRUCTION,
+        planner=fast_planner(),
+        tools=[google_search],
+    )
+
+>>>>>>> 28e828c5ab46fd94259dc36af54c5a16f5b5ce47
 news_agent = build_news_agent()
 news_tool = ResilientAgentTool(agent=news_agent)
 parallel_research_tool = ParallelResearchTool(news_tool=news_tool)
 
 
 # -----------------------------------------------------------------------------
+<<<<<<< HEAD
 # Root Agent: college advisor with data and news tools
+=======
+# Root Agent: Single-Turn Fast Execution Agent
+>>>>>>> 28e828c5ab46fd94259dc36af54c5a16f5b5ce47
 # -----------------------------------------------------------------------------
 ROOT_AGENT_INSTRUCTIONS = """You are an expert AI College & Career Advisor helping students understand AI's impact on their major and careers.
 
