@@ -19,7 +19,6 @@ from advisor import data_source
 from advisor.config import settings
 
 log = logging.getLogger(__name__)
-#reverting!!!
 
 # -----------------------------------------------------------------------------
 # BigQuery toolset (for complex/dynamic queries)
