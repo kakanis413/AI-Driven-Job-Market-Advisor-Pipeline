@@ -1,0 +1,61 @@
+# Build + deploy the Vite frontend to Cloud Run.
+#
+# _AGENT_URL must point at the deployed backend BEFORE this runs: Vite inlines
+# import.meta.env at build time, so the URL is compiled into the bundle and cannot
+# be changed by a Cloud Run env var afterwards. Change the backend URL → rebuild.
+substitutions:
+  _REGION: us-west1
+  _SERVICE: advisor-web
+  _AR_REPO: cloud-run-source-deploy
+  _AGENT_URL: ''
+  # Only meaningful once the backend sets ADVISOR_API_KEY. Note this value ships
+  # inside the browser bundle and is therefore public — it raises the bar against
+  # casual abuse, it is not a secret.
+  _ADVISOR_API_KEY: ''
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitutionOption: ALLOW_LOOSE
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+
+steps:
+  - id: Build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+      - -f
+      - Dockerfile.frontend
+      - --build-arg
+      - 'VITE_AGENT_URL=${_AGENT_URL}'
+      - --build-arg
+      - 'VITE_ADVISOR_API_KEY=${_ADVISOR_API_KEY}'
+      - .
+
+  - id: Push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+
+  - id: Deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - '${_SERVICE}'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      # Static nginx: tiny and stateless, so the smallest instance is plenty.
+      - '--memory=512Mi'
+      - '--cpu=1'
+      - '--max-instances=5'
+      - '--labels=managed-by=cloud-build,commit-sha=$COMMIT_SHA'
+      - '--quiet'
