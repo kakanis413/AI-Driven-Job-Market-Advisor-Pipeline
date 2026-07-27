@@ -511,7 +511,10 @@ export default function Explore({
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="overflow-hidden border-b border-line bg-accent-soft/60 px-4 py-2 text-[11.5px] leading-snug text-ink2"
+                  /* Opaque, not /60: the scroll area below is a sibling, so at 60%
+                     the scrolled card showed THROUGH the banner and read as content
+                     sliding underneath it. */
+                  className="relative z-10 overflow-hidden border-b border-line bg-accent-soft px-4 py-2 text-[11.5px] leading-snug text-ink2"
                 >
                   High exposure does <b className="font-semibold text-ink">not</b> mean the job
                   disappears — it means the mix of tasks is likely to change.
@@ -525,7 +528,10 @@ export default function Explore({
               </div>
             ) : (
               <>
-                <div className="min-h-0 flex-1 overflow-y-auto p-3">
+                {/* pt-5, not p-3: the extra top offset keeps the card's first row
+                    clear of the caveat banner's edge instead of being clipped
+                    mid-component the moment the panel scrolls. */}
+                <div className="min-h-0 flex-1 overflow-y-auto px-3 pb-3 pt-5">
                   <MajorDetailCard major={selected} mode={mode} />
                 </div>
                 <div className="space-y-2 border-t border-line p-3">

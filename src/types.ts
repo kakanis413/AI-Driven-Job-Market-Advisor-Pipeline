@@ -16,8 +16,14 @@ export type Growth = 'declining' | 'slower' | 'average' | 'faster'
 export interface Occupation {
   soc: string
   title: string
-  /** AI exposure 0–10 for this occupation, or null when unscored. */
+  /** AI exposure 0–10 for this occupation, or null when unscored. The pipeline's
+   *  `top_careers` feed carries no exposure yet, so this is null for most rows —
+   *  the card omits the bar rather than drawing an unearned zero. */
   exposure: number | null
+  /** Median annual wage, USD. From `top_careers.median_wage_annual`. */
+  medianPay?: number | null
+  /** Projected employment change, percent. From `top_careers.outlook_pct`. */
+  outlook?: number | null
 }
 
 export interface Major {

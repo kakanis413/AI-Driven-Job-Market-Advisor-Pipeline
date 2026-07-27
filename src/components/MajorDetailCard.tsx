@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
-import { EXPOSURE_STOPS, REDUCED_TWEEN, SPRING, type Mode } from '../design/tokens'
+import { useId, useMemo, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { REDUCED_TWEEN, SPRING, type Mode } from '../design/tokens'
 import {
   bandOf,
   exposureBand,
@@ -11,13 +11,10 @@ import {
   fmtRatio,
   growthOf,
 } from '../design/scales'
+import { topOccupations } from '../lib/normalizeMajors'
 import type { Major } from '../types'
 import DataChip from './DataChip'
 import ShareCard from './ShareCard'
-
-// The band pill's violet — existing exposure-ramp stops, not a new token.
-const BAND_FILL = EXPOSURE_STOPS.light[0]
-const BAND_INK = EXPOSURE_STOPS.light[4]
 
 // One plain-language line per band — the exposure-≠-job-loss framing in words.
 const VERDICT: Record<string, string> = {
@@ -31,8 +28,12 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
   const expC = useMemo(() => exposureColor(mode), [mode])
   const band = exposureBand(major.exposure)
   const [shareOpen, setShareOpen] = useState(false)
-  // "99-9999 / NO MATCH" is the source's placeholder for unmapped employment.
-  const occupations = major.occupations.filter((o) => o.soc !== '99-9999')
+  const [whyOpen, setWhyOpen] = useState(false)
+  const reduce = useReducedMotion()
+  const rationaleId = useId()
+  // Selection rule lives in the data layer — see topOccupations for what it drops.
+  const occupations = useMemo(() => topOccupations(major.occupations), [major.occupations])
+  const anyScored = occupations.some((o) => o.exposure !== null)
   const hasRoi = major.payToDebt != null || major.versatility != null
 
   return (
@@ -63,20 +64,21 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
 
       <Gauge value={major.exposure} mode={mode} />
 
-      {/* Plain-language band + verdict — the number's memorable read, always shown
-          with the score above, never instead of it. */}
+      {/* ONE score block, not two. The gauge stated the number and a separate
+          pill row restated the same reading beside it — two competing score
+          displays stacked. Merged: the band now sits directly under the readout
+          as part of the gauge's own block (hard rule 2 — the plain-language band
+          always accompanies the number, never replaces it), with the verdict as
+          its single supporting line. Matches how ShareCard already presents it. */}
       {major.exposure !== null ? (
-        <div className="mt-3 flex items-start gap-2.5">
-          <span
-            className="micro shrink-0 rounded-full px-2 py-0.5"
-            style={{ background: BAND_FILL, color: BAND_INK }}
-          >
-            {band.label}
-          </span>
-          <p className="text-[12.5px] leading-snug text-ink2">{VERDICT[band.label]}</p>
+        <div className="mt-1 text-center">
+          <div className="micro text-ink2">{band.label}</div>
+          <p className="mx-auto mt-1.5 max-w-[38ch] text-[12.5px] leading-snug text-ink3">
+            {VERDICT[band.label]}
+          </p>
         </div>
       ) : (
-        <div className="mt-3">
+        <div className="mt-3 flex justify-center">
           <DataChip label="Not scored yet" clock />
         </div>
       )}
@@ -103,53 +105,140 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
         />
       </dl>
 
-      {hasRoi && (
-        <div className="mt-4 space-y-3">
-          {major.payToDebt != null && (
-            <Meter
-              label="Pay vs. debt"
-              value={fmtRatio(major.payToDebt)}
-              fill={major.payToDebtRank ?? 0}
-              caption="early-career pay per $1 of typical student debt"
-            />
+      {/* The rationale is the longest text on the card and answers a question most
+          readers only ask once, so it sits behind a disclosure instead of pushing
+          the occupations below the fold. Collapsed by default; a real <button> with
+          aria-expanded so it is keyboard- and screen-reader-navigable. */}
+      <div className="mt-4">
+        <button
+          type="button"
+          onClick={() => setWhyOpen((v) => !v)}
+          aria-expanded={whyOpen}
+          aria-controls={rationaleId}
+          className="inline-flex items-center gap-1.5 rounded-md text-[12.5px] font-medium text-ink2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        >
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden className="shrink-0">
+            <circle cx="7" cy="7" r="5.6" stroke="currentColor" strokeWidth="1.3" />
+            <path d="M7 6.2v3.4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+            <circle cx="7" cy="4.3" r="0.75" fill="currentColor" />
+          </svg>
+          Why this score?
+          <motion.svg
+            width="10" height="10" viewBox="0 0 10 10" fill="none" aria-hidden
+            animate={{ rotate: whyOpen ? 180 : 0 }}
+            transition={reduce ? REDUCED_TWEEN : { duration: 0.18 }}
+            className="shrink-0 text-ink3"
+          >
+            <path d="M2 4l3 3 3-3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+          </motion.svg>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {whyOpen && (
+            <motion.div
+              key="rationale"
+              id={rationaleId}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={reduce ? REDUCED_TWEEN : { duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="mt-2 rounded-lg border border-line bg-raised p-3">
+                <p className="text-[12.5px] leading-relaxed text-ink2">{major.rationale}</p>
+                {/* The ROI meters live here rather than in the main flow: two
+                    full-width bars between the gauge and the occupations flattened
+                    the hierarchy, and they answer the same "how did you get here"
+                    question the rationale does. */}
+                {hasRoi && (
+                  <div className="mt-3 space-y-3 border-t border-line pt-3">
+                    {major.payToDebt != null && (
+                      <Meter
+                        label="Pay vs. debt"
+                        value={fmtRatio(major.payToDebt)}
+                        fill={major.payToDebtRank ?? 0}
+                        caption="early-career pay per $1 of typical student debt"
+                      />
+                    )}
+                    {major.versatility != null && (
+                      <Meter
+                        label="Career versatility"
+                        value={bandOf(major.versatility ?? 0)}
+                        fill={major.versatilityRank ?? 0}
+                        caption={`maps to ${major.versatility} related occupation${major.versatility === 1 ? '' : 's'}`}
+                      />
+                    )}
+                  </div>
+                )}
+              </div>
+            </motion.div>
           )}
-          {major.versatility != null && (
-            <Meter
-              label="Career versatility"
-              value={bandOf(major.versatility ?? 0)}
-              fill={major.versatilityRank ?? 0}
-              caption={`maps to ${major.versatility} related occupation${major.versatility === 1 ? '' : 's'}`}
-            />
-          )}
+        </AnimatePresence>
+      </div>
+
+      <div className="mt-5 flex items-baseline justify-between gap-2">
+        <h3 className="micro text-ink3">Top occupations</h3>
+        {/* Label what the rows actually show. This carried "AI exposure pending"
+            while displaying pay and outlook — a caption about a number the section
+            doesn't render. Per-occupation exposure isn't in the feed yet; when it
+            lands, `anyScored` flips and the bars appear. */}
+        {occupations.length > 0 && (
+          <span className="micro normal-case tracking-normal text-ink3">
+            {anyScored ? 'most exposed first' : 'median pay · projected growth'}
+          </span>
+        )}
+      </div>
+      {occupations.length === 0 ? (
+        // Same idiom the stats above use for a missing field, so an unmapped major
+        // reads as "not scored yet" rather than a section that failed to render.
+        <div className="mt-2">
+          <DataChip label="No occupations mapped yet" clock />
         </div>
-      )}
-
-      <p className="mt-4 text-[13px] leading-relaxed text-ink2">{major.rationale}</p>
-
-      <h3 className="micro mt-5 text-ink3">Mapped occupations</h3>
+      ) : (
       <ul className="mt-2">
         {occupations.map((o) => (
           <li key={o.soc} className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0">
             <div className="min-w-0 flex-1">
               <div className="truncate text-[13px] font-medium text-ink">{o.title}</div>
-              <div className="micro text-ink3">SOC {o.soc}</div>
+              <div className="micro flex flex-wrap items-center gap-x-1.5 text-ink3">
+                <span>SOC {o.soc}</span>
+                {o.medianPay != null && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span>{fmtPay(o.medianPay)} median</span>
+                  </>
+                )}
+                {o.outlook != null && (
+                  <>
+                    <span aria-hidden>·</span>
+                    <span>{o.outlook > 0 ? '+' : ''}{o.outlook}% outlook</span>
+                  </>
+                )}
+              </div>
             </div>
-            <div className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-line" aria-hidden>
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${((o.exposure ?? 0) / 10) * 100}%`, background: expC(o.exposure) }}
-              />
-            </div>
-            <span
-              className="w-8 shrink-0 text-right text-[13px] font-semibold text-ink"
-              style={{ fontVariantNumeric: 'tabular-nums' }}
-              aria-label={`exposure ${fmtExposure(o.exposure)} out of 10`}
-            >
-              {fmtExposure(o.exposure)}
-            </span>
+            {/* Bar and score only when this occupation is actually scored. An empty
+                track would read as zero exposure — a claim the data doesn't make. */}
+            {o.exposure !== null && (
+              <>
+                <div className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-line" aria-hidden>
+                  <div
+                    className="h-full rounded-full"
+                    style={{ width: `${(o.exposure / 10) * 100}%`, background: expC(o.exposure) }}
+                  />
+                </div>
+                <span
+                  className="w-8 shrink-0 text-right text-[13px] font-semibold text-ink"
+                  style={{ fontVariantNumeric: 'tabular-nums' }}
+                  aria-label={`exposure ${fmtExposure(o.exposure)} out of 10`}
+                >
+                  {fmtExposure(o.exposure)}
+                </span>
+              </>
+            )}
           </li>
         ))}
       </ul>
+      )}
 
       <ShareCard major={major} mode={mode} open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
@@ -242,8 +331,11 @@ function Gauge({ value, mode }: { value: number | null; mode: Mode }) {
   const tipP = pt(needleAngle, r - 26)
 
   return (
+    /* viewBox is taller than the arc needs: the readout sits BELOW the pivot,
+       outside the needle's 180° sweep. Centred in the arc it was crossed by the
+       needle at mid-range scores — at 6.5 the needle ran through the digits. */
     <svg
-      viewBox="0 0 200 106"
+      viewBox="0 0 200 150"
       className="mx-auto mt-4 block w-full max-w-[240px]"
       role="img"
       aria-label={`Exposure gauge: ${fmtExposure(value)} out of 10`}
@@ -269,24 +361,27 @@ function Gauge({ value, mode }: { value: number | null; mode: Mode }) {
           strokeLinecap="round"
         />
       )}
-      <circle cx={cx} cy={cy} r={4.5} fill="var(--ink)" />
-      <text
-        x={cx}
-        y={cy - 22}
-        textAnchor="middle"
-        fill="var(--ink)"
-        style={{ fontSize: 27, fontWeight: 640, fontVariantNumeric: 'tabular-nums' }}
-      >
-        {fmtExposure(value)}
-      </text>
-      <text x={cx} y={cy - 8} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 10 }}>
-        / 10 exposure
-      </text>
+      {/* The pivot carries this major's own ramp color — the same expC() the map
+          tiles use, so the gauge and the tile read as one metric. Unscored falls
+          back to ink3 rather than the ramp's low end. */}
+      <circle cx={cx} cy={cy} r={5.5} fill={value === null ? 'var(--ink3)' : expC(value)} />
       <text x={cx - r} y={cy + 12} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 9.5 }}>
         low
       </text>
       <text x={cx + r} y={cy + 12} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 9.5 }}>
         high
+      </text>
+      <text
+        x={cx}
+        y={cy + 40}
+        textAnchor="middle"
+        fill="var(--ink)"
+        style={{ fontSize: 30, fontWeight: 640, fontVariantNumeric: 'tabular-nums' }}
+      >
+        {fmtExposure(value)}
+      </text>
+      <text x={cx} y={cy + 52} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 10 }}>
+        / 10 exposure
       </text>
     </svg>
   )

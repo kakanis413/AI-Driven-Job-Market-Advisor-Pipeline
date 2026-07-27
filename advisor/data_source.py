@@ -66,7 +66,11 @@ def _load(path: Path) -> dict[str, dict[str, Any]]:
         log.warning("data file not found at %s; major lookup will be empty", path)
         return {}
     try:
-        raw = json.loads(path.read_text())
+        # encoding is explicit: Path.read_text() defaults to the platform locale,
+        # which is cp1252 on most Windows installs. data.json carries em dashes in
+        # the rationale text, so the default silently mojibakes them ("â€"") rather
+        # than raising — the advisor then quotes corrupted text as verified data.
+        raw = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         log.warning("could not read data file %s: %s", path, exc)
         return {}

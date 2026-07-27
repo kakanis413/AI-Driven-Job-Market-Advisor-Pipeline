@@ -138,7 +138,7 @@ class AdvisorRuntime:
                 # Matches exact tools.py signature: metric="exposure", n=5, order="desc"
                 top_ai = get_top_majors(metric="exposure", n=5, order="desc")
                 preloaded_context = f"\nPRE-LOADED TOP AI EXPOSURE DATA:\n{top_ai}\n"
-                log.info("⚡ Fast-path successfully injected top major data into prompt context.")
+                log.info("fast-path: injected top major data into prompt context")
             except Exception as e:
                 log.warning("Fast-path preloaded data fetch skipped: %s", e)
 
@@ -184,11 +184,11 @@ class AdvisorRuntime:
 
         cached = await self._cache_get(cache_key)
         if cached is not None:
-            log.info("⚡ Stream cache HIT for key: %r", cache_key)
+            log.info("stream cache HIT | key=%r", cache_key)
             yield ("token", cached.generated_guidance)
             return
 
-        log.info("🐢 Stream cache MISS for key: %r", cache_key)
+        log.info("stream cache MISS | key=%r", cache_key)
         prompt = self._prompt(req)
         user_id = "student"
         session_id = f"s-{uuid.uuid4().hex[:16]}"
@@ -326,10 +326,10 @@ class AdvisorRuntime:
 
         cached = await self._cache_get(cache_key)
         if cached is not None:
-            log.info("⚡ Runtime TTL Cache HIT for key: %r", cache_key)
+            log.info("runtime cache HIT | key=%r", cache_key)
             return cached
 
-        log.info("🐢 Runtime TTL Cache MISS for key: %r", cache_key)
+        log.info("runtime cache MISS | key=%r", cache_key)
         prompt = self._prompt(req)
         started = time.perf_counter()
 

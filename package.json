@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev:frontend": "vite",
-    "dev:backend": "./.venv/bin/python -m uvicorn main:app --reload",
-    "dev": "sh -c 'python_pid=; trap \"[ -n \\\"$python_pid\\\" ] && kill $python_pid 2>/dev/null\" EXIT INT TERM; ./.venv/bin/python -m uvicorn main:app --reload & python_pid=$!; npm run dev:frontend'",
+    "dev:backend": "node scripts/dev.mjs backend",
+    "dev": "node scripts/dev.mjs",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },

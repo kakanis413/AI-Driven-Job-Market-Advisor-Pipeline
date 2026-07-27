@@ -28,6 +28,7 @@ interface RawMajor {
   median_pay?: unknown
   growth?: unknown
   occupations?: unknown
+  top_careers?: unknown
   rationale?: unknown
 }
 
@@ -137,29 +138,83 @@ const GROWTH_VALUES: readonly Growth[] = ['declining', 'slower', 'average', 'fas
 const str = (v: unknown): string | null => (typeof v === 'string' && v.length > 0 ? v : null)
 const num = (v: unknown): number | null => (typeof v === 'number' && Number.isFinite(v) ? v : null)
 
+/** A number, or a string that is one. The occupation feed sometimes carries
+ *  exposure as `"7.5"` rather than `7.5`; strict `num` turned those into null,
+ *  which the card drew as an empty bar and an em dash — real data reported as
+ *  missing. Blank and non-numeric strings still yield null, so "no score" and
+ *  "unparseable" stay distinguishable from a real 0. */
+const looseNum = (v: unknown): number | null => {
+  if (typeof v === 'number') return Number.isFinite(v) ? v : null
+  if (typeof v !== 'string') return null
+  const t = v.trim()
+  // Number('') is 0, which would invent a score out of an empty field.
+  if (t === '') return null
+  const n = Number(t)
+  return Number.isFinite(n) ? n : null
+}
+
 /** The raw `exposure`/`ai_exposure_norm` fields are on a 0–1 scale; the UI works
  *  in 0–10. Values already >1 are assumed to be pre-scaled. Null-safe. */
 function toExposure(raw: RawMajor): number | null {
   // null, not 0 — an unscored major is "not scored yet", and rendering it as 0
   // would read as the LOWEST exposure, which is a different (false) claim.
-  const v = num(raw.ai_exposure_norm) ?? num(raw.ai_exposure) ?? num(raw.exposure)
+  const v = looseNum(raw.ai_exposure_norm) ?? looseNum(raw.ai_exposure) ?? looseNum(raw.exposure)
   if (v === null) return null
   const scaled = v <= 1 ? v * 10 : v
   return Math.max(0, Math.min(10, scaled))
 }
 
-function toOccupations(v: unknown): Occupation[] {
-  if (!Array.isArray(v)) return []
-  return v
-    .map((o): Occupation | null => {
-      if (typeof o !== 'object' || o === null) return null
-      const r = o as Record<string, unknown>
-      const soc = str(r.soc)
-      const title = str(r.title)
-      if (!soc || !title) return null
-      return { soc, title, exposure: toExposure(r as RawMajor) }
+/** The occupations worth showing on a detail card: real SOC codes carrying a real
+ *  exposure score, most-exposed first, capped at `limit`.
+ *
+ *  Lives in the data layer, not the card, so the selection rule is stated once and
+ *  the card stays presentational. Two exclusions, both deliberate: `"99-9999"` is
+ *  the source's placeholder for unmapped employment, and an unscored occupation has
+ *  no bar to draw — either one would pad the list with a row that says nothing. */
+export function topOccupations(occupations: Occupation[], limit = 3): Occupation[] {
+  return occupations
+    .filter((o) => o.soc !== '99-9999')
+    .map((o, i) => ({ o, i })) // keep source order as the tiebreak
+    .sort((a, b) => {
+      const ea = a.o.exposure
+      const eb = b.o.exposure
+      // Scored rows first, most-exposed first. Unscored rows are KEPT, not dropped
+      // — `top_careers` carries no exposure yet, and dropping them would empty the
+      // section for every major. They fall back to the source's own rank order.
+      if (ea !== null && eb !== null && ea !== eb) return eb - ea
+      if (ea !== null && eb === null) return -1
+      if (ea === null && eb !== null) return 1
+      return a.i - b.i
     })
-    .filter((o): o is Occupation => o !== null)
+    .slice(0, limit)
+    .map(({ o }) => o)
+}
+
+/** One occupation row, from either shape the pipeline emits: the scored
+ *  `occupations` feed (`soc`/`title`/`exposure`) or `top_careers`
+ *  (`soc_code`/`occupation_title`/`median_wage_annual`/`outlook_pct`). */
+function toOccupation(o: unknown): Occupation | null {
+  if (typeof o !== 'object' || o === null) return null
+  const r = o as Record<string, unknown>
+  const soc = str(r.soc) ?? str(r.soc_code)
+  const title = str(r.title) ?? str(r.occupation_title)
+  if (!soc || !title) return null
+  return {
+    soc,
+    title,
+    exposure: toExposure(r as RawMajor),
+    medianPay: looseNum(r.median_wage_annual) ?? looseNum(r.median_pay),
+    outlook: looseNum(r.outlook_pct),
+  }
+}
+
+/** `occupations` wins when populated; `top_careers` is the fallback so the card
+ *  has something real to show until occupation-level AI scoring lands. */
+function toOccupations(primary: unknown, fallback: unknown): Occupation[] {
+  const parse = (v: unknown): Occupation[] =>
+    Array.isArray(v) ? v.map(toOccupation).filter((o): o is Occupation => o !== null) : []
+  const main = parse(primary)
+  return main.length > 0 ? main : parse(fallback)
 }
 
 function toMajor(raw: RawMajor, index: number): Major | null {
@@ -188,7 +243,7 @@ function toMajor(raw: RawMajor, index: number): Major | null {
     exposure: toExposure(raw),
     median_pay: num(raw.median_pay),
     growth,
-    occupations: toOccupations(raw.occupations),
+    occupations: toOccupations(raw.occupations, raw.top_careers),
     rationale:
       str(raw.rationale) ??
       'AI-exposure scoring for this major is still pending in the data pipeline.',

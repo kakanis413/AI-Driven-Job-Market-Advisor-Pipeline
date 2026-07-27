@@ -206,7 +206,7 @@ class NewsRuntime:
             log.info("no news cache file found at %s — starting cold", CACHE_FILE)
             return
         try:
-            raw = json.loads(CACHE_FILE.read_text())
+            raw = json.loads(CACHE_FILE.read_text(encoding="utf-8"))
             now = time.time()
             fresh, stale = 0, 0
             for family, entry in raw.items():
@@ -227,7 +227,10 @@ class NewsRuntime:
                 family: {"expires_at": expires_at, "feed": feed.model_dump(mode="json")}
                 for family, (expires_at, feed) in self._cache.items()
             }
-            CACHE_FILE.write_text(json.dumps(payload))
+            # Headlines are full of curly quotes and dashes; without an explicit
+            # encoding this raises UnicodeEncodeError on a cp1252 Windows box and
+            # the news cache silently never persists.
+            CACHE_FILE.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
         except Exception as exc:
             log.warning("failed to persist news cache to disk: %s", exc)
 
