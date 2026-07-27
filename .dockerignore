@@ -1,15 +1,14 @@
-# Keep the build context small and the image backend-only.
+# Shared by both images. Docker allows one ignore file per build context, and the
+# context here is the repo root for both the backend and the frontend — so this list
+# may only exclude what NEITHER image needs. Each Dockerfile then COPYs exactly its
+# own inputs, which is what keeps the images small (the previous `COPY . .` relied on
+# this file to exclude src/ and package.json, which made the frontend unbuildable).
 .git
 .gitignore
 .venv
 node_modules
 dist
 build
-src
-scripts
-tests
-batch
-*.md
 .env
 .env.*
 .DS_Store
@@ -20,9 +19,15 @@ __pycache__
 .vscode
 .claude
 *.code-workspace
-package.json
-package-lock.json
-vite.config.ts
-tsconfig.json
-index.html
+tests
+batch
+scripts
+*.md
+advisor_trace.log
+test_data.json
+test_verify.json
+test_pipeline.py
+agent_config.py
+data_pipeline.py
+# Rotating cache; baking it in would ship stale news and bust the layer cache.
 advisor/.news_cache.json

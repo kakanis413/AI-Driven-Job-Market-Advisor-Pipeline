@@ -49,6 +49,18 @@ class Settings:
 
     # --- BigQuery ---
     bigquery_dataset: str = os.getenv("BQ_DATASET", "majors")
+    # Hard ceiling on bytes billed per query. Gemini writes this SQL, so the ceiling
+    # is what stops a malformed or pathological join from running away — BigQuery
+    # kills the job rather than billing for it.
+    #
+    # 256 MB is deliberate, not arbitrary: the whole `majors` dataset measures 128 MB
+    # across 40 tables (largest: onet_work_context_complete_fixed at 57 MB). No
+    # legitimate query can need more than the dataset itself, and 2x leaves room for
+    # a self-join that reads the same table twice. Raise it only if the warehouse
+    # grows; a query that hits this ceiling is a bug, not a big question.
+    bigquery_max_bytes_billed: int = int(
+        os.getenv("ADVISOR_BQ_MAX_BYTES_BILLED", str(256 * 1024 * 1024))
+    )
 
     # --- data file for local lookups ---
     # The SAME file the browser renders. Grounding the advisor on the exact data
@@ -97,6 +109,19 @@ class Settings:
         )
     )
     log_level: str = os.getenv("ADVISOR_LOG_LEVEL", "INFO")
+
+    # --- access control ---
+    # Both OFF by default so local dev and the existing frontend are unchanged.
+    # Set them in any deployment the public internet can reach: every advisor request
+    # spends a Gemini call (and sometimes a BigQuery scan), so an open endpoint is an
+    # open budget. Neither replaces putting real auth in front of Cloud Run — they are
+    # the floor, not the ceiling.
+    #
+    # Shared key: when set, requests must send `X-API-Key: <key>`.
+    api_key: str = os.getenv("ADVISOR_API_KEY", "")
+    # Requests per client per minute; 0 disables. In-process, so the effective limit
+    # is this times the instance count — a real limiter belongs at the edge.
+    rate_limit_per_min: int = int(os.getenv("ADVISOR_RATE_LIMIT_PER_MIN", "0"))
 
 
 settings = Settings()

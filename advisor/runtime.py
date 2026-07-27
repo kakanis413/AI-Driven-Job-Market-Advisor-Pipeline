@@ -47,6 +47,19 @@ _TOOL_STATUS: Dict[str, str] = {
     "get_recent_news": "Checking recent headlines…",
     "compare_majors": "Comparing majors…",
     "get_top_majors": "Ranking majors…",
+    # BigQuery escalation. This is the slowest path in the system — measured 13.3s to
+    # first token — and before these entries existed it was also the only one that
+    # emitted no status at all, so the panel sat frozen for the whole wait.
+    "execute_sql": "Querying the warehouse…",
+    "ask_data_insights": "Querying the warehouse…",
+    "forecast": "Querying the warehouse…",
+    "analyze_contribution": "Querying the warehouse…",
+    "detect_anomalies": "Querying the warehouse…",
+    "get_table_info": "Reading the data schema…",
+    "get_dataset_info": "Reading the data schema…",
+    "list_table_ids": "Reading the data schema…",
+    "list_dataset_ids": "Reading the data schema…",
+    "search_catalog": "Searching the data catalog…",
 }
 
 

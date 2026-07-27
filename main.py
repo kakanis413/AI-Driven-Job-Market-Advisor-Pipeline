@@ -1,20 +1,11 @@
-"""FastAPI serving layer for the simple 3-agent advisor.
-
-Thin by design: validation + structured errors here, all orchestration in advisor.runtime.
-"""
-
-from __future__ import annotations
-
 import asyncio
 import json
 import logging
-import sys
+import sys  # <--- Add this import
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-# -----------------------------------------------------------------------------
 # Windows High-Latency Fix: Enforce SelectorEventLoopPolicy
-# -----------------------------------------------------------------------------
 if sys.platform == "win32":
     asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -56,12 +47,74 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AI-Driven Job Market Advisor", version="3.0.0", lifespan=lifespan)
 
+# Endpoints that must stay reachable without a key: Cloud Run's health probe cannot
+# present one, and locking the probe out takes the whole service down.
+_OPEN_PATHS = frozenset({"/", "/healthz"})
+
+# client -> timestamps of its requests inside the current window.
+_RATE_BUCKETS: dict[str, deque[float]] = defaultdict(deque)
+_RATE_WINDOW_S = 60.0
+
+
+def _client_id(request: Request) -> str:
+    """Who to bill this request to. The API key when there is one (a shared key is a
+    better identity than an IP behind Cloud Run's proxy), else the forwarded IP."""
+    key = request.headers.get("x-api-key")
+    if key:
+        return f"key:{key[:8]}"
+    fwd = request.headers.get("x-forwarded-for", "")
+    return f"ip:{fwd.split(',')[0].strip() or (request.client.host if request.client else 'unknown')}"
+
+
+@app.middleware("http")
+async def _guard(request: Request, call_next):
+    """Shared-key auth and per-client rate limiting. Both no-ops unless configured,
+    so local dev and the current frontend are unaffected until you switch them on."""
+    path = request.url.path
+    # CORS preflight carries no custom headers by design — rejecting it would break
+    # the browser client before the real request is ever sent.
+    if path in _OPEN_PATHS or request.method == "OPTIONS":
+        return await call_next(request)
+
+    if settings.api_key:
+        presented = request.headers.get("x-api-key", "")
+        # Constant-time: a plain `!=` leaks the key one character at a time.
+        if not secrets.compare_digest(presented, settings.api_key):
+            log.warning("rejected unauthenticated request | path=%s", path)
+            return JSONResponse(
+                status_code=401,
+                content={"error": "missing or invalid API key", "error_code": "unauthorized"},
+            )
+
+    if settings.rate_limit_per_min > 0:
+        now = time.monotonic()
+        bucket = _RATE_BUCKETS[_client_id(request)]
+        while bucket and now - bucket[0] > _RATE_WINDOW_S:
+            bucket.popleft()
+        if len(bucket) >= settings.rate_limit_per_min:
+            retry_after = int(_RATE_WINDOW_S - (now - bucket[0])) + 1
+            log.warning("rate limited | client=%s path=%s", _client_id(request), path)
+            return JSONResponse(
+                status_code=429,
+                content={"error": "rate limit exceeded", "error_code": "rate_limited"},
+                headers={"Retry-After": str(retry_after)},
+            )
+        bucket.append(now)
+
+    return await call_next(request)
+
+
+# Added AFTER _guard on purpose. Starlette runs the most recently added middleware
+# outermost, so this ordering puts CORS around the guard — a 401 or 429 still carries
+# Access-Control-Allow-Origin and reaches the browser as the status it actually is,
+# instead of surfacing as an opaque CORS failure that hides the real reason.
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
     allow_credentials=False,
     allow_methods=["GET", "POST", "OPTIONS"],
-    allow_headers=["Content-Type"],
+    # X-API-Key must be allowed through CORS or a browser client cannot send it.
+    allow_headers=["Content-Type", "X-API-Key"],
 )
 
 
