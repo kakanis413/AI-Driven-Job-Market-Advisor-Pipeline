@@ -171,11 +171,7 @@ class ParallelResearchTool(BaseTool):
 
 
 # -----------------------------------------------------------------------------
-<<<<<<< HEAD
-# News Agent Instruction
-=======
 # News Agent Specialist (Strict 1-Turn Enforcement)
->>>>>>> 28e828c5ab46fd94259dc36af54c5a16f5b5ce47
 # -----------------------------------------------------------------------------
 NEWS_INSTRUCTION = """You are a real-time labor market news specialist.
 Given a topic, search for recent hiring trends and demand shifts within the past 30-90 days.
@@ -189,22 +185,6 @@ CRITICAL PERFORMANCE RULES:
 """
 
 def build_news_agent() -> Agent:
-<<<<<<< HEAD
-    """Returns a fresh news_agent instance for the news feed runtime."""
-    return Agent(
-        name="news_researcher",
-        model=settings.model,
-        description=(
-            "Fetches real-time labor market news, hiring demand spikes, "
-            "and emerging career trends within the past 30-90 days."
-        ),
-        instruction=NEWS_INSTRUCTION,
-        tools=[google_search],
-    )
-
-
-# Standard module-level instantiation
-=======
     return Agent(
         name="news_researcher",
         model=settings.model,
@@ -214,18 +194,13 @@ def build_news_agent() -> Agent:
         tools=[google_search],
     )
 
->>>>>>> 28e828c5ab46fd94259dc36af54c5a16f5b5ce47
 news_agent = build_news_agent()
 news_tool = ResilientAgentTool(agent=news_agent)
 parallel_research_tool = ParallelResearchTool(news_tool=news_tool)
 
 
 # -----------------------------------------------------------------------------
-<<<<<<< HEAD
-# Root Agent: college advisor with data and news tools
-=======
 # Root Agent: Single-Turn Fast Execution Agent
->>>>>>> 28e828c5ab46fd94259dc36af54c5a16f5b5ce47
 # -----------------------------------------------------------------------------
 ROOT_AGENT_INSTRUCTIONS = f"""You are an expert AI College & Career Advisor helping students understand AI's impact on their major and careers.
 
