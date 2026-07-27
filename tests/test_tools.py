@@ -3,8 +3,11 @@
 from __future__ import annotations
 
 from advisor import data_source
-from advisor.tools import compare_majors, get_major_data
-
+from advisor.tools import (
+    compare_majors,
+    get_dynamic_top_careers,
+    get_major_data,
+)
 
 def test_data_source_loads_fixture():
     table = data_source.majors()
@@ -63,3 +66,32 @@ def test_compare_majors_missing_flags_it():
     out = compare_majors("Computer science", "Nonexistent Major")
     assert out["status"] == "not_found"
     assert "Nonexistent Major" in out["missing"]
+
+def test_get_major_data_includes_top_careers():
+    out = get_major_data("Computer Science")
+
+    assert out["status"] == "success"
+    assert len(out["top_careers"]) == 3
+    assert out["top_careers"][0]["occupation_title"]
+
+
+def test_get_dynamic_top_careers_returns_ranked_careers():
+    out = get_dynamic_top_careers("Computer Science")
+
+    assert out["status"] == "success"
+    assert out["count"] == 3
+    assert len(out["careers"]) == 3
+    assert [career["rank"] for career in out["careers"]] == [1, 2, 3]
+
+    first = out["careers"][0]
+    assert first["soc"]
+    assert first["title"]
+    assert first["median_pay"] is not None
+    assert first["growth"] is not None
+
+
+def test_get_dynamic_top_careers_reports_missing_major():
+    out = get_dynamic_top_careers("Underwater Basket Weaving")
+
+    assert out["status"] == "not_found"
+    assert out["careers"] == []

@@ -113,6 +113,8 @@ def find(major_name: str) -> dict[str, Any] | None:
 def summarize(row: dict[str, Any]) -> dict[str, Any]:
     """Trim a data.json row to the fields the agent should reason about."""
     occs = row.get("occupations") or []
+    top_careers = row.get("top_careers") or []
+
     out: dict[str, Any] = {
         "major": row.get("major"),
         "cip": row.get("cip"),
@@ -126,7 +128,19 @@ def summarize(row: dict[str, Any]) -> dict[str, Any]:
             for o in occs[:10]
             if isinstance(o, dict)
         ],
+        "top_careers": [
+            {
+                "rank": career.get("rank"),
+                "soc_code": career.get("soc_code"),
+                "occupation_title": career.get("occupation_title"),
+                "median_wage_annual": career.get("median_wage_annual"),
+                "outlook_pct": career.get("outlook_pct"),
+            }
+            for career in top_careers[:3]
+            if isinstance(career, dict)
+        ],
     }
+    
     # An unscored major must never be reported as a number. Say so explicitly so
     # the agent states "not scored yet" instead of implying the lowest score.
     if out["exposure"] is None:

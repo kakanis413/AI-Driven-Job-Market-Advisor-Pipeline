@@ -35,6 +35,9 @@ RATIONALES_V2_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales_v2"
 SCORES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_scores"
 RATIONALES_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.major_ai_rationales"
 RUNS_TABLE = f"{GCP_PROJECT}.{BQ_DATASET}.ai_scoring_runs"
+WIDE_FEATURES_TABLE = (
+    f"{GCP_PROJECT}.{BQ_DATASET}.wide_job_market_features"
+)
 
 MAJOR_SCORING_RUN_ID = "major_karpathy_v2"
 
@@ -137,6 +140,16 @@ def build_majors_query(min_graduates: int = MIN_GRADUATES_THRESHOLD, require_sal
           AND m.include_in_heatmap
     ),
 
+    
+    wide_top_careers AS (
+        SELECT
+            cip4_code,
+            ANY_VALUE(top_careers) AS top_careers
+        FROM `{WIDE_FEATURES_TABLE}`
+        WHERE cip4_code IS NOT NULL
+        AND top_careers IS NOT NULL
+        GROUP BY cip4_code
+    ),
     final_metrics AS (
         SELECT
             mwm.cip4_code,
@@ -152,10 +165,13 @@ def build_majors_query(min_graduates: int = MIN_GRADUATES_THRESHOLD, require_sal
             END AS pay_to_debt_ratio,
             COALESCE(versatility, 0) AS versatility,
             ai.major_exposure_score AS ai_exposure,
-            ai.rationale
+            ai.rationale,
+            careers.top_careers
         FROM majors_with_metrics mwm
         LEFT JOIN ai_data ai
             ON mwm.cip4_code = ai.cip4_code
+        LEFT JOIN wide_top_careers careers
+            ON mwm.cip4_code = careers.cip4_code
     )
 
     SELECT
@@ -168,10 +184,11 @@ def build_majors_query(min_graduates: int = MIN_GRADUATES_THRESHOLD, require_sal
         pay_to_debt_ratio,
         versatility,
         ai_exposure,
-        rationale
+        rationale,
+        top_careers
     FROM final_metrics
     ORDER BY graduates DESC
-    """
+     """
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -238,6 +255,27 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
         raw_exposure = m.get("ai_exposure")
         exposure_float = float(raw_exposure) if raw_exposure is not None else None
 
+        raw_top_careers = m.get("top_careers") or []
+
+        top_careers = [
+            {
+                "rank": int(career["rank"]),
+                "soc_code": career["soc_code"],
+                "occupation_title": career["occupation_title"],
+                "median_wage_annual": (
+                    float(career["median_wage_annual"])
+                    if career["median_wage_annual"] is not None
+                    else None
+                ),
+                "outlook_pct": (
+                    float(career["outlook_pct"])
+                    if career["outlook_pct"] is not None
+                    else None
+                ),
+            }
+            for career in raw_top_careers
+        ]
+
         processed_majors.append({
             "cip": m.get("cip"),
             "major": m.get("major"),
@@ -248,6 +286,7 @@ def process_bigquery_results(rows: list[bigquery.Row]) -> list[dict[str, Any]]:
             "median_pay": pay_int,
             "growth": growth_str,
             "occupations": [],
+            "top_careers": top_careers,
             "query_context": "",
             "rationale": m.get("rationale"),
             "pay_to_debt_ratio": m.get("pay_to_debt_ratio"),
