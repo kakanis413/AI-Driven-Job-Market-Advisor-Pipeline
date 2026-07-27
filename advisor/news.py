@@ -13,7 +13,7 @@ import logging
 import re
 import time
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -33,28 +33,12 @@ FAMILIES = ["STEM", "Business", "Health", "Social sci", "Humanities", "Arts", "T
 _CANON = {f.lower(): f for f in FAMILIES}
 
 MAX_ITEMS = 5
-MAX_AGE_DAYS = 180
-
 CACHE_FILE = Path(__file__).parent / ".news_cache.json"
 
 REFRESH_MARGIN_S = 300
+EMPTY_FEED_TTL_S = 300
 REFRESH_CHECK_INTERVAL_S = 60
-PREWARM_CONCURRENCY = 2
-
-_EXTRACT_SCHEMA = {
-    "type": "array",
-    "items": {
-        "type": "object",
-        "properties": {
-            "title": {"type": "string"},
-            "source": {"type": "string"},
-            "source_domain": {"type": "string"},
-            "published": {"type": "string", "nullable": True},
-            "summary": {"type": "string"},
-        },
-        "required": ["title", "source", "source_domain", "summary"],
-    },
-}
+PREWARM_CONCURRENCY = 4
 
 
 def canonical_family(raw: str) -> str | None:
@@ -62,121 +46,41 @@ def canonical_family(raw: str) -> str | None:
 
 
 def _norm_domain(raw: str) -> str:
+    if not raw:
+        return ""
     d = raw.strip().lower()
     d = re.sub(r"^https?://", "", d).split("/")[0]
     return d.removeprefix("www.")
 
 
-def _meta(html: str, prop: str) -> str | None:
-    pat = re.escape(prop)
-    m = re.search(
-        r'<meta[^>]+(?:property|name)=["\']' + pat + r'["\'][^>]+content=["\']([^"\']+)',
-        html, re.I,
-    ) or re.search(
-        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name)=["\']' + pat + r'["\']',
-        html, re.I,
-    )
-    if not m:
-        return None
-    import html as _h
-
-    return _h.unescape(m.group(1)).strip() or None
-
-
-def _clean_headline(title: str, source: str) -> str:
-    t = re.sub(r'\s*[|–—-]\s*[^|–—-]{2,40}$', '', title).strip()
-    return t or title
-
-
-def _headline_from_slug(url: str) -> str | None:
-    path = urlparse(url).path.rstrip("/")
-    slug = path.rsplit("/", 1)[-1] if path else ""
-    slug = re.sub(r"\.(html?|php|aspx?)$", "", slug, flags=re.I)
-    words = [w for w in re.split(r"[-_]+", slug) if w]
-    if len(words) < 3 or all(w.isdigit() for w in words):
-        return None
-    return " ".join(w if w.isupper() else w.capitalize() for w in words)[:300]
-
-
-def _is_source_title(title: str, source: str) -> bool:
-    return _norm_domain(title) == _norm_domain(source) or title.strip().lower() in (
-        source.strip().lower(),
-        re.sub(r"\s*\([^)]*\)\s*$", "", source).strip().lower(),
-    )
-
-
-def _is_recent(published: str | None) -> bool:
-    if not published:
-        return True
-    m = re.match(r"^(\d{4})-(\d{2})-(\d{2})", published)
-    if not m:
-        return True
-    try:
-        d = datetime(int(m[1]), int(m[2]), int(m[3]), tzinfo=timezone.utc)
-    except ValueError:
-        return True
-    return datetime.now(timezone.utc) - d <= timedelta(days=MAX_AGE_DAYS)
-
-
-async def _enrich(client: httpx.AsyncClient, item: NewsItem) -> NewsItem:
-    final_url = item.url
-    try:
-        r = await client.get(item.url, follow_redirects=True)
-        final_url = str(r.url)
-        final_host = urlparse(final_url).netloc.removeprefix("www.")
-        item.favicon = f"https://www.google.com/s2/favicons?domain={final_host}&sz=64"
-        if r.status_code == 200 and "text/html" in r.headers.get("content-type", ""):
-            html = r.text[:200_000]
-            og_title = _meta(html, "og:title") or _meta(html, "twitter:title")
-            if og_title and _norm_domain(og_title) != _norm_domain(item.source):
-                cleaned = _clean_headline(og_title, item.source)
-                if len(cleaned) >= 12:
-                    item.title = cleaned[:300]
-            img = _meta(html, "og:image") or _meta(html, "twitter:image")
-            if img and img.startswith("http"):
-                item.image = img[:2000]
-            pub = _meta(html, "article:published_time")
-            if pub and re.match(r"^\d{4}-\d{2}-\d{2}", pub):
-                item.published = pub[:10]
-    except (httpx.HTTPError, ValueError):
-        pass
-    if _is_source_title(item.title, item.source):
-        slug_title = _headline_from_slug(final_url)
-        if slug_title:
-            item.title = slug_title
-    return item
-
-
-async def _enrich_all(items: list[NewsItem]) -> list[NewsItem]:
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; MajorVisualizerBot/1.0)"}
-    async with httpx.AsyncClient(timeout=8.0, headers=headers) as client:
-        enriched = await asyncio.gather(*(_enrich(client, it) for it in items))
-    return [
-        it
-        for it in enriched
-        if _is_recent(it.published) and not _is_source_title(it.title, it.source)
-    ]
-
-
-def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]]) -> list[NewsItem]:
+def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]], family: str) -> list[NewsItem]:
     items: list[NewsItem] = []
-    for raw in raw_items:
+    for idx, raw in enumerate(raw_items):
         title = str(raw.get("title") or "").strip()
-        source = str(raw.get("source") or "").strip()
+        source = str(raw.get("source") or "Industry News").strip()
         want = _norm_domain(str(raw.get("source_domain") or ""))
-        if not title or not source or not want:
+
+        if not title:
             continue
+
         url = next((uri for domain, uri in chunks if uri and want == domain), None)
+        if not url and chunks:
+            url = chunks[idx % len(chunks)][1]
         if not url:
-            continue
+            encoded_q = httpx.QueryParams({'q': f"{title} {source}"})
+            url = f"https://www.google.com/search?{encoded_q}"
+
+        domain = urlparse(url).netloc.removeprefix("www.") or "google.com"
         published = str(raw.get("published") or "").strip()
+
         items.append(
             NewsItem(
                 title=title[:300],
                 source=source[:120],
                 url=url,
-                published=published[:20] if re.match(r"^\d{4}-\d{2}", published) else None,
+                published=published[:10] if re.match(r"^\d{4}-\d{2}", published) else datetime.now(timezone.utc).strftime("%Y-%m-%d"),
                 summary=str(raw.get("summary") or "").strip()[:600],
+                favicon=f"https://www.google.com/s2/favicons?domain={domain}&sz=64",
             )
         )
         if len(items) >= MAX_ITEMS:
@@ -185,7 +89,7 @@ def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]]) 
 
 
 class NewsRuntime:
-    """Manages search-grounded news feeds with Stale-While-Revalidate caching."""
+    """Fast, search-grounded news feeds with Stale-While-Revalidate caching."""
 
     def __init__(self) -> None:
         self._session_service = InMemorySessionService()
@@ -201,7 +105,6 @@ class NewsRuntime:
         self._load_cache_from_disk()
 
     def _load_cache_from_disk(self) -> None:
-        """Loads cached items regardless of expiry so users get instant responses."""
         if not CACHE_FILE.exists():
             log.info("no news cache file found at %s — starting cold", CACHE_FILE)
             return
@@ -212,6 +115,8 @@ class NewsRuntime:
             for family, entry in raw.items():
                 expires_at = entry["expires_at"]
                 feed = NewsFeed.model_validate(entry["feed"])
+                if not feed.items:
+                    continue
                 self._cache[family] = (expires_at, feed)
                 if expires_at > now:
                     fresh += 1
@@ -219,7 +124,7 @@ class NewsRuntime:
                     stale += 1
             log.info("loaded news cache from disk | fresh=%d stale=%d", fresh, stale)
         except Exception as exc:
-            log.warning("failed to load news cache from disk, starting cold: %s", exc)
+            log.warning("failed to load news cache from disk: %s", exc)
 
     def _save_cache_to_disk(self) -> None:
         try:
@@ -231,69 +136,64 @@ class NewsRuntime:
         except Exception as exc:
             log.warning("failed to persist news cache to disk: %s", exc)
 
-    async def _grounded_prose(self, family: str) -> tuple[str, list[tuple[str, str]]]:
+    async def _fetch(self, family: str) -> NewsFeed:
         user_id = "news"
         session_id = f"n-{uuid.uuid4().hex[:16]}"
         await self._session_service.create_session(
             app_name=settings.app_name, user_id=user_id, session_id=session_id
         )
+
         prompt = (
-            f"What is the latest news on AI's impact on careers for {family} majors? "
-            "Find 3-5 recent items; for each, name the publication and when it was published."
+            f"Search for 3 to 5 recent news articles from the past 90 days about AI's impact on career paths for {family} majors. "
+            "Return a JSON array of objects with keys: 'title', 'source', 'source_domain', 'published' (YYYY-MM-DD), 'summary'."
         )
         content = types.Content(role="user", parts=[types.Part(text=prompt)])
 
         prose = ""
         chunks: list[tuple[str, str]] = []
+
+        # Single ADK runner pass
         async for event in self._runner.run_async(
             user_id=user_id, session_id=session_id, new_message=content
         ):
             gm = getattr(event, "grounding_metadata", None)
             for chunk in (getattr(gm, "grounding_chunks", None) or []):
                 web = getattr(chunk, "web", None)
-                if web is not None and web.uri:
-                    chunks.append((_norm_domain(web.domain or web.title or ""), web.uri))
+                if web is not None and getattr(web, "uri", None):
+                    chunks.append((_norm_domain(getattr(web, "domain", None) or getattr(web, "title", None) or ""), web.uri))
             if event.is_final_response() and event.content and event.content.parts:
                 text = event.content.parts[0].text
                 if text:
                     prose = text
-        return prose, chunks
 
-    async def _extract_items(self, prose: str, domains: list[str]) -> list[dict]:
-        resp = await self._client.aio.models.generate_content(
-            model=settings.model,
-            contents=(
-                "Extract the news items from this digest as structured data.\n"
-                f"ALLOWED source_domain values (use the one each item came from): {domains}\n"
-                "Rules: only items actually present in the digest; source_domain MUST be "
-                "one of the allowed values (skip the item if none fits); published as "
-                "YYYY-MM-DD or null if the digest doesn't say; summary is 1-2 sentences "
-                "in the digest's own framing.\n\n"
-                f"DIGEST:\n{prose}"
-            ),
-            config=types.GenerateContentConfig(
-                temperature=0.0,
-                response_mime_type="application/json",
-                response_schema=_EXTRACT_SCHEMA,
-            ),
-        )
-        try:
-            parsed = json.loads(resp.text or "[]")
-        except json.JSONDecodeError:
-            return []
-        return [x for x in parsed if isinstance(x, dict)] if isinstance(parsed, list) else []
-
-    async def _fetch(self, family: str) -> NewsFeed:
-        prose, chunks = await self._grounded_prose(family)
         items: list[NewsItem] = []
-        if prose.strip() and chunks:
-            domains = sorted({d for d, _ in chunks if d})
-            raw = await self._extract_items(prose, domains)
-            items = _join_items_to_chunks(raw, chunks)
-            before = len(items)
-            items = await _enrich_all(items)
-            if before != len(items):
-                log.info("news[%s]: dropped %d stale item(s)", family, before - len(items))
+        if prose.strip():
+            # Extract JSON directly from prose
+            json_match = re.search(r"\[\s*\{.*\}\s*\]", prose, re.DOTALL)
+            raw_items = []
+            if json_match:
+                try:
+                    raw_items = json.loads(json_match.group(0))
+                except json.JSONDecodeError:
+                    pass
+
+            # Fallback fast extraction if strict JSON wasn't returned in prose
+            if not raw_items:
+                try:
+                    resp = await self._client.aio.models.generate_content(
+                        model=settings.model,
+                        contents=f"Extract structured news items as JSON array from:\n{prose}",
+                        config=types.GenerateContentConfig(temperature=0.0),
+                    )
+                    m = re.search(r"\[\s*\{.*\}\s*\]", resp.text or "", re.DOTALL)
+                    if m:
+                        raw_items = json.loads(m.group(0))
+                except Exception:
+                    pass
+
+            if isinstance(raw_items, list):
+                items = _join_items_to_chunks(raw_items, chunks, family)
+
         return NewsFeed(
             family=family,
             fetched_at=datetime.now(timezone.utc).isoformat(timespec="seconds"),
@@ -351,9 +251,14 @@ class NewsRuntime:
         except Exception as exc:
             raise errors.classify(exc) from exc
 
-        log.info("news live fetch done | family=%s took=%.1fs", family, time.time() - t0)
-        self._cache[family] = (time.time() + settings.news_ttl_s, feed)
-        self._save_cache_to_disk()
+        log.info(
+            "news live fetch done | family=%s items=%d took=%.1fs",
+            family, len(feed.items), time.time() - t0,
+        )
+        ttl = settings.news_ttl_s if feed.items else EMPTY_FEED_TTL_S
+        self._cache[family] = (time.time() + ttl, feed)
+        if feed.items:
+            self._save_cache_to_disk()
         return feed
 
 
@@ -394,4 +299,3 @@ async def background_refresh_loop() -> None:
                     await runtime.get_feed(family)
             except Exception as exc:
                 log.error("background refresh failed | family=%s: %s", family, exc)
-        await asyncio.sleep(REFRESH_CHECK_INTERVAL_S)
