@@ -1,7 +1,10 @@
 import asyncio
 import json
 import logging
-import sys  # <--- Add this import
+import secrets
+import sys
+import time
+from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
@@ -216,30 +219,17 @@ async def analyze_major(req: AdvisorRequest) -> AdvisorResponse:
 
 
 def _sse(event: str, payload: dict) -> str:
-    """Frame one SSE message.
-
-    The payload is JSON-encoded rather than written raw, because advisor answers
-    are markdown: a bare newline inside a `data:` field terminates the event and
-    truncates the reply. JSON escapes them, so the client gets the text back byte
-    for byte after one `JSON.parse`.
-    """
+    """Frame one SSE message."""
     return f"event: {event}\ndata: {json.dumps(payload, ensure_ascii=False)}\n\n"
 
 
 @app.post("/api/v1/analyze-major/stream")
 async def analyze_major_stream(req: AdvisorRequest) -> StreamingResponse:
-    """Same contract as /api/v1/analyze-major, delivered as it is written.
-
-    Total compute is unchanged; what changes is when the student sees the first
-    words — from ~9s to ~1s. Errors arrive as a terminal `error` event rather than
-    an HTTP status, because the status line is already sent by then.
-    """
+    """Delivers response tokens as SSE as they are generated."""
     log.info("stream request | major=%r q=%r", req.major_name, req.query_context[:80])
 
     async def events() -> AsyncGenerator[str, None]:
         try:
-            # The same timeout that guards the blocking path; without it a stalled
-            # upstream holds the connection open indefinitely.
             stream = get_runtime().advise_stream(req)
             while True:
                 try:
@@ -249,11 +239,12 @@ async def analyze_major_stream(req: AdvisorRequest) -> StreamingResponse:
                 except StopAsyncIteration:
                     break
                 kind, payload = chunk
+                # Correct SSE mapping: kind "token" maps to "text" key
                 yield _sse(
-                    kind, {"text": payload} if kind == "label" else {"label": payload}
+                    kind, {"text": payload} if kind == "token" else {"label": payload}
                 )
             yield _sse("done", {})
-        except (asyncio.TimeoutError, Exception) as exc:  # noqa: B014 - timeout is explicit
+        except (asyncio.TimeoutError, Exception) as exc:
             classified = (
                 exc if isinstance(exc, errors.AdvisorError) else errors.classify(exc)
             )
@@ -273,7 +264,7 @@ async def analyze_major_stream(req: AdvisorRequest) -> StreamingResponse:
         headers={
             "Cache-Control": "no-cache",
             "Connection": "keep-alive",
-            "X-Accel-Buffering": "no",  # stop nginx/Cloud Run buffering the stream
+            "X-Accel-Buffering": "no",
         },
     )
 
