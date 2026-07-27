@@ -8,8 +8,15 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import sys
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
+
+# -----------------------------------------------------------------------------
+# Windows High-Latency Fix: Enforce SelectorEventLoopPolicy
+# -----------------------------------------------------------------------------
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 from dotenv import load_dotenv
 
@@ -37,6 +44,7 @@ log = logging.getLogger("advisor.main")
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     get_runtime()
+    # Run pre-warm and background loops safely in background tasks
     asyncio.create_task(news.prewarm_all_families())
     asyncio.create_task(news.background_refresh_loop())
     log.info(
@@ -189,7 +197,7 @@ async def analyze_major_stream(req: AdvisorRequest) -> StreamingResponse:
                     break
                 kind, payload = chunk
                 yield _sse(
-                    kind, {"text": payload} if kind == "token" else {"label": payload}
+                    kind, {"text": payload} if kind == "label" else {"label": payload}
                 )
             yield _sse("done", {})
         except (asyncio.TimeoutError, Exception) as exc:  # noqa: B014 - timeout is explicit
