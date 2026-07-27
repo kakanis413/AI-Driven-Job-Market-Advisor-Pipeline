@@ -1,8 +1,15 @@
-"""Per-family news feed: search-grounded, cached, honest about URLs.
+"""Per-family news feed: search-grounded, cached, guaranteed image rendering.
 
 Implements Stale-While-Revalidate: stale disk cache entries are served
-instantly so users never wait 20-30s, while a background task silently refreshes
-the news data for the next visit.
+instantly so users never wait, while a background task refreshes the news data.
+
+IMAGES: resolved server-side, once per fetch, by pulling the real page's
+og:image tag directly (no third-party embed API). The previous version used
+api.microlink.io's live embed endpoint per <img> render, which meant every
+browser view — not every cache refresh — spent a Microlink request. Free-tier
+rate limits exhaust almost immediately under that pattern, which is why
+images "worked, then silently died." Resolving og:image once per fetch and
+storing it in the cached NewsItem removes that dependency entirely.
 """
 
 from __future__ import annotations
@@ -12,18 +19,14 @@ import json
 import logging
 import re
 import time
-import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import quote_plus, urlparse
 
 import httpx
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
 from google.genai import Client, types
 
 from advisor import errors
-from advisor.agents import build_news_agent
 from advisor.config import settings
 from advisor.schemas import NewsFeed, NewsItem
 
@@ -38,66 +41,96 @@ CACHE_FILE = Path(__file__).parent / ".news_cache.json"
 REFRESH_MARGIN_S = 300
 EMPTY_FEED_TTL_S = 300
 REFRESH_CHECK_INTERVAL_S = 60
-PREWARM_CONCURRENCY = 4
+PREWARM_CONCURRENCY = 1
+
+# Used ONLY when a real og:image can't be found on the actual page (blocked,
+# no meta tag, fetch failed) — never as a first choice.
+FAMILY_FALLBACK_IMAGES = {
+    "STEM": "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=600&q=80",
+    "Business": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+    "Health": "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80",
+    "Social sci": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=600&q=80",
+    "Humanities": "https://images.unsplash.com/photo-1457369804613-52c61a468e7d?auto=format&fit=crop&w=600&q=80",
+    "Arts": "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=600&q=80",
+    "Trades": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80",
+    "Other": "https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=600&q=80",
+}
+
+_NEWS_SCHEMA = {
+    "type": "ARRAY",
+    "items": {
+        "type": "OBJECT",
+        "properties": {
+            "title": {"type": "STRING"},
+            "source": {"type": "STRING"},
+            "published": {"type": "STRING", "nullable": True},
+            "summary": {"type": "STRING"},
+            "url": {"type": "STRING", "nullable": True},
+        },
+        "required": ["title", "source", "summary"],
+    },
+}
 
 
 def canonical_family(raw: str) -> str | None:
     return _CANON.get(raw.strip().lower())
 
 
-def _norm_domain(raw: str) -> str:
-    if not raw:
-        return ""
-    d = raw.strip().lower()
-    d = re.sub(r"^https?://", "", d).split("/")[0]
-    return d.removeprefix("www.")
+def _meta(html: str, prop: str) -> str | None:
+    """Read an og/meta tag's content, either attribute order, HTML-unescaped."""
+    pat = re.escape(prop)
+    m = re.search(
+        r'<meta[^>]+(?:property|name)=["\']' + pat + r'["\'][^>]+content=["\']([^"\']+)',
+        html, re.I,
+    ) or re.search(
+        r'<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:property|name)=["\']' + pat + r'["\']',
+        html, re.I,
+    )
+    if not m:
+        return None
+    import html as _h
+
+    return _h.unescape(m.group(1)).strip() or None
 
 
-def _join_items_to_chunks(raw_items: list[dict], chunks: list[tuple[str, str]], family: str) -> list[NewsItem]:
-    items: list[NewsItem] = []
-    for idx, raw in enumerate(raw_items):
-        title = str(raw.get("title") or "").strip()
-        source = str(raw.get("source") or "Industry News").strip()
-        want = _norm_domain(str(raw.get("source_domain") or ""))
+async def _resolve_real_image(client: httpx.AsyncClient, item: NewsItem, family: str) -> None:
+    """
+    Fetches the actual article page once and pulls its real og:image (or
+    twitter:image). Mutates item.image/item.favicon in place. Falls back to
+    the family's placeholder ONLY if the real page yields nothing — never
+    calls any third-party embed/proxy service.
+    """
+    try:
+        r = await client.get(item.url, follow_redirects=True)
+        final_host = urlparse(str(r.url)).netloc.removeprefix("www.")
+        item.favicon = f"https://www.google.com/s2/favicons?domain={final_host}&sz=64"
 
-        if not title:
-            continue
+        if r.status_code == 200 and "text/html" in r.headers.get("content-type", ""):
+            html = r.text[:200_000]
+            img = _meta(html, "og:image") or _meta(html, "twitter:image")
+            if img and img.startswith("http"):
+                item.image = img[:2000]
+                return
+    except (httpx.HTTPError, ValueError):
+        pass
 
-        url = next((uri for domain, uri in chunks if uri and want == domain), None)
-        if not url and chunks:
-            url = chunks[idx % len(chunks)][1]
-        if not url:
-            encoded_q = httpx.QueryParams({'q': f"{title} {source}"})
-            url = f"https://www.google.com/search?{encoded_q}"
+    # Real page had no usable image, or the fetch itself failed — fall back
+    # to a family placeholder rather than leaving the card image-less.
+    item.image = FAMILY_FALLBACK_IMAGES.get(family, FAMILY_FALLBACK_IMAGES["Other"])
 
-        domain = urlparse(url).netloc.removeprefix("www.") or "google.com"
-        published = str(raw.get("published") or "").strip()
 
-        items.append(
-            NewsItem(
-                title=title[:300],
-                source=source[:120],
-                url=url,
-                published=published[:10] if re.match(r"^\d{4}-\d{2}", published) else datetime.now(timezone.utc).strftime("%Y-%m-%d"),
-                summary=str(raw.get("summary") or "").strip()[:600],
-                favicon=f"https://www.google.com/s2/favicons?domain={domain}&sz=64",
-            )
-        )
-        if len(items) >= MAX_ITEMS:
-            break
-    return items
+async def _resolve_all_images(items: list[NewsItem], family: str) -> None:
+    if not items:
+        return
+    headers = {"User-Agent": "Mozilla/5.0 (compatible; MajorVisualizerBot/1.0)"}
+    async with httpx.AsyncClient(timeout=6.0, headers=headers) as client:
+        await asyncio.gather(*(_resolve_real_image(client, it, family) for it in items))
 
 
 class NewsRuntime:
     """Fast, search-grounded news feeds with Stale-While-Revalidate caching."""
 
     def __init__(self) -> None:
-        self._session_service = InMemorySessionService()
-        self._runner = Runner(
-            agent=build_news_agent(),
-            app_name=settings.app_name,
-            session_service=self._session_service,
-        )
         self._client = Client()
         self._cache: dict[str, tuple[float, NewsFeed]] = {}
         self._locks: dict[str, asyncio.Lock] = {f: asyncio.Lock() for f in FAMILIES}
@@ -137,62 +170,71 @@ class NewsRuntime:
             log.warning("failed to persist news cache to disk: %s", exc)
 
     async def _fetch(self, family: str) -> NewsFeed:
-        user_id = "news"
-        session_id = f"n-{uuid.uuid4().hex[:16]}"
-        await self._session_service.create_session(
-            app_name=settings.app_name, user_id=user_id, session_id=session_id
-        )
-
         prompt = (
-            f"Search for 3 to 5 recent news articles from the past 90 days about AI's impact on career paths for {family} majors. "
-            "Return a JSON array of objects with keys: 'title', 'source', 'source_domain', 'published' (YYYY-MM-DD), 'summary'."
+            f"Search for 3 to 5 recent news articles, hiring reports, or workforce analyses "
+            f"from the past 90 days about AI's impact on job markets and career paths for {family} majors."
         )
-        content = types.Content(role="user", parts=[types.Part(text=prompt)])
-
-        prose = ""
-        chunks: list[tuple[str, str]] = []
-
-        # Single ADK runner pass
-        async for event in self._runner.run_async(
-            user_id=user_id, session_id=session_id, new_message=content
-        ):
-            gm = getattr(event, "grounding_metadata", None)
-            for chunk in (getattr(gm, "grounding_chunks", None) or []):
-                web = getattr(chunk, "web", None)
-                if web is not None and getattr(web, "uri", None):
-                    chunks.append((_norm_domain(getattr(web, "domain", None) or getattr(web, "title", None) or ""), web.uri))
-            if event.is_final_response() and event.content and event.content.parts:
-                text = event.content.parts[0].text
-                if text:
-                    prose = text
 
         items: list[NewsItem] = []
-        if prose.strip():
-            # Extract JSON directly from prose
-            json_match = re.search(r"\[\s*\{.*\}\s*\]", prose, re.DOTALL)
-            raw_items = []
-            if json_match:
-                try:
-                    raw_items = json.loads(json_match.group(0))
-                except json.JSONDecodeError:
-                    pass
+        try:
+            resp = await self._client.aio.models.generate_content(
+                model=settings.model,
+                contents=prompt,
+                config=types.GenerateContentConfig(
+                    temperature=0.1,
+                    tools=[{"google_search": {}}],
+                    response_mime_type="application/json",
+                    response_schema=_NEWS_SCHEMA,
+                ),
+            )
 
-            # Fallback fast extraction if strict JSON wasn't returned in prose
-            if not raw_items:
-                try:
-                    resp = await self._client.aio.models.generate_content(
-                        model=settings.model,
-                        contents=f"Extract structured news items as JSON array from:\n{prose}",
-                        config=types.GenerateContentConfig(temperature=0.0),
-                    )
-                    m = re.search(r"\[\s*\{.*\}\s*\]", resp.text or "", re.DOTALL)
-                    if m:
-                        raw_items = json.loads(m.group(0))
-                except Exception:
-                    pass
+            chunk_urls = []
+            candidates = getattr(resp, "candidates", None) or []
+            if candidates and hasattr(candidates[0], "grounding_metadata"):
+                gm = candidates[0].grounding_metadata
+                for chunk in getattr(gm, "grounding_chunks", []) or []:
+                    web = getattr(chunk, "web", None)
+                    if web and getattr(web, "uri", None):
+                        chunk_urls.append(getattr(web, "uri", ""))
 
-            if isinstance(raw_items, list):
-                items = _join_items_to_chunks(raw_items, chunks, family)
+            raw_text = resp.text or "[]"
+            parsed = json.loads(raw_text)
+
+            if isinstance(parsed, list):
+                for idx, x in enumerate(parsed):
+                    title = str(x.get("title") or "").strip()
+                    source = str(x.get("source") or "Industry News").strip()
+                    url = str(x.get("url") or "").strip()
+
+                    if not url and chunk_urls:
+                        url = chunk_urls[idx % len(chunk_urls)]
+
+                    if not url or not url.startswith("http"):
+                        url = f"https://www.google.com/search?q={quote_plus(title + ' ' + source)}"
+
+                    domain = urlparse(url).netloc.removeprefix("www.") or "google.com"
+                    published = str(x.get("published") or "").strip()
+
+                    if title:
+                        items.append(
+                            NewsItem(
+                                title=title[:300],
+                                source=source[:120],
+                                url=url,
+                                image=None,  # resolved below, from the real page
+                                published=published[:10] if re.match(r"^\d{4}-\d{2}", published) else datetime.now(timezone.utc).strftime("%Y-%m-%d"),
+                                summary=str(x.get("summary") or "")[:600],
+                                favicon=f"https://www.google.com/s2/favicons?domain={domain}&sz=64",
+                            )
+                        )
+
+            items = items[:MAX_ITEMS]
+            # One real fetch per article to pull its actual og:image — done
+            # once here, at fetch/refresh time, not on every page render.
+            await _resolve_all_images(items, family)
+
+        except Exception as exc:
+            log.error("fetch failed for family=%s: %s", family, exc)
 
         return NewsFeed(
             family=family,
@@ -275,16 +317,18 @@ def get_news_runtime() -> NewsRuntime:
 async def prewarm_all_families() -> None:
     runtime = get_news_runtime()
     sem = asyncio.Semaphore(PREWARM_CONCURRENCY)
-    log.info("pre-warming news cache | families=%s", FAMILIES)
+    log.info("pre-warming news cache sequentially | families=%s", FAMILIES)
 
     async def _warm_one(family: str):
         async with sem:
             try:
                 await runtime.get_feed(family)
+                await asyncio.sleep(1.0)
             except Exception as exc:
                 log.warning("failed to pre-warm | family=%s: %s", family, exc)
 
-    await asyncio.gather(*(_warm_one(f) for f in FAMILIES))
+    for family in FAMILIES:
+        await _warm_one(family)
 
 
 async def background_refresh_loop() -> None:
@@ -299,3 +343,4 @@ async def background_refresh_loop() -> None:
                     await runtime.get_feed(family)
             except Exception as exc:
                 log.error("background refresh failed | family=%s: %s", family, exc)
+        await asyncio.sleep(REFRESH_CHECK_INTERVAL_S)
