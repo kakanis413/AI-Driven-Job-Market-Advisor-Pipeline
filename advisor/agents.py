@@ -17,6 +17,10 @@ from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 
+from google.adk.integrations.bigquery import BigQueryCredentialsConfig, BigQueryToolset
+from google.adk.integrations.bigquery.config import BigQueryToolConfig, WriteMode
+from google.cloud import bigquery
+
 from advisor.config import settings
 from advisor.tools import (
     BQ_DATASET,
