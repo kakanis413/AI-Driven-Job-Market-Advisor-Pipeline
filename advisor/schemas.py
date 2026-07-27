@@ -121,8 +121,7 @@ class AdvisorRequest(BaseModel):
                 "conceptually about majors, AI exposure and careers. You may state no "
                 "specific salary, exposure score, or growth figure unless a tool you "
                 "called returned it. If the student asks about a particular major's "
-                "numbers, say you need them to pick it on the map (or call data_agent) "
-                "rather than estimating."
+                "numbers, call get_major_data for it rather than estimating."
             ) + suffix
         pay = f"${self.median_pay:,}" if self.median_pay else "not available"
         exposure = f"{self.exposure}/10" if self.exposure is not None else "not available"

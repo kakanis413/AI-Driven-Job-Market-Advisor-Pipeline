@@ -1,8 +1,11 @@
-"""Tools for the data agent: local lookups (fast, free) + BigQuery (flexible, dynamic SQL).
+"""Tools attached directly to root_agent: local lookups over the in-memory dataset.
 
-Local tools (get_major_data, compare_majors, etc.) use the in-memory data_source
-for instant lookups. BigQuery toolset lets Gemini write SQL for complex queries
-the local data can't answer.
+There is no `data_agent` and no live BigQuery in the served path — root_agent calls
+these functions itself, which is why a data question costs ~0ms of lookup instead of
+an SQL-generating LLM hop. `get_bigquery_toolset()` still exists but nothing calls
+it; wiring it back in would make it an escalation tool for questions the local
+dataset cannot answer, not the default path. Measured on the `majors` dataset, a
+bare BigQuery round-trip is 0.85-1.35s against ~0ms for `data_source.find`.
 """
 
 from __future__ import annotations
@@ -77,7 +80,10 @@ def get_major_data(major_name: str) -> dict[str, Any]:
         return {
             "status": "not_found",
             "requested": major_name,
-            "message": "That major is not in the local dataset. You may try BigQuery for more data.",
+            "message": (
+                "That major is not in the dataset. Say so plainly and offer the closest "
+                "names below — there is no other data source to fall back on."
+            ),
             "did_you_mean": near,
         }
     log.info("tool get_major_data: HIT for %r", major_name)
@@ -103,7 +109,10 @@ def compare_majors(major_a: str, major_b: str) -> dict[str, Any]:
         return {
             "status": "not_found",
             "missing": missing,
-            "message": "At least one major is not in the local dataset. Try BigQuery for more data.",
+            "message": (
+                "At least one major is not in the dataset. Name which one and say you "
+                "cannot compare it — there is no other data source to fall back on."
+            ),
         }
 
     sa, sb = data_source.summarize(a), data_source.summarize(b)

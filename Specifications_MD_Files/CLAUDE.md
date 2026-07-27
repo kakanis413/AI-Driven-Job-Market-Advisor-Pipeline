@@ -19,52 +19,72 @@ award-winning frontend — every view must look designed, not generated.
 
 ## Agent architecture
 
-The AI advisor backend uses Google's ADK (Agent Development Kit) with a simple,
-resilient architecture defined in `agent_config.py`:
+The AI advisor backend uses Google's ADK (Agent Development Kit). The served
+architecture is defined in **`advisor/agents.py`**:
 
 ```
 root_agent (college_advisor)
     │
-    ├── data_tool (AgentTool)
-    │       └── data_agent
-    │               └── bigquery_toolset → Gemini writes SQL, queries BigQuery
+    ├── get_major_data / compare_majors / get_median_pay /
+    │   get_ai_exposure / get_top_majors      → in-memory data.json lookup, ~0ms
     │
-    └── news_tool (ResilientAgentTool)
-            └── news_agent
-                    └── google_search → searches web for recent news
+    ├── get_recent_news                       → warm per-family news cache, ~0ms
+    │
+    └── parallel_research (BaseTool)          → live web, ~7s, escalation only
+            └── news_tool (ResilientAgentTool)
+                    └── news_agent
+                            └── google_search
 ```
+
+> **There is no `data_agent` and no live BigQuery.** `agent_config.py` still
+> describes that older design — it is NOT imported by anything, and raises
+> `ModuleNotFoundError` if you try (it imports a root-level `tools.py` that does not
+> exist). The server runs `uvicorn main:app` → `advisor.runtime` →
+> `advisor.agents.root_agent`. Edit `advisor/`, never `agent_config.py`.
 
 ### Agents
 
 | Agent | Role | Tools |
 |-------|------|-------|
-| `root_agent` | The advisor. Talks to students, writes the final response. | `data_tool`, `news_tool` |
-| `data_agent` | Facts only. Queries BigQuery for exposure, pay, growth data. | `bigquery_toolset` |
+| `root_agent` | The advisor. Calls data/news lookups itself and writes the response. | the 7 tools above |
 | `news_agent` | News researcher. Searches for recent articles about majors/careers. | `google_search` |
 
 ### Key design decisions
 
-- **Agents as tools, not sub-agents.** Using `AgentTool` keeps the root agent in
-  control. It calls specialists like functions and gets results back, rather than
-  delegating control entirely.
+- **Local data tools are attached directly to `root_agent`.** No `AgentTool`
+  wrapper, so a data question costs ONE LLM call instead of three. This is the
+  single biggest structural difference from the older `agent_config.py` design.
 
-- **ResilientAgentTool for graceful degradation.** The `news_tool` is wrapped in
-  `ResilientAgentTool`, which catches any errors (rate limits, network failures)
-  and returns `{"status": "unavailable"}` instead of crashing. The root agent's
-  instructions tell it to continue without news if this happens.
+- **Thinking budget is capped** (`ADVISOR_THINKING_LEVEL`, default `MINIMAL`).
+  Gemini thinks before it writes and that lands entirely in front of the first
+  token: default thinking measured 8.2s to first token, `MINIMAL` 0.8s. Raise it
+  only if answer quality regresses.
 
-- **Gemini writes the SQL.** The `data_agent` doesn't have hardcoded queries.
-  Instead, its instructions describe the BigQuery schema, and Gemini generates
-  appropriate SQL on the fly. This allows open-ended questions like "compare two
-  majors" or "top 5 highest-paying majors" without new code.
+- **Cached news first, live search last.** `get_recent_news` reads the feed
+  `advisor/news.py` already prewarms and refreshes in the background (~0ms).
+  `parallel_research` hits the live web (~7s) and is reserved for questions scoped
+  to a specific school or company, which the cache cannot answer.
+
+- **ResilientAgentTool for graceful degradation.** The news tool catches any error
+  (rate limits, network failures) and returns `{"status": "unavailable"}` instead of
+  crashing. The root agent's instructions tell it to continue without news.
+
+- **Responses stream over SSE.** `POST /api/v1/analyze-major/stream` emits typed
+  `token` and `status` events; `status` names the hop currently running, because a
+  turn that calls a slow tool produces no token for seconds and streaming alone
+  cannot mask that. The blocking `/api/v1/analyze-major` remains for compatibility.
 
 ### Files
 
 | File | Purpose |
 |------|---------|
-| `agent_config.py` | Defines all agents, tools, and the `ResilientAgentTool` wrapper |
-| `tools.py` | BigQuery toolset setup and credentials |
-| `main.py` | FastAPI server that runs the agents |
+| `advisor/agents.py` | **The served agents**, tools, planner, `ResilientAgentTool` |
+| `advisor/tools.py` | Local dataset lookups; unused lazy BigQuery accessor |
+| `advisor/runtime.py` | Agent runner, streaming, retry/timeout, response cache |
+| `advisor/news.py` | Per-family news feed: prewarmed, background-refreshed, on disk |
+| `main.py` | **The served FastAPI app** (`uvicorn main:app`) |
+| `advisor/main.py` | Re-export of `main.app` only — not a second app |
+| `agent_config.py` | **Legacy, unimported, broken.** Kept for reference only. |
 
 ## Data contract
 
