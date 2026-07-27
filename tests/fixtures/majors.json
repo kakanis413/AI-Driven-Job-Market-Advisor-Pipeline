@@ -8,9 +8,44 @@
     "median_pay": 99000,
     "growth": "faster",
     "occupations": [
-      { "soc": "15-1252", "title": "Software developers", "exposure": 9 },
-      { "soc": "15-2051", "title": "Data scientists", "exposure": 8 },
-      { "soc": "15-1211", "title": "Computer systems analysts", "exposure": 8 }
+      {
+        "soc": "15-1252",
+        "title": "Software developers",
+        "exposure": 9
+      },
+      {
+        "soc": "15-2051",
+        "title": "Data scientists",
+        "exposure": 8
+      },
+      {
+        "soc": "15-1211",
+        "title": "Computer systems analysts",
+        "exposure": 8
+      }
+    ],
+    "top_careers": [
+      {
+        "rank": 1,
+        "soc_code": "11-3021",
+        "occupation_title": "Computer and Information Systems Managers",
+        "median_wage_annual": 171200,
+        "outlook_pct": 15
+      },
+      {
+        "rank": 2,
+        "soc_code": "15-1212",
+        "occupation_title": "Information Security Analysts",
+        "median_wage_annual": 124910,
+        "outlook_pct": 29
+      },
+      {
+        "rank": 3,
+        "soc_code": "15-1221",
+        "occupation_title": "Computer and Information Research Scientists",
+        "median_wage_annual": 140910,
+        "outlook_pct": 20
+      }
     ],
     "rationale": "Core tasks like coding and analysis are where AI advances fastest."
   },
