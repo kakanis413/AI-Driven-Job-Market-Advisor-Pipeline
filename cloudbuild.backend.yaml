@@ -1,0 +1,58 @@
+# Build + deploy the advisor API to Cloud Run. Wired to a Cloud Build trigger on
+# pushes to the repo's default branch; also runnable by hand with `gcloud builds submit`.
+substitutions:
+  _REGION: us-west1
+  _SERVICE: advisor-api
+  _AR_REPO: cloud-run-source-deploy
+  # Comma-separated browser origins allowed to call the API. "*" is wide open —
+  # narrow this to the frontend's Cloud Run URL when you want the endpoint locked down.
+  _CORS_ORIGINS: '*'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  substitutionOption: ALLOW_LOOSE
+
+images:
+  - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+
+steps:
+  - id: Build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -t
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+      - -f
+      - Dockerfile
+      - .
+
+  - id: Push
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+
+  - id: Deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - '${_SERVICE}'
+      - '--image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_AR_REPO}/${_SERVICE}:$COMMIT_SHA'
+      - '--region=${_REGION}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--port=8080'
+      - '--memory=1Gi'
+      - '--cpu=1'
+      # Comfortably above ADVISOR_TIMEOUT_S (30s) so the app's own timeout is what
+      # ends a slow turn, and long enough that an SSE stream is never cut by Run.
+      - '--timeout=300'
+      - '--max-instances=5'
+      # The advisor caches in-process; keeping one instance warm preserves the
+      # ~8ms cache-hit path and avoids paying cold start on the first question.
+      - '--min-instances=1'
+      - '--set-env-vars=^##^GOOGLE_GENAI_USE_VERTEXAI=TRUE##GOOGLE_CLOUD_PROJECT=$PROJECT_ID##GOOGLE_CLOUD_LOCATION=global##BQ_PROJECT_ID=$PROJECT_ID##BQ_DATASET=majors##ADVISOR_CORS_ORIGINS=${_CORS_ORIGINS}'
+      - '--labels=managed-by=cloud-build,commit-sha=$COMMIT_SHA'
+      - '--quiet'

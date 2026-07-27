@@ -46,9 +46,18 @@ def get_bigquery_toolset():
     credentials, _ = google.auth.default()
     toolset = BigQueryToolset(
         credentials_config=BigQueryCredentialsConfig(credentials=credentials),
-        bigquery_tool_config=BigQueryToolConfig(write_mode=WriteMode.BLOCKED),  # READ-ONLY
+        bigquery_tool_config=BigQueryToolConfig(
+            write_mode=WriteMode.BLOCKED,  # READ-ONLY
+            # The model writes this SQL. `max_query_result_rows` caps what comes
+            # BACK; only this caps what gets SCANNED, and scanning is what BigQuery
+            # bills for. Without it a runaway join has no ceiling at all.
+            maximum_bytes_billed=settings.bigquery_max_bytes_billed,
+        ),
     )
-    log.info("BigQuery toolset initialized (project=%s, dataset=%s)", BQ_PROJECT, BQ_DATASET)
+    log.info(
+        "BigQuery toolset initialized (project=%s, dataset=%s, max_bytes_billed=%.0fMB)",
+        BQ_PROJECT, BQ_DATASET, settings.bigquery_max_bytes_billed / 1e6,
+    )
     return toolset
 
 

@@ -20,6 +20,20 @@ const STREAM_URL: string | undefined =
 
 export const advisorIsLive = Boolean(AGENT_URL)
 
+/** Sent as `X-API-Key` when the backend has `ADVISOR_API_KEY` set. Unset → the
+ *  header is omitted and requests are byte-for-byte what they were before.
+ *
+ *  Note this is a *public* value: anything in a Vite bundle ships to the browser and
+ *  is readable by anyone who opens devtools. It raises the bar against casual abuse
+ *  of an endpoint that spends money per request; it is not a secret, and it is not a
+ *  substitute for real auth (IAP, a gateway, signed sessions) in front of Cloud Run. */
+const API_KEY: string | undefined = import.meta.env.VITE_ADVISOR_API_KEY
+
+const jsonHeaders = (): Record<string, string> => ({
+  'Content-Type': 'application/json',
+  ...(API_KEY ? { 'X-API-Key': API_KEY } : {}),
+})
+
 export interface AdvisorPayload {
   major: Major | null
   message: string
@@ -114,7 +128,7 @@ function parseEvent(block: string): { name: string; data: Record<string, unknown
 async function streamAdvisor(payload: AdvisorPayload, url: string): Promise<string> {
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: jsonHeaders(),
     body: JSON.stringify(buildBody(payload)),
     signal: payload.signal,
   })
@@ -188,7 +202,7 @@ export async function askAdvisor(payload: AdvisorPayload): Promise<string> {
 
   const res = await fetch(AGENT_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: jsonHeaders(),
     body: JSON.stringify(buildBody(payload)),
     signal: payload.signal,
   })
