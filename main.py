@@ -8,10 +8,6 @@ from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-# Windows High-Latency Fix: Enforce SelectorEventLoopPolicy
-if sys.platform == "win32":
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -239,7 +235,6 @@ async def analyze_major_stream(req: AdvisorRequest) -> StreamingResponse:
                 except StopAsyncIteration:
                     break
                 kind, payload = chunk
-                # Correct SSE mapping: kind "token" maps to "text" key
                 yield _sse(
                     kind, {"text": payload} if kind == "token" else {"label": payload}
                 )
