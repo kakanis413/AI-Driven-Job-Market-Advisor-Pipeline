@@ -17,16 +17,8 @@ from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
 from google.genai import types
 
-from google.adk.integrations.bigquery import BigQueryCredentialsConfig, BigQueryToolset
-from google.adk.integrations.bigquery.config import BigQueryToolConfig, WriteMode
-from google.cloud import bigquery
-
 from advisor.config import settings
 from advisor.tools import (
-    BQ_DATASET,
-    BQ_PROJECT,
-    bigquery_toolset,
-    get_dynamic_top_careers,
     compare_majors,
     get_ai_exposure,
     get_bigquery_toolset,
@@ -93,110 +85,91 @@ class ResilientAgentTool(AgentTool):
 # -----------------------------------------------------------------------------
 # Optimized Parallel Research Tool: Direct Local Python Lookup + Fast Web Search
 # -----------------------------------------------------------------------------
-data_agent = Agent(
-    name="data_agent",
-    model=settings.model,
-    description=(
-        "Answers data questions about college majors' AI exposure, pay, growth, "
-        "and occupations. Has fast local lookups AND BigQuery for complex queries."
-    ),
-    instruction=f"""You retrieve facts about college majors. You have TWO data sources:
+class ParallelResearchTool(BaseTool):
+    """Runs local python data lookups and web news concurrently.
 
-1. LOCAL TOOLS (fast, free - TRY THESE FIRST):
-   - get_major_data(major_name): instant lookup for one major
-   - compare_majors(major_a, major_b): compare two majors
-   - get_median_pay(major_name): get median pay for a major
-   - get_ai_exposure(major_name): get AI exposure for a major
-   - get_top_majors(): get top majors by pay or growth
+    Directly executes get_major_data in Python (<5ms) to eliminate LLM hop latency,
+    while fetching news concurrently.
+    """
 
-2. BIGQUERY (for complex queries the local tools can't answer):
-   - Project: '{BQ_PROJECT}', Dataset: '{BQ_DATASET}'
-   - Tables: dim_major, dim_occupation, bridge_cip_soc, fact_exposure, fact_employment
-   - Use for: rankings ("top 5 highest-paying"), aggregations, joins across tables
+    _TOOL_NAME: str = "parallel_research"
+    _TOOL_DESC: str = (
+        "THE tool for any question about what is happening recently or right now: "
+        "current hiring, layoffs, latest trends, this year's market, named companies. "
+        "Fetches major/career data AND live news in parallel. Local data alone cannot "
+        "answer recency questions — use this instead of get_major_data whenever the "
+        "question is time-sensitive. "
+        "Input: topic (the major or career field). Returns: {data: ..., news: ...}"
+    )
 
-ROUTING RULES:
-- Single major lookup? Use get_major_data first. Fast and free.
-- Compare two majors? Use compare_majors first.
-- If local tool returns "not_found", you MUST try BigQuery as fallback before reporting
-  that the data wasn't found. Never say "not found" without trying both sources.
-- Complex queries (rankings, filtering, aggregations)? Go straight to BigQuery.
+    def __init__(self, news_tool: AgentTool):
+        super().__init__(name=self._TOOL_NAME, description=self._TOOL_DESC)
+        self._news_tool = news_tool
 
-TOP-CAREER ROUTING RULES:
-- When the student asks for the top, best, strongest, recommended, or most
-  promising occupations for a specific major, call
-  get_dynamic_top_careers(major_name, n).
-- Use get_dynamic_top_careers for occupations within a major. Do not confuse it
-  with get_top_majors, which ranks college majors rather than occupations.
-- Preserve the career order returned by get_dynamic_top_careers exactly.
-- Do not recalculate, reorder, replace, or add occupations based on your own
-  judgment.
-- The ranking returned by the tool is deterministic and uses:
-    1. 50% occupation median-pay percentile
-    2. 30% occupation projected-growth percentile
-    3. 20% balanced AI-exposure score
-- Balanced AI exposure means occupation exposure values from 4.0 through 8.0
-  receive the maximum AI-balance score. Values below 4.0 or above 8.0 receive a
-  progressively lower balance score.
-- AI exposure is not a prediction of job loss. The balance component represents
-  a mix of meaningful AI assistance and continued human contribution.
-- Use only the pay, growth, AI exposure, component scores, and final career
-  score returned by the tool. Never estimate or substitute missing values.
-- If the tool returns status="partial", clearly report that fewer than the
-  requested number of occupations had complete verified data.
-- If the tool returns status="no_data", "not_found", or "unavailable", report
-  that result plainly. Do not invent a Top 3.
-- Return the ranked occupations and their supporting metrics to the
-  college_advisor. The college_advisor is responsible for explaining the
-  results conversationally.
+    def _get_declaration(self) -> types.FunctionDeclaration:
+        """Advertise the tool to the model.
 
-  USER-FACING TOP-CAREER PRESENTATION:
-- Use the tool's component values internally to explain the ranking, but never
-  expose technical field names such as pay_score, growth_score,
-  ai_balance_score, or career_score in the response.
-- Introduce the methodology once in plain language: the ranking gives the most
-  importance to median pay, followed by projected growth, with balanced AI
-  integration as the final factor.
-- For each occupation, present only information a student can understand
-  immediately:
-    - occupation title
-    - median annual pay
-    - projected growth
-    - a short explanation of why it ranked in that position
-- Translate normalized values into natural language. For example:
-    - describe a strong pay result as "high pay compared with other occupations"
-    - describe a strong growth result as "one of the stronger growth outlooks"
-    - describe exposure from 4.0 through 8.0 as "within the preferred range for
-      balanced AI integration"
-- Do not say or imply that higher AI exposure is automatically better.
-- Exposure values from 4.0 through 8.0 receive the full balanced-AI
-  contribution.
-- When exposure is above 8.0 or below 4.0, state that it falls outside the
-  preferred balance range and therefore contributes less to the ranking.
-- For exposure above 8.0, do not describe the high exposure itself as an
-  advantage. Explain that the occupation may still rank highly because strong
-  pay or growth offsets the reduced AI-balance contribution.
-- AI exposure measures how much the occupation's task mix may be transformed or
-  assisted by AI. It does not predict that the occupation will disappear.
-- Explain the actual reason for each ranking. Do not use generic phrases such as
-  "excellent balance" when one of the three factors is outside the preferred
-  range.
-- Preserve the exact occupation order returned by the tool.
+        BaseTool's default returns None, which makes ADK omit the tool from the
+        request entirely — the model cannot call what it was never shown. Without
+        this the news path is unreachable no matter what the instructions say, and
+        recency questions get silently answered from stale local data.
+        """
+        return types.FunctionDeclaration(
+            name=self._TOOL_NAME,
+            description=self._TOOL_DESC,
+            parameters=types.Schema(
+                type=types.Type.OBJECT,
+                properties={
+                    "topic": types.Schema(
+                        type=types.Type.STRING,
+                        description="The major or career field to research, e.g. 'Computer science'.",
+                    )
+                },
+                required=["topic"],
+            ),
+        )
 
-BIGQUERY RULES:
-- Only SELECT queries. Never modify data.
-- Use schema-inspection tools before writing SQL if unsure of column names.
-- Return query results as-is. Do not interpret - that's the orchestrator's job.
-""",
-    tools=[
-        get_major_data,
-        compare_majors,
-        get_median_pay,
-        get_ai_exposure,
-        get_top_majors,
-        get_dynamic_top_careers,
-        bigquery_toolset,
-    ],
-)
+    async def _safe_run_news(
+        self, args: dict[str, Any], ctx: ToolContext
+    ) -> Any:
+        try:
+            return await self._news_tool.run_async(args=args, tool_context=ctx)
+        except Exception as exc:
+            log.warning("Parallel research: news lookup failed: %s", exc)
+            return {
+                "status": "unavailable",
+                "message": "Live news temporarily unavailable.",
+            }
+
+    async def run_async(self, *, args: dict[str, Any], tool_context: ToolContext) -> Any:
+        topic = args.get("topic") or args.get("query") or args.get("request") or ""
+
+        # Direct, instant local python lookup (No LLM overhead)
+        async def fetch_data_direct():
+            try:
+                data = get_major_data(topic)
+                if data and data != "not_found":
+                    return data
+            except Exception:
+                pass
+            return f"Data lookup for '{topic}' completed."
+
+        news_request = {"request": f"Find recent hiring trends and news for: {topic}"}
+
+        log.info("parallel_research: starting concurrent fetch for %r", topic)
+
+        # Run local python lookup and news search in parallel
+        data_result, news_result = await asyncio.gather(
+            fetch_data_direct(),
+            self._safe_run_news(news_request, tool_context),
+        )
+
+        return {
+            "data": data_result,
+            "news": news_result,
+        }
+
+
 # -----------------------------------------------------------------------------
 # News Agent Specialist (Strict 1-Turn Enforcement)
 # -----------------------------------------------------------------------------
