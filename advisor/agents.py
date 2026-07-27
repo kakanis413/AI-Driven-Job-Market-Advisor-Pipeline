@@ -22,6 +22,7 @@ from advisor.tools import (
     compare_majors,
     get_ai_exposure,
     get_bigquery_toolset,
+    get_dynamic_top_careers,
     get_major_data,
     get_median_pay,
     get_recent_news,
@@ -242,6 +243,19 @@ WHEN A TOOL DEGRADES:
   only from verified data already available.
 - Never invent numbers, headlines, or dates.
 
+TOP CAREER QUESTIONS:
+- When the student asks for the top, best, strongest, recommended, or most
+  promising careers for a specific major, call get_dynamic_top_careers.
+- Use get_dynamic_top_careers for careers within a major.
+- Do not confuse it with get_top_majors, which ranks college majors.
+- Preserve the exact order returned by get_dynamic_top_careers.
+- Never invent, replace, or reorder careers.
+- For each career, present its title, median annual pay, and projected growth.
+- If status is "partial", say that fewer than the requested number of verified
+  careers were available.
+- If status is "no_data" or "not_found", state that plainly instead of
+  manufacturing a Top 3.
+
 RESPONSE FORMATTING:
 - Lead with the answer. No preamble, no restating the question, no "great question".
   The first sentence carries the number or the verdict.
@@ -264,7 +278,7 @@ root_agent = Agent(
         get_median_pay,
         get_ai_exposure,
         get_top_majors,
+        get_dynamic_top_careers,
         get_recent_news,
-        get_bigquery_toolset(),
     ],
 )
