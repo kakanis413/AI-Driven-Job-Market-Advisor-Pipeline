@@ -5,7 +5,28 @@ import logging
 import os
 import sys
 from typing import Any
-#Mac rules
+
+# -----------------------------------------------------------------------------
+# Windows-Specific Network & EventLoop Latency Optimizations
+# -----------------------------------------------------------------------------
+if sys.platform == "win32":
+    import socket
+
+    # Force IPv4 socket resolution to fix multi-second Winsock delay
+    old_getaddrinfo = socket.getaddrinfo
+
+    def fast_getaddrinfo(*args, **kwargs):
+        responses = old_getaddrinfo(*args, **kwargs)
+        return [r for r in responses if r[0] == socket.AF_INET] or responses
+
+    socket.getaddrinfo = fast_getaddrinfo
+
+    # Switch to SelectorEventLoop for faster single-connection I/O on Windows
+    try:
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    except Exception:
+        pass
+
 # Add project root to sys.path so 'advisor' imports work when executed directly
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
