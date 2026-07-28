@@ -5,7 +5,7 @@
  *  `Major` shape. Keeping the translation here means components never learn the
  *  raw field names — the data layer stays a contract, not a hardcode. */
 
-import type { Family, Growth, Major, Occupation } from '../types'
+import type { Family, Growth, Major, Occupation, TopCareer } from '../types'
 
 /** A row as produced by the Python pipeline. Every field is optional/loose
  *  because upstream stages fill them in incrementally (e.g. `ai_exposure_norm`
@@ -28,6 +28,7 @@ interface RawMajor {
   median_pay?: unknown
   growth?: unknown
   occupations?: unknown
+  top_careers?: unknown
   rationale?: unknown
 }
 
@@ -162,6 +163,32 @@ function toOccupations(v: unknown): Occupation[] {
     .filter((o): o is Occupation => o !== null)
 }
 
+/** `top_careers` rows use the pipeline's own field names (`soc_code`,
+ *  `occupation_title`, `median_wage_annual`, `outlook_pct`) — translated here
+ *  same as `toOccupations`, so the component never learns the raw shape.
+ *  Sorted by rank in case the source ever ships out of order. */
+function toTopCareers(v: unknown): TopCareer[] {
+  if (!Array.isArray(v)) return []
+  return v
+    .map((c): TopCareer | null => {
+      if (typeof c !== 'object' || c === null) return null
+      const r = c as Record<string, unknown>
+      const soc = str(r.soc_code)
+      const title = str(r.occupation_title)
+      const rank = num(r.rank)
+      if (!soc || !title || rank === null) return null
+      return {
+        rank,
+        soc,
+        title,
+        medianWage: num(r.median_wage_annual),
+        outlookPct: num(r.outlook_pct),
+      }
+    })
+    .filter((c): c is TopCareer => c !== null)
+    .sort((a, b) => a.rank - b.rank)
+}
+
 function toMajor(raw: RawMajor, index: number): Major | null {
   const major = str(raw.major) ?? str(raw.major_name)
   if (!major) return null
@@ -196,6 +223,7 @@ function toMajor(raw: RawMajor, index: number): Major | null {
     payToDebtRank: num(raw.pay_to_debt_ratio_norm),
     versatility: num(raw.versatility),
     versatilityRank: num(raw.versatility_norm),
+    topCareers: toTopCareers(raw.top_careers),
   }
 }
 

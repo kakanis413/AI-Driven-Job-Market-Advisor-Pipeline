@@ -6,7 +6,6 @@ import LayerToggle, { Segmented } from '../components/LayerToggle'
 import { Logo, NavCluster } from '../components/Chrome'
 import Legend from '../components/Legend'
 import MajorDetailCard from '../components/MajorDetailCard'
-import MetersView, { type SortKey } from '../components/MetersView'
 import SearchSpotlight from '../components/SearchSpotlight'
 import StatsStrip, { STATS_STRIP_H } from '../components/StatsStrip'
 import Tooltip from '../components/Tooltip'
@@ -19,7 +18,7 @@ import { layoutTreemap, type Rect } from '../lib/layout'
 import type { Page } from '../hooks/useRoute'
 import type { Major, TipData } from '../types'
 
-type View = 'map' | 'grid' | 'meters'
+type View = 'map' | 'grid'
 
 interface Props {
   majors: Major[]
@@ -69,9 +68,6 @@ export default function Explore({
     initialView === 'map' && matchMedia('(max-width: 639px)').matches ? 'grid' : initialView,
   )
   const [layer, setLayer] = useState<Layer>('exposure')
-  // The value board's sort lives here so the toolbar's "Sort by" segment (which
-  // occupies the same slot as "Color by") is the primary control.
-  const [sort, setSort] = useState<SortKey>('payToDebt')
   const [query, setQuery] = useState(initialQuery ?? '')
   const [selectedCip, setSelectedCip] = useState<string | null>(null)
   const [tip, setTip] = useState<TipData | null>(null)
@@ -251,35 +247,15 @@ export default function Explore({
               options={[
                 { value: 'map', label: 'Treemap' },
                 { value: 'grid', label: 'Table' },
-                { value: 'meters', label: 'ROI' },
               ]}
             />
-            {view === 'meters' ? (
-              <Segmented<SortKey>
-                label="Sort by"
-                value={sort}
-                onChange={setSort}
-                options={[
-                  { value: 'payToDebt', label: 'Pay vs. debt' },
-                  { value: 'versatility', label: 'Versatility' },
-                ]}
-              />
-            ) : (
-              <LayerToggle layer={layer} onChange={setLayer} />
-            )}
+            <LayerToggle layer={layer} onChange={setLayer} />
             {/* Reference sits with the controls: the color legend for the tile
-                views, the value caption for the board. Shown from xl up, where
-                row 1 has room for it beside the controls; below that it stays
-                out so the bar never crowds. */}
-            {view === 'meters' ? (
-              <p className="hidden shrink-0 self-center text-[12px] text-ink3 xl:block">
-                Early-career pay per $1 of typical student debt
-              </p>
-            ) : (
-              <div className="hidden shrink-0 xl:block">
-                <Legend layer={layer} mode={mode} payExtent={payExtent} />
-              </div>
-            )}
+                views. Shown from xl up, where row 1 has room for it beside the
+                controls; below that it stays out so the bar never crowds. */}
+            <div className="hidden shrink-0 xl:block">
+              <Legend layer={layer} mode={mode} payExtent={payExtent} />
+            </div>
             {/* ms-auto (not a flex-1 spacer) so that when the row wraps on a
                 narrow viewport the nav drops to the bottom-right, never under
                 the logo. */}
@@ -327,21 +303,15 @@ export default function Explore({
               </p>
             )}
             <div className="ms-auto xl:hidden">
-              {view === 'meters' ? (
-                <p className="text-[12px] text-ink3">Early-career pay per $1 of typical student debt</p>
-              ) : (
-                <Legend compact layer={layer} mode={mode} payExtent={payExtent} />
-              )}
+              <Legend compact layer={layer} mode={mode} payExtent={payExtent} />
             </div>
           </div>
         </div>
       </div>
 
       <div className="mx-auto mt-3 max-w-[1400px] px-5 md:px-8">
-        {/* The read-out sits above the map for both tile views. The ROI board is
-            its own ranked table with its own framing, so the strip would double
-            up on it. */}
-        {status === 'ready' && showStats && view !== 'meters' && (
+        {/* The read-out sits above the map for both tile views. */}
+        {status === 'ready' && showStats && (
           <div className="mb-3">
             <StatsStrip majors={majors} layer={layer} mode={mode} payExtent={payExtent} />
           </div>
@@ -349,17 +319,6 @@ export default function Explore({
         <div ref={vizRef} className="relative min-w-0">
           {status === 'loading' && vizW > 0 && <SkeletonViz width={vizW} height={mapH} />}
           {status === 'error' && <ErrorCard height={mapH} url={url} retry={retry} />}
-          {status === 'ready' && view === 'meters' && (
-            <MetersView
-              majors={majors}
-              height={mapH}
-              query={query}
-              sort={sort}
-              mode={mode}
-              onSortChange={setSort}
-              onSelect={handleSelect}
-            />
-          )}
           {status === 'ready' &&
             vizW > 0 &&
             view === 'map' && (

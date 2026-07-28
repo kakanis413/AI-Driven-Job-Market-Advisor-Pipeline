@@ -1,12 +1,11 @@
-import { useMemo, useState } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
-import { EXPOSURE_STOPS, REDUCED_TWEEN, SPRING, type Mode } from '../design/tokens'
+import { useId, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { type Mode, EASE } from '../design/tokens'
 import {
-  bandOf,
-  exposureBand,
   exposureColor,
   fmtCount,
   fmtExposure,
+  fmtOutlook,
   fmtPay,
   fmtRatio,
   growthOf,
@@ -15,25 +14,10 @@ import type { Major } from '../types'
 import DataChip from './DataChip'
 import ShareCard from './ShareCard'
 
-// The band pill's violet — existing exposure-ramp stops, not a new token.
-const BAND_FILL = EXPOSURE_STOPS.light[0]
-const BAND_INK = EXPOSURE_STOPS.light[4]
-
-// One plain-language line per band — the exposure-≠-job-loss framing in words.
-const VERDICT: Record<string, string> = {
-  Rewired: 'A lot of the day-to-day is AI-reachable, so the skill mix shifts fast — the field doesn’t vanish.',
-  Reshaped: 'Many tasks are AI-reachable, so the skill mix shifts while the field itself holds.',
-  'Barely touched': 'Most of the work stays hands-on; AI mostly assists at the edges for now.',
-}
-
 export default function MajorDetailCard({ major, mode }: { major: Major; mode: Mode }) {
   const growth = growthOf(major.growth)
-  const expC = useMemo(() => exposureColor(mode), [mode])
-  const band = exposureBand(major.exposure)
   const [shareOpen, setShareOpen] = useState(false)
-  // "99-9999 / NO MATCH" is the source's placeholder for unmapped employment.
-  const occupations = major.occupations.filter((o) => o.soc !== '99-9999')
-  const hasRoi = major.payToDebt != null || major.versatility != null
+  const topCareers = major.topCareers ?? []
 
   return (
     <div className="rounded-card border border-line bg-surface p-5">
@@ -63,20 +47,18 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
 
       <Gauge value={major.exposure} mode={mode} />
 
-      {/* Plain-language band + verdict — the number's memorable read, always shown
-          with the score above, never instead of it. */}
+      {/* No band pill — the ring's own color already reads as a band (pale/mint
+          = barely touched, deep teal = rewired), and the app-wide "high exposure
+          ≠ job loss" framing lives in the pinned caveat banner, so a repeated
+          text label here was just saying the same thing a third time. The
+          specific, per-major explanation (major.rationale) is one tap away. */}
       {major.exposure !== null ? (
-        <div className="mt-3 flex items-start gap-2.5">
-          <span
-            className="micro shrink-0 rounded-full px-2 py-0.5"
-            style={{ background: BAND_FILL, color: BAND_INK }}
-          >
-            {band.label}
-          </span>
-          <p className="text-[12.5px] leading-snug text-ink2">{VERDICT[band.label]}</p>
+        <div className="mt-2.5 flex items-center justify-center gap-1.5">
+          <span className="text-[11.5px] text-ink3">Why this score</span>
+          <InfoTip label="Why this exposure score" text={major.rationale} />
         </div>
       ) : (
-        <div className="mt-3">
+        <div className="mt-3 flex justify-center">
           <DataChip label="Not scored yet" clock />
         </div>
       )}
@@ -103,53 +85,55 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
         />
       </dl>
 
-      {hasRoi && (
-        <div className="mt-4 space-y-3">
-          {major.payToDebt != null && (
-            <Meter
-              label="Pay vs. debt"
-              value={fmtRatio(major.payToDebt)}
-              fill={major.payToDebtRank ?? 0}
-              caption="early-career pay per $1 of typical student debt"
-            />
-          )}
-          {major.versatility != null && (
-            <Meter
-              label="Career versatility"
-              value={bandOf(major.versatility ?? 0)}
-              fill={major.versatilityRank ?? 0}
-              caption={`maps to ${major.versatility} related occupation${major.versatility === 1 ? '' : 's'}`}
-            />
-          )}
+      {major.payToDebt != null && (
+        <div className="mt-4">
+          <Meter
+            label="Pay vs. debt"
+            value={fmtRatio(major.payToDebt)}
+            fill={major.payToDebtRank ?? 0}
+            caption="early-career pay per $1 of typical student debt"
+          />
         </div>
       )}
 
-      <p className="mt-4 text-[13px] leading-relaxed text-ink2">{major.rationale}</p>
-
-      <h3 className="micro mt-5 text-ink3">Mapped occupations</h3>
-      <ul className="mt-2">
-        {occupations.map((o) => (
-          <li key={o.soc} className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0">
-            <div className="min-w-0 flex-1">
-              <div className="truncate text-[13px] font-medium text-ink">{o.title}</div>
-              <div className="micro text-ink3">SOC {o.soc}</div>
-            </div>
-            <div className="h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-line" aria-hidden>
-              <div
-                className="h-full rounded-full"
-                style={{ width: `${((o.exposure ?? 0) / 10) * 100}%`, background: expC(o.exposure) }}
-              />
-            </div>
-            <span
-              className="w-8 shrink-0 text-right text-[13px] font-semibold text-ink"
-              style={{ fontVariantNumeric: 'tabular-nums' }}
-              aria-label={`exposure ${fmtExposure(o.exposure)} out of 10`}
-            >
-              {fmtExposure(o.exposure)}
-            </span>
-          </li>
-        ))}
-      </ul>
+      {topCareers.length > 0 && (
+        <>
+          <h3 className="micro mt-5 text-ink3">Top occupations</h3>
+          <ul className="mt-2">
+            {topCareers.map((c) => (
+              <li
+                key={c.soc}
+                className="flex items-center gap-3 border-t border-line py-2.5 first:border-t-0"
+              >
+                <span
+                  aria-hidden
+                  className={
+                    c.rank === 1
+                      ? 'grid size-4 shrink-0 place-items-center rounded-full bg-ink text-[9px] font-semibold text-surface'
+                      : 'w-4 shrink-0 text-center text-[11px] text-ink3'
+                  }
+                >
+                  {c.rank}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5">
+                    <span className="truncate text-[13px] font-medium text-ink">{c.title}</span>
+                    {c.rank === 1 && (
+                      <span className="micro shrink-0 rounded border border-line px-1 py-px text-ink3">
+                        top match
+                      </span>
+                    )}
+                  </div>
+                  <div className="micro mt-0.5 normal-case tracking-normal text-ink3">
+                    {fmtPay(c.medianWage)}
+                    {c.outlookPct != null && <> · {fmtOutlook(c.outlookPct)} outlook</>}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
 
       <ShareCard major={major} mode={mode} open={shareOpen} onClose={() => setShareOpen(false)} />
     </div>
@@ -178,9 +162,9 @@ function Stat({
   )
 }
 
-/* A labeled 0–1 meter for non-exposure metrics (pay-to-debt, versatility).
-   Neutral ink fill — deliberately NOT the exposure/pay ramps, so it never reads
-   as an AI-exposure or pay score. Value text always accompanies the bar. */
+/* A labeled 0–1 meter for non-exposure metrics (pay-to-debt). Neutral ink
+   fill — deliberately NOT the exposure/pay ramps, so it never reads as an
+   AI-exposure or pay score. Value text always accompanies the bar. */
 function Meter({
   label,
   value,
@@ -214,80 +198,110 @@ function Meter({
   )
 }
 
-/* 180° exposure gauge: ramp-colored track, spring-animated needle. */
+/* Full-circle exposure ring: the ramp itself is the pointer. The track fills
+   clockwise from 12 o'clock through the ramp's own pale→deep colors up to the
+   value's position, then flat `--line` gray for the remainder — so the fill's
+   own hue still answers "how far into the range is this" without a needle,
+   which is what let the old 180° gauge waste its bottom half as empty margin. */
 function Gauge({ value, mode }: { value: number | null; mode: Mode }) {
-  const reduce = useReducedMotion()
-  const spr = reduce ? REDUCED_TWEEN : SPRING
   const expC = exposureColor(mode)
 
   const cx = 100
-  const cy = 92
-  const r = 74
-  const N = 36
+  const cy = 100
+  const r = 78
+  const sw = 14
+  const N = 48
+  const f = value === null ? 0 : Math.max(0, Math.min(1, value / 10))
+  const segCount = f > 0 ? Math.max(1, Math.round(N * f)) : 0
 
-  const pt = (angle: number, radius: number) => ({
-    x: cx + radius * Math.cos(angle),
-    y: cy - radius * Math.sin(angle),
-  })
-  const seg = (t0: number, t1: number) => {
-    const a0 = Math.PI * (1 - t0)
-    const a1 = Math.PI * (1 - t1)
-    const p0 = pt(a0, r)
-    const p1 = pt(a1, r)
-    return `M ${p0.x} ${p0.y} A ${r} ${r} 0 0 1 ${p1.x} ${p1.y}`
+  const polar = (angleDeg: number) => {
+    const a = ((angleDeg - 90) * Math.PI) / 180
+    return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) }
   }
-  // Unscored: no needle is drawn (see `value === null` below); the readout
-  // renders an em dash rather than implying a score.
-  const needleAngle = Math.PI * (1 - (value ?? 0) / 10)
-  const tipP = pt(needleAngle, r - 26)
+  const arc = (a0: number, a1: number) => {
+    const p0 = polar(a0)
+    const p1 = polar(a1)
+    const large = a1 - a0 > 180 ? 1 : 0
+    return `M ${p0.x} ${p0.y} A ${r} ${r} 0 ${large} 1 ${p1.x} ${p1.y}`
+  }
 
   return (
     <svg
-      viewBox="0 0 200 106"
-      className="mx-auto mt-4 block w-full max-w-[240px]"
+      viewBox="0 0 200 200"
+      className="mx-auto mt-4 block w-full max-w-[200px]"
       role="img"
       aria-label={`Exposure gauge: ${fmtExposure(value)} out of 10`}
     >
-      {Array.from({ length: N }, (_, i) => (
-        <path
-          key={i}
-          d={seg(i / N, (i + 1) / N + 0.004)}
-          stroke={expC(((i + 0.5) / N) * 10)}
-          strokeWidth={11}
-          fill="none"
-        />
-      ))}
-      {value !== null && (
-        <motion.line
-          x1={cx}
-          y1={cy}
-          initial={{ x2: cx - (r - 26), y2: cy }}
-          animate={{ x2: tipP.x, y2: tipP.y }}
-          transition={spr}
-          stroke="var(--ink)"
-          strokeWidth={2.5}
-          strokeLinecap="round"
-        />
-      )}
-      <circle cx={cx} cy={cy} r={4.5} fill="var(--ink)" />
+      <path d={arc(0, 359.999)} stroke="var(--line)" strokeWidth={sw} fill="none" />
+      {Array.from({ length: segCount }, (_, i) => {
+        const t0 = i / N
+        const t1 = Math.min((i + 1) / N + 0.006, f)
+        const isEnd = i === 0 || i === segCount - 1
+        return (
+          <path
+            key={i}
+            d={arc(t0 * 360, t1 * 360)}
+            stroke={expC(t0 * 10)}
+            strokeWidth={sw}
+            strokeLinecap={isEnd ? 'round' : 'butt'}
+            fill="none"
+          />
+        )
+      })}
       <text
         x={cx}
-        y={cy - 22}
+        y={cy - 4}
         textAnchor="middle"
         fill="var(--ink)"
-        style={{ fontSize: 27, fontWeight: 640, fontVariantNumeric: 'tabular-nums' }}
+        style={{ fontSize: 34, fontWeight: 640, fontVariantNumeric: 'tabular-nums' }}
       >
         {fmtExposure(value)}
       </text>
-      <text x={cx} y={cy - 8} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 10 }}>
+      <text x={cx} y={cy + 19} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 12 }}>
         / 10 exposure
       </text>
-      <text x={cx - r} y={cy + 12} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 9.5 }}>
-        low
-      </text>
-      <text x={cx + r} y={cy + 12} textAnchor="middle" fill="var(--ink3)" style={{ fontSize: 9.5 }}>
-        high
-      </text>
     </svg>
+  )
+}
+
+/* Hoverable/focusable (i) — same visual language as the app-wide exposure
+   caveat button (Explore.tsx), just sized for an inline pill. Glass is a
+   legitimate surface here (CLAUDE.md hard rule 5: floating context only) since
+   this genuinely floats over the card rather than sitting in the data flow. */
+function InfoTip({ label, text }: { label: string; text: string }) {
+  const [open, setOpen] = useState(false)
+  const id = useId()
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        aria-label={label}
+        aria-describedby={open ? id : undefined}
+        aria-expanded={open}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setOpen(false)}
+        onClick={() => setOpen((v) => !v)}
+        className="grid size-4 shrink-0 place-items-center rounded-full border border-line text-[9px] font-semibold text-ink3 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
+      >
+        i
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.span
+            id={id}
+            role="tooltip"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15, ease: EASE }}
+            className="glass pointer-events-none absolute left-1/2 top-6 z-20 w-64 -translate-x-1/2 rounded-card p-3 text-[12px] leading-relaxed text-ink2 shadow-xl"
+          >
+            {text}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
   )
 }

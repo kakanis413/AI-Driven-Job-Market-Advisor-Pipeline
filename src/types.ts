@@ -20,6 +20,18 @@ export interface Occupation {
   exposure: number | null
 }
 
+/** One ranked entry from the pipeline's top-careers list — the highest-signal
+ *  occupations a major feeds into, ordered by its pay/outlook composite. */
+export interface TopCareer {
+  rank: number
+  soc: string
+  title: string
+  /** Median annual wage, USD — null when the source has no estimate. */
+  medianWage: number | null
+  /** Projected employment growth, percent — null when unavailable. */
+  outlookPct: number | null
+}
+
 export interface Major {
   /** CIP code, e.g. "11.0701" */
   cip: string
@@ -44,6 +56,9 @@ export interface Major {
   versatility?: number | null
   /** versatility's 0–1 rank across all majors — drives the meter fill. */
   versatilityRank?: number | null
+  /** Top-paying/growing occupations this major feeds into, ranked 1..n by the
+   *  pipeline. Optional: absent in the bundled sample; supplied by the pipeline. */
+  topCareers?: TopCareer[]
 }
 
 /** Shared tooltip payload (client coords + the hovered major). */

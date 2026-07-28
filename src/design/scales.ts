@@ -165,6 +165,11 @@ export const fmtCount = (v: number) => compact.format(v).toLowerCase()
 /** Pay-to-debt ratio → "2.7×". */
 export const fmtRatio = (v: number) => `${v.toFixed(1)}×`
 
+/** Occupation growth outlook → "+4%" (a true minus sign, not a hyphen, on the
+ *  rare negative). Null when the source has no projection for this SOC. */
+export const fmtOutlook = (v: number | null) =>
+  v == null ? '—' : `${v > 0 ? '+' : v < 0 ? '−' : ''}${Math.round(Math.abs(v))}%`
+
 /** Plain-language read of the AI-exposure score — a memorable band ALWAYS shown
  *  alongside the number, never instead of it (hard rule 2: color/number is never
  *  the only signal). Unscored is stated as a fact, never faked as "low". */
