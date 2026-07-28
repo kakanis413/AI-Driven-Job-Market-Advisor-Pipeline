@@ -32,42 +32,32 @@ log = logging.getLogger(__name__)
 
 
 def fast_planner() -> BuiltInPlanner:
-    """Cap the model's thinking budget.
-
-    Thinking happens entirely before the first output token, so it is pure
-    time-to-first-token — the exact thing streaming is meant to fix. Capping it is
-    what makes streaming actually feel instant; without it, streaming just delivers
-    a slow answer in pieces. See Settings.thinking_level for measurements.
-    """
+    """Cap the model's thinking budget to minimize time-to-first-token."""
     return BuiltInPlanner(
         thinking_config=types.ThinkingConfig(thinking_level=settings.thinking_level)
     )
 
 
-# Configure root logger
+# Configure loggers
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s.%(msecs)03d [%(levelname)s] %(name)s: %(message)s",
     datefmt="%H:%M:%S",
 )
-
-# Enable ADK framework logging
 logging.getLogger("google.adk").setLevel(logging.INFO)
 
 
 # -----------------------------------------------------------------------------
-# Parallel Research Tool: Direct Python Lookup + Fast Web Search
+# Parallel Research Tool (Strictly Guarded against General Enquiries)
 # -----------------------------------------------------------------------------
 class ParallelResearchTool(BaseTool):
     """Runs local python data lookups and web news concurrently."""
 
     _TOOL_NAME: str = "parallel_research"
     _TOOL_DESC: str = (
-        "Searches the live web. Use only when the question is scoped to a specific "
-        "school or names a specific company — `get_recent_news` covers general "
-        "recency questions instantly. Fetches major/career data AND live news in "
-        "parallel. Input: topic (the major or career field). "
-        "Returns: {data: ..., news: ...}"
+        "EXTREMELY SLOW WEB SEARCH (7-15s delay). "
+        "DO NOT USE for general questions, classes, advice, salaries, majors, or follow-ups. "
+        "Use ONLY if user explicitly types words like 'search the web' or 'live news'."
     )
 
     def __init__(self, news_tool: AgentTool):
@@ -75,13 +65,6 @@ class ParallelResearchTool(BaseTool):
         self._news_tool = news_tool
 
     def _get_declaration(self) -> types.FunctionDeclaration:
-        """Advertise the tool to the model.
-
-        BaseTool's default returns None, which makes ADK omit the tool from the
-        request entirely — the model cannot call what it was never shown. Without
-        this the news path is unreachable no matter what the instructions say, and
-        recency questions get silently answered from stale local data.
-        """
         return types.FunctionDeclaration(
             name=self._TOOL_NAME,
             description=self._TOOL_DESC,
@@ -90,7 +73,7 @@ class ParallelResearchTool(BaseTool):
                 properties={
                     "topic": types.Schema(
                         type=types.Type.STRING,
-                        description="The major or career field to research, e.g. 'Computer science'.",
+                        description="The major or career field to research.",
                     )
                 },
                 required=["topic"],
@@ -137,7 +120,7 @@ class ParallelResearchTool(BaseTool):
 
 
 # -----------------------------------------------------------------------------
-# News Agent Specialist (Strict Single Search)
+# News Specialist
 # -----------------------------------------------------------------------------
 NEWS_INSTRUCTION = """You are a real-time labor market news specialist.
 Given a topic, search for recent hiring trends and demand shifts within the past 30-90 days.
@@ -145,19 +128,10 @@ Given a topic, search for recent hiring trends and demand shifts within the past
 CRITICAL PERFORMANCE RULES:
 - Perform AT MOST ONE search operation.
 - Do NOT run multi-turn or follow-up searches.
-- Stay strictly factual: every claim must trace to a search result you actually got.
 - Return 3 concise bullet points with title, source, date, 1-sentence summary, and URL.
-- If no news is found, state: "No significant new hiring trends reported in the last 90 days."
 """
 
 def build_news_agent() -> Agent:
-    # Deliberately NO planner. Capping this agent's thinking to MINIMAL makes it
-    # skip the google_search call and answer from memory: grounding_chunks comes
-    # back empty, so every item fails the "URL must trace to a chunk" rule in
-    # _join_items_to_chunks and the whole feed drops to zero items. Measured on
-    # Business: 0 chunks with the planner, 3 with it removed. The root agent is the
-    # opposite case — it reads a grounding block it was handed and needs no search
-    # decision, so fast_planner() belongs there and only there.
     return Agent(
         name="news_researcher",
         model=settings.model,
@@ -167,13 +141,7 @@ def build_news_agent() -> Agent:
     )
 
 class ResilientAgentTool(AgentTool):
-    """An AgentTool whose failures come back as data, not exceptions.
-
-    google_search is the flakiest hop in the chain (rate limits, transient 5xx).
-    Letting that raise would 5xx a request whose answer never needed news at all.
-    A structured "unavailable" lets the root agent route around it and answer from
-    the grounding block instead.
-    """
+    """An AgentTool whose failures come back as data, not exceptions."""
 
     async def run_async(self, *, args: dict[str, Any], tool_context: ToolContext) -> Any:
         try:
@@ -183,11 +151,7 @@ class ResilientAgentTool(AgentTool):
             return {
                 "status": "unavailable",
                 "agent": self.agent.name,
-                "message": (
-                    "Live news is temporarily unavailable. Answer from the verified "
-                    "data you already have and say recent news could not be checked — "
-                    "do NOT invent headlines, companies, or dates."
-                ),
+                "message": "Live news is temporarily unavailable.",
             }
 
 
@@ -197,47 +161,31 @@ parallel_research_tool = ParallelResearchTool(news_tool=news_tool)
 
 
 # -----------------------------------------------------------------------------
-# Root Agent: Single-Turn Fast Execution Agent
+# Root Agent: Ultra-Fast Global Decision Policy
 # -----------------------------------------------------------------------------
-ROOT_AGENT_INSTRUCTIONS = """You are an expert AI College & Career Advisor helping students understand AI's impact on their major and careers.
+ROOT_AGENT_INSTRUCTIONS = """You are an expert AI College & Career Advisor designed for high-speed, instant responses.
 
-EFFICIENCY & STRICT TOOL ROUTING RULES — every tool call costs the student seconds.
-1. A 'CONTEXT FOR THIS MAJOR' or 'PRE-LOADED TOP AI EXPOSURE DATA' block is the
-   student's own screen. Those numbers outrank anything a tool returns — quote them
-   verbatim. If such a block answers the question, call NO tools at all.
-2. Otherwise use the single most appropriate local tool (get_major_data,
-   compare_majors, get_median_pay, get_ai_exposure, get_top_majors). These are
-   instant. Do not call one for course recommendations, general concepts, or skill
-   comparisons unless exact numeric wages or stats are requested.
-3. For what is happening lately — "who is hiring", "recent layoffs", "latest
-   trends" — call `get_recent_news`. It is instant.
-4. Call `parallel_research` ONLY when the question is scoped to a specific school
-   (a 'UNIVERSITY CONTEXT' block is present) or names a specific company. It is the
-   only tool that searches the live web, and it costs ~7 seconds.
-5. Do NOT reach for news on evaluative questions that merely sound current — "is
-   this major still worth it", "should I switch", "what does my score mean" are
-   answerable from the data above. When in doubt, answer without news.
-6. Perform AT MOST ONE tool call per request. Never call a tool after you have
-   begun writing the answer.
+GLOBAL LOW-LATENCY ROUTING STRATEGY (Target < 2s TTFT):
 
-TOP CAREER QUESTIONS:
-- For the top, best, or most promising careers within a major, call
-  get_dynamic_top_careers — not get_top_majors, which ranks majors instead.
-- Preserve its exact order. Never invent, replace, or reorder careers.
-- Present each career's title, median annual pay, and projected growth.
-- If status is "partial", say fewer than the requested number were verified. If it
-  is "no_data" or "not_found", say so instead of manufacturing a Top 3.
+1. DEFAULT TO DIRECT INSTANT ANSWER (ZERO TOOL CALLS):
+   - For classes, course planning, major comparison thoughts, career advice, transition tips, or general "how to prepare" questions, answer IMMEDIATELY from built-in knowledge.
+   - If numbers/data are present in the UI context block or past turns, answer directly without invoking tools.
 
-WHEN A TOOL DEGRADES:
-- If a tool returns status="unavailable" or "not_found", say so plainly and answer
-  only from verified data you already have.
-- Never invent numbers, headlines, companies, or dates.
+2. FAST LOCAL PYTHON DATA LOOKUPS (< 200ms):
+   - Only call a tool if specific numerical statistics are needed that are NOT in context:
+     * Specific wage/pay numbers -> `get_median_pay`
+     * Top career lists -> `get_dynamic_top_careers`
+     * General major stats -> `get_major_data`
+     * AI Exposure scores -> `get_ai_exposure`
+     * Major ranking lists -> `get_top_majors`
+     * Major comparison metrics -> `compare_majors`
 
-RESPONSE FORMATTING:
-- Lead directly with the answer — no preamble, no restating the question. The first
-  sentence carries the number or the verdict.
-- 2-3 short paragraphs. Markdown headers and bullets only where they aid scanning.
-- High AI exposure means the task mix shifts, NOT immediate job loss.
+3. STRICT BAN ON SLOW WEB TOOLS (`get_recent_news`, `parallel_research`):
+   - NEVER call web tools for general questions, course recommendations, university advice, or follow-ups.
+   - Use web search ONLY if the user explicitly asks "Search the live web for recent headlines from this month".
+
+4. TOOL BUDGET:
+   - AT MOST 1 tool call per request. Never call tools sequentially.
 """
 
 root_agent = Agent(
@@ -247,13 +195,13 @@ root_agent = Agent(
     instruction=ROOT_AGENT_INSTRUCTIONS,
     planner=fast_planner(),
     tools=[
-        parallel_research_tool,
+        get_dynamic_top_careers,
         get_major_data,
         compare_majors,
         get_median_pay,
         get_ai_exposure,
         get_top_majors,
-        get_dynamic_top_careers,
         get_recent_news,
+        parallel_research_tool,
     ],
 )
