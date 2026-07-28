@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
 import AdvisorPanel from '../components/AdvisorPanel'
+import { CloseIcon } from '../components/icons'
 import MajorDetailCard from '../components/MajorDetailCard'
 import SearchSpotlight from '../components/SearchSpotlight'
 import UniversityGateModal from '../components/UniversityGateModal'
+import { FOCUS_RING_ON_PAGE, FOCUS_RING_TIGHT } from '../design/classes'
 import { normalize } from '../design/scales'
 import { EXPOSURE_STOPS, type Mode } from '../design/tokens'
 import { useRoute } from '../hooks/useRoute'
@@ -67,18 +69,16 @@ export default function Chat({ majors, mode, initialCip }: Props) {
             <button
               onClick={clearUniversity}
               aria-label={`Remove ${university.name}`}
-              className="grid size-4 place-items-center rounded-full transition-opacity hover:opacity-70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className={`grid size-4 place-items-center rounded-full transition-opacity hover:opacity-70 ${FOCUS_RING_TIGHT}`}
               style={{ color: CHIP_INK }}
             >
-              <svg width="9" height="9" viewBox="0 0 13 13" fill="none" aria-hidden>
-                <path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-              </svg>
+              <CloseIcon size={9} strokeWidth={1.8} />
             </button>
           </span>
         ) : (
           <button
             onClick={() => setGateOpen(true)}
-            className="inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] font-medium text-ink2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+            className={`inline-flex items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-1.5 text-[13px] font-medium text-ink2 transition-colors hover:text-ink ${FOCUS_RING_ON_PAGE}`}
           >
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden className="text-ink3">
               <path d="M8 2 1.5 5 8 8l6.5-3L8 2Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
@@ -117,7 +117,7 @@ export default function Chat({ majors, mode, initialCip }: Props) {
                   <div className="micro text-ink3">Your intended major</div>
                   <button
                     onClick={() => pinMajor(intendedMatch)}
-                    className="mt-2 flex w-full items-center justify-between gap-2 rounded-lg bg-ink px-3.5 py-2.5 text-left text-[13.5px] font-semibold text-page transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                    className={`mt-2 flex w-full items-center justify-between gap-2 rounded-lg bg-ink px-3.5 py-2.5 text-left text-[13.5px] font-semibold text-page transition-opacity hover:opacity-90 ${FOCUS_RING_ON_PAGE}`}
                   >
                     <span className="truncate">Pin {intendedMatch.major}</span>
                     <span aria-hidden>→</span>

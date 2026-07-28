@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { FOCUS_RING } from '../design/classes'
 import type { NewsItem } from '../lib/news'
 
 /** One cited news item.
@@ -20,8 +21,7 @@ export default function NewsCard({
   const { label, days } = relativeDate(item.published)
   const stale = days > 60 // de-emphasize older-than-a-couple-months signal
 
-  const shell =
-    'group block rounded-card border border-line bg-raised transition-colors duration-150 hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface'
+  const shell = `group block rounded-card border border-line bg-raised transition-colors duration-150 hover:border-accent ${FOCUS_RING}`
 
   const meta = (
     <div className="micro flex items-center gap-1.5 text-ink3">

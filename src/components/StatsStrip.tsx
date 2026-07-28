@@ -13,8 +13,9 @@
  *  across 360 majors would let a 3-graduate program count as much as a 170,000-
  *  graduate one and quietly misstate the cohort. */
 
-import { useMemo } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { FOCUS_RING_ON_PAGE } from '../design/classes'
 import {
   exposureColor,
   fmtCount,
@@ -22,7 +23,7 @@ import {
   fmtPay,
   payColor,
 } from '../design/scales'
-import type { Layer, Mode } from '../design/tokens'
+import { EASE, type Layer, type Mode } from '../design/tokens'
 import type { Major } from '../types'
 
 /** Reserved height, mirrored in Explore's `mapH` budget so adding the strip
@@ -96,6 +97,36 @@ const inBand = (v: number | null | undefined, lo: number, hi: number) =>
 export default function StatsStrip({ majors, layer, mode, payExtent }: Props) {
   const expC = useMemo(() => exposureColor(mode), [mode])
   const payC = useMemo(() => payColor(mode, payExtent), [mode, payExtent])
+
+  // The histogram/tiers/cross-tabs are real, well-reasoned data, but all six
+  // blocks at once is a lot to take in before a reader has even looked at the
+  // map. Cohort/headline/impact stay the always-visible read; the rest lives
+  // in an on-demand popover so the reserved height (STATS_STRIP_H, which
+  // Explore's mapH budget is built around) never changes with expand state —
+  // the panel floats over the map instead of pushing it down.
+  const reduce = useReducedMotion()
+  const [detailOpen, setDetailOpen] = useState(false)
+  const rootRef = useRef<HTMLDivElement>(null)
+  const btnRef = useRef<HTMLButtonElement>(null)
+
+  useEffect(() => {
+    if (!detailOpen) return
+    const onDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setDetailOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return
+      e.preventDefault()
+      setDetailOpen(false)
+      btnRef.current?.focus()
+    }
+    window.addEventListener('pointerdown', onDown)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [detailOpen])
 
   const stats = useMemo(() => {
     const totalGrads = majors.reduce((s, m) => s + gradsOf(m), 0)
@@ -222,7 +253,8 @@ export default function StatsStrip({ majors, layer, mode, payExtent }: Props) {
 
   return (
     <div
-      className="flex flex-wrap items-start gap-x-7 gap-y-3 border-b border-line pb-3"
+      ref={rootRef}
+      className="relative flex flex-wrap items-start gap-x-7 gap-y-3 border-b border-line pb-3"
       style={{ minHeight: STATS_STRIP_H }}
     >
       <Block title="Cohort">
@@ -250,52 +282,76 @@ export default function StatsStrip({ majors, layer, mode, payExtent }: Props) {
             </Note>
           </Block>
 
-          <Block title={layer === 'exposure' ? 'Grads by exposure' : 'Grads by pay'}>
-            <div className="flex h-[42px] items-end gap-[2px]" aria-hidden>
-              {stats.histogram.map((h) => (
-                <div
-                  key={h.key}
-                  className="w-[9px] rounded-t-[1px]"
-                  style={{
-                    height: `${Math.max(2, (h.grads / maxHist) * 100)}%`,
-                    background: h.fill,
-                  }}
-                />
-              ))}
-            </div>
-            <Note>
-              {layer === 'exposure' ? '1 → 9' : `${PAY_BANDS[0].label} → ${PAY_BANDS[4].label}`}
-            </Note>
-          </Block>
-
-          <Block title={layer === 'exposure' ? 'Exposure tiers' : 'Pay tiers'}>
-            <div className="flex flex-col gap-[3px]">
-              {stats.tiers.map((t) => (
-                <div key={t.label} className="flex items-center gap-1.5 text-[11.5px] leading-none">
-                  <span
-                    className="size-[9px] shrink-0 rounded-[2px]"
-                    style={{ background: t.fill }}
-                  />
-                  <span className="w-[86px] shrink-0 truncate text-ink3">{t.label}</span>
-                  <span className="w-[36px] text-right tabular-nums text-ink2">
-                    {fmtCount(t.grads)}
-                  </span>
-                  <span className="w-[26px] text-right tabular-nums text-ink3">
-                    {Math.round((t.grads / Math.max(1, stats.totalGrads)) * 100)}%
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Block>
-
-          <CrossTab {...stats.crossA} />
-          <CrossTab {...stats.crossB} />
-
           <Block title={stats.impact.title}>
             <Big style={{ color: stats.impact.fill }}>{stats.impact.value}</Big>
             <Note>{stats.impact.note}</Note>
           </Block>
         </motion.div>
+      </AnimatePresence>
+
+      <button
+        ref={btnRef}
+        onClick={() => setDetailOpen((v) => !v)}
+        aria-expanded={detailOpen}
+        aria-haspopup="dialog"
+        className={`micro ml-auto self-center shrink-0 rounded-md px-1.5 py-1 text-ink3 transition-colors hover:text-ink ${FOCUS_RING_ON_PAGE}`}
+      >
+        {detailOpen ? 'Less detail' : 'More detail'}
+      </button>
+
+      <AnimatePresence>
+        {detailOpen && (
+          <motion.div
+            role="dialog"
+            aria-label="Distribution detail"
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
+            transition={{ duration: reduce ? 0.12 : 0.18, ease: EASE }}
+            className="glass absolute inset-x-0 top-full z-30 mt-2 flex flex-wrap items-start gap-x-7 gap-y-3 rounded-card p-3 shadow-xl"
+          >
+            <Block title={layer === 'exposure' ? 'Grads by exposure' : 'Grads by pay'}>
+              <div className="flex h-[42px] items-end gap-[2px]" aria-hidden>
+                {stats.histogram.map((h) => (
+                  <div
+                    key={h.key}
+                    className="w-[9px] rounded-t-[1px]"
+                    style={{
+                      height: `${Math.max(2, (h.grads / maxHist) * 100)}%`,
+                      background: h.fill,
+                    }}
+                  />
+                ))}
+              </div>
+              <Note>
+                {layer === 'exposure' ? '1 → 9' : `${PAY_BANDS[0].label} → ${PAY_BANDS[4].label}`}
+              </Note>
+            </Block>
+
+            <Block title={layer === 'exposure' ? 'Exposure tiers' : 'Pay tiers'}>
+              <div className="flex flex-col gap-[3px]">
+                {stats.tiers.map((t) => (
+                  <div key={t.label} className="flex items-center gap-1.5 text-[11.5px] leading-none">
+                    <span
+                      className="size-[9px] shrink-0 rounded-[2px]"
+                      style={{ background: t.fill }}
+                    />
+                    <span className="w-[86px] shrink-0 truncate text-ink3">{t.label}</span>
+                    <span className="w-[36px] text-right tabular-nums text-ink2">
+                      {fmtCount(t.grads)}
+                    </span>
+                    <span className="w-[26px] text-right tabular-nums text-ink3">
+                      {Math.round((t.grads / Math.max(1, stats.totalGrads)) * 100)}%
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </Block>
+
+            <CrossTab {...stats.crossA} />
+            <CrossTab {...stats.crossB} />
+          </motion.div>
+        )}
       </AnimatePresence>
     </div>
   )

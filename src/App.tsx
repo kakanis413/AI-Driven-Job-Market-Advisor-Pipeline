@@ -5,7 +5,7 @@ import Explore from './pages/Explore'
 import News from './pages/News'
 import Chat from './pages/Chat'
 import { Logo, NavCluster } from './components/Chrome'
-import { FAMILY_ORDER } from './design/tokens'
+import { EASE, FAMILY_ORDER } from './design/tokens'
 import type { Family } from './types'
 import type { Page } from './hooks/useRoute'
 
@@ -14,8 +14,6 @@ const isFamily = (s: string | null): s is Family =>
 import { useMajors } from './hooks/useMajors'
 import { useRoute } from './hooks/useRoute'
 import { useTheme } from './hooks/useTheme'
-
-const EASE = [0.22, 1, 0.36, 1] as const
 
 export default function App() {
   const { status, majors, retry, url } = useMajors()

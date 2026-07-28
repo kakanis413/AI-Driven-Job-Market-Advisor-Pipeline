@@ -1,12 +1,10 @@
 import { useMemo, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { exposureColor, fmtExposure, inkFor, normalize } from '../design/scales'
-import { EXPOSURE_STOPS, FAMILY_ORDER, type Mode } from '../design/tokens'
+import { EASE, EXPOSURE_STOPS, FAMILY_ORDER, type Mode } from '../design/tokens'
 import { useMeasure } from '../hooks/useMeasure'
 import { layoutTreemap } from '../lib/layout'
 import type { Major } from '../types'
-
-const EASE = [0.22, 1, 0.36, 1] as const
 
 /** Statement, not a question — it pairs with the search field as an invitation.
  *  "Integrating into" describes a process, not a vulnerability. */

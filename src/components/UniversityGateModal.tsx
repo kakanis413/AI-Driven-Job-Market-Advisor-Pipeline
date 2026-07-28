@@ -3,7 +3,8 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import UniversityPicker from './UniversityPicker'
 import { useUniversity } from '../hooks/useUniversity'
 import { useRoute } from '../hooks/useRoute'
-import { EXPOSURE_STOPS } from '../design/tokens'
+import { FOCUS_RING_ON_PAGE } from '../design/classes'
+import { EASE, EXPOSURE_STOPS } from '../design/tokens'
 import type { University } from '../hooks/useUniversities'
 import type { Major } from '../types'
 
@@ -121,7 +122,7 @@ export default function UniversityGateModal({ open, major, onClose }: Props) {
             initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: reduce ? 0.12 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduce ? 0.12 : 0.22, ease: EASE }}
             className="glass relative w-full max-w-[440px] rounded-panel p-6 shadow-2xl shadow-black/25"
           >
             <div className="micro text-accent">Get full access</div>
@@ -167,7 +168,7 @@ export default function UniversityGateModal({ open, major, onClose }: Props) {
               <button
                 type="button"
                 onClick={dismiss}
-                className="rounded-[10px] px-4 py-2.5 text-[13.5px] font-medium text-ink2 transition-colors hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                className={`rounded-[10px] px-4 py-2.5 text-[13.5px] font-medium text-ink2 transition-colors hover:text-ink ${FOCUS_RING_ON_PAGE}`}
               >
                 Maybe later
               </button>
@@ -175,7 +176,7 @@ export default function UniversityGateModal({ open, major, onClose }: Props) {
                 type="button"
                 onClick={personalize}
                 disabled={!picked}
-                className="rounded-[10px] bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-page transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+                className={`rounded-[10px] bg-ink px-4 py-2.5 text-[13.5px] font-semibold text-page transition-opacity hover:opacity-90 disabled:opacity-40 ${FOCUS_RING_ON_PAGE}`}
               >
                 Personalize my advice →
               </button>

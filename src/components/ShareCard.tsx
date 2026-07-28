@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { FOCUS_RING, FOCUS_RING_TIGHT } from '../design/classes'
 import { exposureBand, exposureColor, fmtExposure, fmtPay, growthOf } from '../design/scales'
-import type { Mode } from '../design/tokens'
+import { EASE, type Mode } from '../design/tokens'
 import type { Major } from '../types'
+import { CloseIcon } from './icons'
 
 interface Props {
   major: Major
@@ -164,7 +166,7 @@ export default function ShareCard({ major, mode, open, onClose }: Props) {
             initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: 8 }}
-            transition={{ duration: reduce ? 0.12 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduce ? 0.12 : 0.22, ease: EASE }}
             className="glass relative w-full max-w-[380px] rounded-panel p-5 shadow-2xl shadow-black/25"
           >
             <div className="flex items-center justify-between gap-2">
@@ -174,11 +176,9 @@ export default function ShareCard({ major, mode, open, onClose }: Props) {
               <button
                 onClick={close}
                 aria-label="Close"
-                className="grid size-7 place-items-center rounded-md text-ink3 transition-colors hover:bg-raised hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className={`grid size-7 place-items-center rounded-md text-ink3 transition-colors hover:bg-raised hover:text-ink ${FOCUS_RING_TIGHT}`}
               >
-                <svg width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden>
-                  <path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
+                <CloseIcon />
               </button>
             </div>
 
@@ -200,7 +200,7 @@ export default function ShareCard({ major, mode, open, onClose }: Props) {
                 <button
                   onClick={doShare}
                   disabled={!pngUrl}
-                  className="h-10 rounded-[10px] bg-ink text-[13.5px] font-semibold text-page transition-opacity hover:opacity-90 disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                  className={`h-10 rounded-[10px] bg-ink text-[13.5px] font-semibold text-page transition-opacity hover:opacity-90 disabled:opacity-40 ${FOCUS_RING}`}
                 >
                   Share…
                 </button>
@@ -209,7 +209,7 @@ export default function ShareCard({ major, mode, open, onClose }: Props) {
                 <button
                   onClick={doDownload}
                   disabled={!pngUrl}
-                  className={`h-10 flex-1 rounded-[10px] border border-line text-[13.5px] font-medium text-ink transition-colors hover:bg-raised disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface ${
+                  className={`h-10 flex-1 rounded-[10px] border border-line text-[13.5px] font-medium text-ink transition-colors hover:bg-raised disabled:opacity-40 ${FOCUS_RING} ${
                     canShareFiles ? '' : 'bg-surface'
                   }`}
                 >
@@ -217,7 +217,7 @@ export default function ShareCard({ major, mode, open, onClose }: Props) {
                 </button>
                 <button
                   onClick={doCopy}
-                  className="h-10 flex-1 rounded-[10px] border border-line text-[13.5px] font-medium text-ink transition-colors hover:bg-raised focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+                  className={`h-10 flex-1 rounded-[10px] border border-line text-[13.5px] font-medium text-ink transition-colors hover:bg-raised ${FOCUS_RING}`}
                 >
                   {copied ? 'Copied ✓' : 'Copy summary'}
                 </button>
@@ -302,7 +302,11 @@ async function drawShareCanvas(major: Major, mode: Mode): Promise<Blob | null> {
     ny += 82
   }
 
-  // Exposure ring.
+  // Exposure ring — ramp-filled, matching the on-screen gauge: the fill sweeps
+  // clockwise from the top through the ramp's own pale→deep colors up to the
+  // score's position, flat track gray for the remainder. No separate band
+  // label here — the ring's own color already carries that read, same as the
+  // live card (see MajorDetailCard's Gauge for the identical approach).
   const scored = major.exposure !== null
   const score = major.exposure ?? 0
   const ringR = 210
@@ -314,16 +318,23 @@ async function drawShareCanvas(major: Major, mode: Mode): Promise<Blob | null> {
   ctx.strokeStyle = line
   ctx.arc(cx, ringCy, ringR, 0, Math.PI * 2)
   ctx.stroke()
-  // Filled portion (from top, clockwise), only when scored.
   if (scored) {
-    const start = -Math.PI / 2
-    const end = start + (score / 10) * Math.PI * 2
-    ctx.beginPath()
-    ctx.lineWidth = ringW
-    ctx.lineCap = 'round'
-    ctx.strokeStyle = exposureColor(mode)(major.exposure)
-    ctx.arc(cx, ringCy, ringR, start, end)
-    ctx.stroke()
+    const N = 64
+    const f = Math.max(0, Math.min(1, score / 10))
+    const segCount = f > 0 ? Math.max(1, Math.round(N * f)) : 0
+    const expC = exposureColor(mode)
+    for (let i = 0; i < segCount; i++) {
+      const t0 = i / N
+      const t1 = Math.min((i + 1) / N + 0.004, f)
+      const start = -Math.PI / 2 + t0 * Math.PI * 2
+      const end = -Math.PI / 2 + t1 * Math.PI * 2
+      ctx.beginPath()
+      ctx.lineWidth = ringW
+      ctx.lineCap = i === 0 || i === segCount - 1 ? 'round' : 'butt'
+      ctx.strokeStyle = expC(t0 * 10)
+      ctx.arc(cx, ringCy, ringR, start, end)
+      ctx.stroke()
+    }
     ctx.lineCap = 'butt'
   }
   // Score number.
@@ -334,12 +345,6 @@ async function drawShareCanvas(major: Major, mode: Mode): Promise<Blob | null> {
   ctx.fillStyle = ink3
   ctx.font = `560 34px ${sans}`
   ctx.fillText(scored ? '/ 10 exposure' : 'not scored yet', cx, ringCy + 96)
-
-  // Band label.
-  const band = exposureBand(major.exposure)
-  ctx.font = `640 40px ${sans}`
-  ctx.fillStyle = ink
-  ctx.fillText(band.label, cx, ringCy + ringR + 100)
 
   // Stats row: median pay + growth.
   const growth = growthOf(major.growth)

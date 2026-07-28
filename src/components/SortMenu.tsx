@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { FOCUS_RING_ON_PAGE as ring } from '../design/classes'
+import { EASE } from '../design/tokens'
 
 export interface SortOption {
   key: string
@@ -53,9 +55,6 @@ export default function SortMenu({
     }
   }, [open])
 
-  const ring =
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page'
-
   return (
     <div ref={rootRef} className="relative shrink-0">
       <button
@@ -80,7 +79,7 @@ export default function SortMenu({
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
-            transition={{ duration: reduce ? 0.12 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduce ? 0.12 : 0.18, ease: EASE }}
             className="glass absolute left-0 top-10 z-30 w-56 rounded-card p-2 shadow-xl"
           >
             <div className="micro px-2 pb-1.5 pt-1 text-ink3">Sort by</div>

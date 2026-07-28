@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { FOCUS_RING } from '../design/classes'
 import { type Mode, EASE } from '../design/tokens'
 import {
   exposureColor,
@@ -33,7 +34,7 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
         <button
           onClick={() => setShareOpen(true)}
           aria-label={`Share ${major.major}`}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-line px-2.5 py-1 text-[12px] font-medium text-ink2 transition-colors hover:bg-raised hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+          className={`inline-flex shrink-0 items-center gap-1.5 rounded-md border border-line px-2.5 py-1 text-[12px] font-medium text-ink2 transition-colors hover:bg-raised hover:text-ink ${FOCUS_RING}`}
         >
           <svg width="13" height="13" viewBox="0 0 15 15" fill="none" aria-hidden>
             <circle cx="11.5" cy="3" r="1.9" stroke="currentColor" strokeWidth="1.3" />

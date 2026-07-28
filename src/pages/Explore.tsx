@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import AdvisorPanel from '../components/AdvisorPanel'
 import HeatmapGrid from '../components/HeatmapGrid'
+import { CloseIcon } from '../components/icons'
 import LayerToggle, { Segmented } from '../components/LayerToggle'
 import { Logo, NavCluster } from '../components/Chrome'
 import Legend from '../components/Legend'
@@ -10,6 +11,7 @@ import SearchSpotlight from '../components/SearchSpotlight'
 import StatsStrip, { STATS_STRIP_H } from '../components/StatsStrip'
 import Tooltip from '../components/Tooltip'
 import Treemap from '../components/Treemap'
+import { FOCUS_RING_ON_PAGE } from '../design/classes'
 import { FAMILY_ORDER, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
 import { advisorIsLive } from '../lib/advisor'
 import { exposureColor, fmtCount, fmtExposure, fmtPay, growthOf, normalize } from '../design/scales'
@@ -177,8 +179,14 @@ export default function Explore({
     })
   }, [handleSelect])
   const handleTip = useCallback((t: TipData | null) => setTip(t), [])
+  // Closing releases the selection too — otherwise the treemap tile stayed
+  // ringed as "selected" forever, and reopening the FAB silently resumed the
+  // same major instead of starting fresh. Same reasoning for showChat: the
+  // next open should land on the neutral card/chat, not a stale mid-chat view.
   const closeAdvisor = useCallback(() => {
     setAdvisorOpen(false)
+    setSelectedCip(null)
+    setShowChat(false)
     setCaveatSeen(true)
     setPeekCaveat(false)
   }, [])
@@ -197,8 +205,9 @@ export default function Explore({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Escape: close the preview sheet, then the advisor, then clear the selection,
-  // then the search.
+  // Escape: close the preview sheet, then the advisor (which now also releases
+  // the selection — see closeAdvisor), then the search. Kept as separate steps
+  // so hitting Escape once never wipes more than the topmost thing open.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return
@@ -206,19 +215,15 @@ export default function Explore({
         setPreviewCip(null)
         return
       }
-      setAdvisorOpen((open) => {
-        if (open) return false
-        setSelectedCip((cip) => {
-          if (cip !== null) return null
-          setQuery('')
-          return cip
-        })
-        return open
-      })
+      if (advisorOpen) {
+        closeAdvisor()
+        return
+      }
+      setQuery('')
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [previewCip])
+  }, [previewCip, advisorOpen, closeAdvisor])
 
   const switchView = (v: View) => {
     setTip(null)
@@ -368,7 +373,7 @@ export default function Explore({
             exit={{ scale: 0.4, opacity: 0, transition: { duration: 0.15 } }}
             transition={spr}
             whileTap={reduce ? undefined : { scale: 0.96 }}
-            className="group fixed bottom-16 right-5 z-40 flex items-center rounded-full bg-ink text-page shadow-lg shadow-black/25 ring-1 ring-black/5 transition-shadow duration-200 hover:shadow-xl hover:shadow-black/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+            className={`group fixed bottom-16 right-5 z-40 flex items-center rounded-full bg-ink text-page shadow-lg shadow-black/25 ring-1 ring-black/5 transition-shadow duration-200 hover:shadow-xl hover:shadow-black/30 ${FOCUS_RING_ON_PAGE}`}
           >
             {/* Label reveals on hover/focus so the purpose is read, not guessed.
                 It sits left of the icon so the icon stays pinned to the corner. */}
@@ -454,9 +459,7 @@ export default function Explore({
                   aria-label="Close advisor"
                   className="grid size-7 place-items-center rounded-md text-ink3 transition-colors hover:bg-raised hover:text-ink"
                 >
-                  <svg width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden>
-                    <path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                  </svg>
+                  <CloseIcon />
                 </button>
               </div>
             </div>
@@ -586,9 +589,7 @@ function PreviewSheet({
                 aria-label="Close preview"
                 className="grid size-7 shrink-0 place-items-center rounded-md text-ink3 transition-colors hover:bg-raised hover:text-ink"
               >
-                <svg width="12" height="12" viewBox="0 0 13 13" fill="none" aria-hidden>
-                  <path d="M2 2l9 9M11 2l-9 9" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
+                <CloseIcon />
               </button>
             </div>
 

@@ -117,7 +117,7 @@ export default function NewsList({
             <div className="mt-5 flex justify-center">
               <button
                 onClick={() => setShown((n) => n + PAGE_SIZE)}
-                className="rounded-full border border-line px-4 py-2 text-[13px] font-semibold text-ink2 transition-colors hover:bg-raised hover:text-ink1"
+                className="rounded-full border border-line px-4 py-2 text-[13px] font-semibold text-ink2 transition-colors hover:bg-raised hover:text-ink"
               >
                 Load {Math.min(remaining, PAGE_SIZE)} more
                 <span className="sr-only"> news items for this field</span>

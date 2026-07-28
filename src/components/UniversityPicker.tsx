@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { normalize } from '../design/scales'
+import { EASE } from '../design/tokens'
 import { useUniversities, type University } from '../hooks/useUniversities'
 
 interface Props {
@@ -96,7 +97,7 @@ export default function UniversityPicker({ query, onQuery, onPick, autoFocus }: 
             initial={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }}
-            transition={{ duration: reduce ? 0.12 : 0.18, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: reduce ? 0.12 : 0.18, ease: EASE }}
             className="absolute z-30 mt-2 max-h-72 w-full overflow-auto rounded-card border border-line bg-raised p-1 shadow-xl"
           >
             {matches.length === 0 && (

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { exposureColor, fmtExposure, normalize } from '../design/scales'
-import type { Mode } from '../design/tokens'
+import { EASE, type Mode } from '../design/tokens'
 import type { Major } from '../types'
 
 interface Props {
@@ -109,7 +109,7 @@ export default function SearchSpotlight({ majors, mode, query, onQuery, onPick, 
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.18, ease: EASE }}
             className="absolute z-30 mt-2 w-full overflow-hidden rounded-card border border-line bg-raised p-1 shadow-xl"
           >
             {matches.length === 0 && (

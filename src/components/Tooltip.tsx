@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { exposureColor, fmtCount, fmtExposure, fmtPay, growthOf } from '../design/scales'
-import type { Mode } from '../design/tokens'
+import { EASE, type Mode } from '../design/tokens'
 import type { TipData } from '../types'
 
 const W = 300
@@ -24,7 +24,7 @@ export default function Tooltip({ tip, mode }: { tip: TipData | null; mode: Mode
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 4 }}
-          transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.15, ease: EASE }}
           className="glass pointer-events-none fixed z-50 rounded-card p-4 shadow-xl"
           style={{ left, top, width: W }}
           role="status"

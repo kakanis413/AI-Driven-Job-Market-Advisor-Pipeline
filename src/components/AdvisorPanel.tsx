@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import ReactMarkdown from 'react-markdown'
 import { fmtExposure, fmtPay, growthOf } from '../design/scales'
+import { EASE } from '../design/tokens'
 import { askAdvisor } from '../lib/advisor'
 import { useUniversity } from '../hooks/useUniversity'
 import UniversityGateModal from './UniversityGateModal'
@@ -212,7 +213,7 @@ export default function AdvisorPanel({ major }: { major: Major | null }) {
               aria-hidden={msg.streaming || undefined}
               initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduceMotion ? 0.15 : 0.25, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: reduceMotion ? 0.15 : 0.25, ease: EASE }}
               className={
                 msg.role === 'user'
                   ? 'ml-auto max-w-[82%] rounded-2xl rounded-br-md bg-ink px-3.5 py-2.5 text-[13.5px] leading-relaxed text-page'

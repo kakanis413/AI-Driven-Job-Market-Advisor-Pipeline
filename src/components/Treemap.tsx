@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
-import { REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
+import { EASE, REDUCED_TWEEN, SPRING, type Layer, type Mode } from '../design/tokens'
 import {
   exposureColor,
   fmtCount,
@@ -264,7 +264,7 @@ function TileView({
         rx={4}
         initial={entry ? { width: entry.w, height: entry.h, fill } : { width: t.w, height: t.h, fill }}
         animate={{ width: t.w, height: t.h, fill }}
-        transition={{ ...spr, delay, fill: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
+        transition={{ ...spr, delay, fill: { duration: 0.4, ease: EASE } }}
         stroke="var(--surface)"
         strokeWidth={1}
       />
