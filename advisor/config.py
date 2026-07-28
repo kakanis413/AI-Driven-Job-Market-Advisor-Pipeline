@@ -92,6 +92,10 @@ class Settings:
 
     # --- news feed cache (GET /api/v1/news) ---
     news_ttl_s: float = _env_float("ADVISOR_NEWS_TTL_S", 6 * 3600.0)
+    # Separate from request_timeout_s (30s, sized for a chat turn): one grounded
+    # news fetch measures 25-29s, so sharing the chat budget made every fetch a
+    # coin flip. Nobody waits on this — it is prewarmed and cached.
+    news_fetch_timeout_s: float = _env_float("ADVISOR_NEWS_FETCH_TIMEOUT_S", 120.0)
 
     # --- web ---
     cors_origins: list[str] = field(

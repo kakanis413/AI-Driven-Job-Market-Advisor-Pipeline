@@ -8,6 +8,25 @@ from collections import defaultdict, deque
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
+if sys.platform == "win32":
+    import socket
+
+    # Winsock resolves AAAA first and waits out the timeout before falling back to
+    # IPv4, costing seconds per new connection. Prefer the A records when both are
+    # returned; keep the original list when there are no IPv4 records to prefer.
+    _system_getaddrinfo = socket.getaddrinfo
+
+    def _ipv4_first_getaddrinfo(*args, **kwargs):
+        results = _system_getaddrinfo(*args, **kwargs)
+        return [r for r in results if r[0] == socket.AF_INET] or results
+
+    socket.getaddrinfo = _ipv4_first_getaddrinfo
+
+    # SelectorEventLoop beats the default Proactor loop on the many-small-request
+    # pattern this server has. Must be set before the loop is created, which is why
+    # it lives here in the entrypoint rather than in a module uvicorn imports later.
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
 from dotenv import load_dotenv
 
 load_dotenv()

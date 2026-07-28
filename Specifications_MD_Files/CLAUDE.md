@@ -28,6 +28,8 @@ root_agent (college_advisor)
     ├── get_major_data / compare_majors / get_median_pay /
     │   get_ai_exposure / get_top_majors      → in-memory data.json lookup, ~0ms
     │
+    ├── get_dynamic_top_careers               → pre-ranked careers for a major, ~0ms
+    │
     ├── get_recent_news                       → warm per-family news cache, ~0ms
     │
     └── parallel_research (BaseTool)          → live web, ~7s, escalation only
@@ -46,7 +48,7 @@ root_agent (college_advisor)
 
 | Agent | Role | Tools |
 |-------|------|-------|
-| `root_agent` | The advisor. Calls data/news lookups itself and writes the response. | the 7 tools above |
+| `root_agent` | The advisor. Calls data/news lookups itself and writes the response. | the 8 tools above |
 | `news_agent` | News researcher. Searches for recent articles about majors/careers. | `google_search` |
 
 ### Key design decisions

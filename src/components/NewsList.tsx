@@ -1,7 +1,13 @@
+import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import { EASE } from '../design/tokens'
 import type { NewsItem } from '../lib/news'
 import NewsCard from './NewsCard'
+
+/** One full row of the News-tab grid. The backend returns up to MAX_ITEMS, but a
+ *  field's lead stories are the first few — the rest are there for anyone who
+ *  wants to keep reading, not to pad the page. */
+const PAGE_SIZE = 3
 
 /** Renders NewsCards plus the honest surrounding states (NEWS_TAB.md §4):
  *  skeletons while loading, "no items" as a fact not an error, an error state
@@ -20,6 +26,17 @@ export default function NewsList({
   onRetry?: () => void
 }) {
   const reduce = useReducedMotion()
+
+  // Paging applies to the News tab grid only. The chat's compact list is already
+  // an aside to the answer and should not grow a control of its own.
+  const paged = variant === 'full'
+  const [shown, setShown] = useState(PAGE_SIZE)
+  // Switching field replaces `items`; without this the new field would inherit
+  // the previous one's expanded state and open part-way down.
+  useEffect(() => setShown(PAGE_SIZE), [items])
+
+  const visible = paged ? items.slice(0, shown) : items
+  const remaining = items.length - visible.length
 
   // Grid for the News tab's top-stories cards; a single column in the chat.
   const layout =
@@ -78,23 +95,36 @@ export default function NewsList({
           No recent items for this field.
         </p>
       ) : (
-        <div className={layout}>
-          {items.map((item, i) => (
-            <motion.div
-              key={item.url}
-              className="h-full"
-              initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={
-                reduce
-                  ? { duration: 0.15 }
-                  : { duration: 0.3, ease: EASE, delay: Math.min(i * 0.014, 0.45) }
-              }
-            >
-              <NewsCard item={item} variant={variant} />
-            </motion.div>
-          ))}
-        </div>
+        <>
+          <div className={layout}>
+            {visible.map((item, i) => (
+              <motion.div
+                key={item.url}
+                className="h-full"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={
+                  reduce
+                    ? { duration: 0.15 }
+                    : { duration: 0.3, ease: EASE, delay: Math.min(i * 0.014, 0.45) }
+                }
+              >
+                <NewsCard item={item} variant={variant} />
+              </motion.div>
+            ))}
+          </div>
+          {remaining > 0 && (
+            <div className="mt-5 flex justify-center">
+              <button
+                onClick={() => setShown((n) => n + PAGE_SIZE)}
+                className="rounded-full border border-line px-4 py-2 text-[13px] font-semibold text-ink2 transition-colors hover:bg-raised hover:text-ink1"
+              >
+                Load {Math.min(remaining, PAGE_SIZE)} more
+                <span className="sr-only"> news items for this field</span>
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   )

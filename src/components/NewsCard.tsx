@@ -3,8 +3,8 @@ import type { NewsItem } from '../lib/news'
 
 /** One cited news item.
  *
- *  `full`   — the News tab's "top stories" grid card: image on top, then source
- *             + favicon + relative time, then the bold article headline.
+ *  `full`   — the News tab's "top stories" grid card: lead band on top, then
+ *             source + relative time, then the bold article headline.
  *  `compact`— the advisor chat's narrow row: text only, no lead image.
  *
  *  Either way the whole card is a single <a>: one tab stop, never nested
@@ -25,7 +25,9 @@ export default function NewsCard({
 
   const meta = (
     <div className="micro flex items-center gap-1.5 text-ink3">
-      {item.favicon && <Img src={item.favicon} size={14} className="size-3.5 rounded-sm" />}
+      {/* No favicon here. It was a third-party request per card for a 16px generic
+          glyph sitting next to the publisher's name written out in full — the name
+          already carries everything the icon was trying to say. */}
       <span className="truncate">{item.source}</span>
       {item.published && (
         <>
@@ -83,19 +85,38 @@ function linkProps(item: NewsItem) {
   } as const
 }
 
-/** The lead image: the real og:image, else the source favicon centered on a
- *  neutral tile, else no image band at all. Fixed 16:9 box reserved up front so
- *  a late-loading image never shifts the grid. Never a broken-image icon. */
+/** Publisher initials — one letter per word, two max. "Capitol Technology
+ *  University" -> CT, "Forbes" -> FO, "research.com" -> RE. */
+function initials(source: string): string {
+  const words = source
+    .replace(/\.(com|org|edu|net|gov|io|co)\b.*$/i, '')
+    .replace(/[^A-Za-z0-9 ]+/g, ' ')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+  if (words.length === 0) return '—'
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
+  return (words[0][0] + words[1][0]).toUpperCase()
+}
+
+/** The lead band: the real og:image when the feed has one, otherwise a publisher
+ *  plate — initials plus the source name.
+ *
+ *  This replaced a 16px favicon floated in the middle of a 16:9 box, which read as
+ *  a card that had failed to load its image. The plate is drawn, not fetched: no
+ *  third-party request, nothing to 404, and it renders identically offline.
+ *
+ *  Deliberately neutral ink — the exposure and pay ramps carry meaning everywhere
+ *  else in this app, so tinting a publisher by name would imply a score it doesn't
+ *  have. Fixed 16:9 so a late og:image never shifts the grid. */
 function Lead({ item }: { item: NewsItem }) {
   const [failed, setFailed] = useState(false)
-  const showImage = item.image && !failed
-  if (!item.image && !item.favicon) return null
 
-  return (
-    <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-line bg-surface">
-      {showImage ? (
+  if (item.image && !failed) {
+    return (
+      <div className="relative aspect-[16/9] w-full shrink-0 overflow-hidden border-b border-line bg-surface">
         <img
-          src={item.image ?? undefined}
+          src={item.image}
           alt=""
           width={480}
           height={270}
@@ -104,30 +125,20 @@ function Lead({ item }: { item: NewsItem }) {
           onError={() => setFailed(true)}
           className="size-full object-cover"
         />
-      ) : item.favicon ? (
-        <div className="grid size-full place-items-center">
-          <Img src={item.favicon} size={28} className="size-7 rounded" />
-        </div>
-      ) : null}
-    </div>
-  )
-}
+      </div>
+    )
+  }
 
-/** An <img> that removes itself rather than showing a broken-image icon. */
-function Img({ src, size, className }: { src: string; size: number; className: string }) {
-  const [failed, setFailed] = useState(false)
-  if (failed) return null
   return (
-    <img
-      src={src}
-      alt=""
-      width={size}
-      height={size}
-      loading="lazy"
-      decoding="async"
-      onError={() => setFailed(true)}
-      className={`shrink-0 ${className}`}
-    />
+    <div className="relative flex aspect-[16/9] w-full shrink-0 flex-col items-center justify-center gap-2 overflow-hidden border-b border-line bg-surface px-4">
+      <span
+        aria-hidden
+        className="grid size-11 place-items-center rounded-lg border border-line bg-raised text-[15px] font-semibold tracking-tight text-ink2"
+      >
+        {initials(item.source)}
+      </span>
+      <span className="micro line-clamp-1 max-w-full text-center text-ink3">{item.source}</span>
+    </div>
   )
 }
 

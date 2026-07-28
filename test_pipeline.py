@@ -215,6 +215,7 @@ def test_process_bigquery_results_output_schema():
         "exposure",
         "rationale",
         "occupations",
+        "top_careers",
         "query_context",
         "pay_to_debt_ratio",
         "versatility",
