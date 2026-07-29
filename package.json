@@ -5,8 +5,12 @@
   "type": "module",
   "scripts": {
     "dev:frontend": "vite",
-    "dev:backend": "./.venv/bin/python -m uvicorn main:app --reload",
-    "dev": "sh -c 'python_pid=; trap \"[ -n \\\"$python_pid\\\" ] && kill $python_pid 2>/dev/null\" EXIT INT TERM; ./.venv/bin/python -m uvicorn main:app --reload & python_pid=$!; npm run dev:frontend'",
+    "dev:backend": "python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "dev": "concurrently --kill-others-on-fail \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend:windows": ".venv/Scripts/python.exe -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:windows": "concurrently --kill-others-on-fail \"npm:dev:backend:windows\" \"npm:dev:frontend\"",
+    "dev:backend:mac": "./.venv/bin/python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:mac": "concurrently --kill-others-on-fail \"npm:dev:backend:mac\" \"npm:dev:frontend\"",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview"
   },
@@ -25,6 +29,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
+    "concurrently": "^10.0.4",
     "tailwindcss": "^4.1.5",
     "typescript": "~5.8.3",
     "vite": "^6.3.5"
