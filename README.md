@@ -34,73 +34,8 @@ The application is designed to turn complex labor-market and education data into
 5. Optionally select a university to add school context to an advisor request.
 
 ## Architecture
-```mermaid
-%%{init: {
-  "theme": "base",
-  "flowchart": {
-    "nodeSpacing": 16,
-    "rankSpacing": 24,
-    "padding": 4,
-    "useMaxWidth": true
-  },
-  "themeVariables": {
-    "background": "transparent",
-    "fontFamily": "Inter, Arial, sans-serif",
-    "fontSize": "15px",
-    "primaryTextColor": "#F4FEFF",
-    "lineColor": "#4CBFC8",
-    "clusterBkg": "#0A252A",
-    "clusterBorder": "#2D7379",
-    "edgeLabelBackground": "transparent"
-  },
-  "themeCSS": ".edgeLabel, .edgeLabel p { color: #CFFAFE !important; background-color: transparent !important; font-weight: 600; } .labelBkg { fill: transparent !important; stroke: none !important; opacity: 0 !important; }"
-}}%%
+<img width="1291" height="754" alt="image" src="https://github.com/user-attachments/assets/66075bef-ad96-4d2d-bc52-9ef8e051ee6a" />
 
-graph TD
-    classDef main fill:#123F46,stroke:#59D7E0,stroke-width:2px,color:#F4FEFF;
-    classDef group fill:#10343A,stroke:#4FC8D1,stroke-width:1.6px,color:#F4FEFF;
-    classDef data fill:#0D3035,stroke:#4FC8D1,stroke-width:1.6px,color:#E8FCFD;
-    classDef external fill:#0B252A,stroke:#72D9DF,stroke-width:1.6px,color:#F4FEFF;
-    classDef offline fill:#102A30,stroke:#648E93,stroke-width:1.4px,color:#E4F4F5;
-
-    linkStyle default stroke:#4CBFC8,stroke-width:1.5px,fill:none;
-
-    UI["MajorVisualizer Web App — Exploration, Chat, and News"]:::main
-    API["FastAPI Advisor API — REST + SSE Streaming"]:::main
-    Advisor["Advisor Runtime + Root Agent — Gemini, Retries, and Cache"]:::main
-
-    Tools["Grounded Local Tools — Major Data, AI Exposure, Pay, Comparisons, and Career Rankings"]:::group
-    Data["Shared Curated Dataset — Used by the UI and Advisor"]:::data
-
-    News["News Runtime + Specialist Agent — Cached Feeds and Background Refresh"]:::group
-    Gemini["Vertex AI / Gemini — Advisor Guidance"]:::external
-    Search["Google Search — Current Labor-Market and Industry News"]:::external
-
-    UI -->|"HTTPS / SSE"| API
-    API --> Advisor
-    Advisor --> Tools
-    Tools --> Data
-    UI -. "Renders" .-> Data
-
-    Advisor --> Gemini
-    Advisor -. "Live-news requests" .-> News
-    News --> Gemini
-    News --> Search
-
-    subgraph Refresh["Offline Data Refresh"]
-        direction LR
-        Sources["IPEDS, BLS, CIP-to-SOC, and AI-Scoring Inputs"]:::offline
-        BQ["BigQuery Warehouse"]:::offline
-        Pipeline["Data Pipeline — Filter, Normalize, and Export"]:::offline
-        Deploy["Cloud Build + Cloud Run Deployment"]:::offline
-
-        Sources --> BQ --> Pipeline --> Deploy
-    end
-
-    Pipeline -. "Publishes refreshed data" .-> Data
-
-    style Refresh fill:#0A1D21,stroke:#466E73,stroke-width:1.2px,stroke-dasharray: 5 5,color:#F4FEFF
-```
 
 ### Request flow
 
