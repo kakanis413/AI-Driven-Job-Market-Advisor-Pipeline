@@ -1,3 +1,176 @@
+# US College Major Visualizer & AI Advisor
+
+A web application that helps students explore how AI may change US college majors and related careers. It combines a D3-powered major visualization, curated education and labor-market metrics, a Gemini-powered advisor, and search-grounded news.
+
+The guiding product principle is simple: **the advisor is grounded on the same curated dataset shown in the interface.** Students should not see one set of numbers in the visualization and receive another in chat.
+
+## What it does
+
+- Visualizes majors by academic family, AI exposure, pay, growth, and career pathways.
+- Provides a conversational advisor for questions about majors, careers, and AI exposure.
+- Streams advisor responses with Server-Sent Events (SSE).
+- Shows recent, search-grounded news by academic family.
+- Supports optional university context in advisor requests.
+
+## Impact
+
+Choosing a major is increasingly a career-planning decision, not only an academic one. This project makes AI exposure, pay, growth outlook, and career pathways easier to compare in one place. It frames AI exposure as **how work may change or be augmented**, rather than as a prediction that a job will disappear.
+
+The application is designed to turn complex labor-market and education data into an approachable starting point for exploration, discussion, and more informed academic planning.
+
+## Target audience
+
+- **Prospective and current college students** exploring majors and career directions.
+- **Academic advisors and career-services teams** who need a visual, data-informed conversation aid.
+- **Education and workforce researchers** interested in relationships between degree programs, occupations, and AI exposure.
+- **Program and product stakeholders** studying how academic pathways are evolving with labor-market change.
+
+## How to use the application
+
+1. Open the major explorer and browse the visualization by academic family or metric.
+2. Select a major to inspect its AI exposure, earnings, growth outlook, rationale, and related careers.
+3. Ask the advisor a question about the selected major, a comparison, career preparation, or a general career-planning topic.
+4. Visit the News view to see recent, search-grounded signals for an academic family.
+5. Optionally select a university to add school context to an advisor request.
+
+## Architecture
+
+```mermaid
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "background": "#080B0C",
+    "fontFamily": "Inter, Arial, sans-serif",
+    "primaryTextColor": "#F4FEFF",
+    "lineColor": "#4CBFC8",
+    "clusterBkg": "#0A252A",
+    "clusterBorder": "#2D7379"
+  }
+}}%%
+
+graph TD
+    %% ── Dark teal presentation styling ──────────────────────────────
+    classDef main fill:#123F46,stroke:#59D7E0,stroke-width:2px,color:#F4FEFF;
+    classDef tool fill:#10343A,stroke:#4FC8D1,stroke-width:1.8px,color:#F4FEFF;
+    classDef data fill:#0D3035,stroke:#4FC8D1,stroke-width:1.8px,color:#E8FCFD;
+    classDef external fill:#0B252A,stroke:#72D9DF,stroke-width:1.8px,color:#F4FEFF;
+    classDef pipeline fill:#102A30,stroke:#648E93,stroke-width:1.5px,color:#E4F4F5;
+
+    linkStyle default stroke:#4CBFC8,stroke-width:1.5px,fill:none;
+
+    %% ── Live user request path ──────────────────────────────────────
+    UI["<b>MajorVisualizer web app</b><br/>React + D3 visualization, chat, news"]:::main
+
+    API["<b>FastAPI advisor API</b><br/>REST + SSE streaming<br/>optional API-key and rate-limit guard"]:::main
+
+    Runtime["<b>Advisor runtime</b><br/>ADK Runner · retries · 24-hour response cache"]:::main
+
+    Root["<b>college_advisor</b><br/>root agent orchestrates each request"]:::main
+
+    UI -->|"HTTPS / streamed SSE response"| API
+    API -->|"advisor request"| Runtime
+    Runtime --> Root
+
+    %% ── Fast grounded tools ─────────────────────────────────────────
+    subgraph Tools["tool functions — fast grounded lookups"]
+        direction LR
+        MajorData["<b>get_major_data</b>"]:::tool
+        Exposure["<b>get_ai_exposure</b>"]:::tool
+        Pay["<b>get_median_pay</b>"]:::tool
+        Careers["<b>get_dynamic_top_careers</b>"]:::tool
+        Compare["<b>compare_majors</b>"]:::tool
+        Rankings["<b>get_top_majors</b>"]:::tool
+    end
+
+    Root --> Tools
+
+    DataJSON["<b>Shared curated data.json</b><br/>major metrics · exposure · pay<br/>career rankings · rationale"]:::data
+
+    Tools -->|"local lookup"| DataJSON
+    UI -. "loads the same dataset" .-> DataJSON
+
+    %% ── Intelligence and fresh news ─────────────────────────────────
+    Gemini["<b>Vertex AI / Gemini</b><br/>reasoning and response generation"]:::external
+    Root --> Gemini
+
+    Parallel["<b>parallel_research</b><br/>used only for explicitly requested<br/>live web research"]:::tool
+
+    NewsAgent["<b>news_researcher agent</b><br/>ADK + Google Search grounding"]:::main
+
+    Search["<b>Google Search</b><br/>recent labor-market and industry signals"]:::external
+
+    Root -. "optional live-research path" .-> Parallel
+    Parallel --> NewsAgent
+    NewsAgent --> Gemini
+    NewsAgent --> Search
+
+    %% ── News page: cache-first service ──────────────────────────────
+    NewsRuntime["<b>News runtime</b><br/>prewarm + background refresh<br/>stale-while-revalidate"]:::main
+
+    NewsCache["<b>Instance-local news cache</b><br/>memory + .news_cache.json<br/>best-effort, not shared durable storage"]:::data
+
+    API -->|"GET /api/v1/news"| NewsRuntime
+    NewsRuntime -->|"serve cached feed"| NewsCache
+    NewsRuntime -. "refresh in background" .-> NewsAgent
+
+    %% ── Offline data refresh path ───────────────────────────────────
+    subgraph Offline["offline data refresh and publishing path"]
+        direction LR
+        Sources["IPEDS · BLS · CIP-to-SOC<br/>scoring outputs"]:::pipeline
+        BQ["<b>BigQuery warehouse</b><br/>curated majors and labor-market tables"]:::pipeline
+        Pipeline["<b>Python data pipeline</b><br/>filter · normalize · export"]:::pipeline
+        Deploy["<b>Cloud Build + Cloud Run deploy</b><br/>packages updated data with web + API images"]:::pipeline
+
+        Sources --> BQ --> Pipeline --> Deploy
+    end
+
+    Pipeline -. "exports refreshed dataset" .-> DataJSON
+
+    %% ── Group styling ───────────────────────────────────────────────
+    style Tools fill:#09272C,stroke:#2F7379,stroke-width:1.5px,stroke-dasharray: 7 6
+    style Offline fill:#0A1D21,stroke:#466E73,stroke-width:1.2px,stroke-dasharray: 5 5
+```
+
+### Request flow
+
+1. The browser loads the visualization and curated static datasets.
+2. A student sends a question and the currently selected major context to the FastAPI service.
+3. The ADK root agent uses Gemini to formulate guidance and can call local tools that read the same `data.json` rendered by the UI.
+4. The API streams answer tokens and useful progress statuses back to the browser over SSE.
+5. Current-events requests can use a dedicated Google Search-grounded news agent. The News page is cache-first and refreshes in the background.
+
+### Data flow
+
+BigQuery supports the **offline** curation pipeline. The pipeline combines education, labor-market, and scoring inputs; filters and normalizes the records; and exports the static dataset consumed by the application. The normal student request path does not query BigQuery for each chat message.
+
+### Architecture explanation
+
+The system intentionally separates **curated facts** from **current signals**:
+
+- **Curated facts:** the visualization and advisor use the same exported major dataset. This grounds advisor answers in the metrics students see on screen and avoids a warehouse query on the common request path.
+- **Conversational reasoning:** the `college_advisor` root agent uses Gemini through Google ADK to turn the selected-major context and student question into clear guidance. It can use local data tools for verified fields such as exposure, pay, rankings, comparisons, and related careers.
+- **Current signals:** a dedicated news agent uses Google Search grounding for current labor-market and industry information. The News runtime caches feeds by academic family, returns cached results quickly, and refreshes them in the background.
+- **Offline curation:** upstream education, labor-market, and scoring data are consolidated in BigQuery. The Python pipeline filters and normalizes records into the versioned `data.json` artifact deployed with the frontend and advisor API.
+
+## Technology
+
+| Area | Implementation |
+| --- | --- |
+| Frontend | React, TypeScript, Vite, D3 hierarchy, Tailwind, Framer Motion |
+| API | FastAPI, Pydantic, Uvicorn |
+| AI | Google ADK, Vertex AI, Gemini |
+| Search | ADK Google Search grounding |
+| Data curation | BigQuery, Google Cloud Storage, Python |
+| Deployment | Docker, Cloud Build, Cloud Run |
+
+## Repository layout
+
+```text
+.
+├── src/                    # React UI, views, hooks, and client API utilities
+├── public/                 # Curated major data and university directory
+├── advisor/                # ADK agents, runtime, tools, schemas, news service
+├── batch/                  # AI-exposure scoring and validation jobs
 ├── sql/                    # Warehouse rollup pipeline
 ├── scripts/                # Deployment and university-data utilities
 ├── data_pipeline.py        # BigQuery → curated data.json export pipeline
@@ -102,9 +275,6 @@ The backend must be deployed first because the frontend embeds the advisor URL a
 - The news service uses stale-while-revalidate caching so visitors can receive an existing feed while refresh work happens in the background.
 - News cache state is instance-local and best-effort; it is not a shared durable cache across Cloud Run instances or deployments.
 - API-key and rate-limit middleware are configurable. For an internet-facing deployment, use a proper identity or gateway layer in addition to application-level limits.
-
-## Product
-![Advisor](https://www.image2url.com/r2/default/gifs/1785362854125-fea1aa67-db06-462d-8cd3-eadfb84ddb2d.gif)
 
 ## License
 
