@@ -23,8 +23,8 @@ function summaryOf(major: Major): string {
   const scored = major.exposure !== null
   const bandNote = band.range ? ` (${band.label})` : ''
   return scored
-    ? `${major.major} is ${fmtExposure(major.exposure)}/10 AI-exposed${bandNote} — the mix of tasks shifts, the field doesn’t vanish. via Major Visualizer`
-    : `${major.major} isn’t scored for AI exposure yet. via Major Visualizer`
+    ? `${major.major} is ${fmtExposure(major.exposure)}/10 AI-exposed${bandNote} — the mix of tasks shifts, the field doesn’t vanish. via Beyond the Degree`
+    : `${major.major} isn’t scored for AI exposure yet. via Beyond the Degree`
 }
 
 /** Personal, shareable result card. A floating glass dialog (legitimate glass
@@ -285,7 +285,7 @@ async function drawShareCanvas(major: Major, mode: Mode): Promise<Blob | null> {
   ctx.textBaseline = 'alphabetic'
   ctx.fillStyle = ink3
   ctx.font = `600 30px ${sans}`
-  ctx.fillText('MAJOR VISUALIZER', inner, pad + 96)
+  ctx.fillText('BEYOND THE DEGREE', inner, pad + 96)
 
   // Family.
   ctx.fillStyle = accent

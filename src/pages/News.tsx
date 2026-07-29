@@ -42,7 +42,7 @@ export default function News({
 
   return (
     <div className="mx-auto max-w-[1100px] px-5 pt-6 md:px-8">
-      {/* No page title band: the app header already reads "Major Visualizer ·
+      {/* No page title band: the app header already reads "Beyond the Degree ·
           News", so the field selector is the top of the page and the one-liner
           rides under it as helper text rather than a second header. */}
       <div className="overflow-x-auto pb-1">

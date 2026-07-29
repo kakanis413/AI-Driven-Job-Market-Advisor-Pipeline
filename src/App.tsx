@@ -144,8 +144,7 @@ export default function App() {
           </svg>
           <p className="text-[12px] leading-snug text-ink2">
             <b className="font-semibold text-ink">High exposure does not mean the job disappears.</b>{' '}
-            It means the mix of tasks in that field is likely to change. Sample data, for
-            illustration — not career advice.
+            It means the mix of tasks in that field is likely to change.
           </p>
         </div>
       </footer>

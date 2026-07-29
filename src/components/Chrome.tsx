@@ -24,7 +24,7 @@ export function Logo({
 }: {
   mode: Mode
   onHome: () => void
-  /** Page context shown inline ("Major Visualizer · News") so a page never
+  /** Page context shown inline ("Beyond the Degree · News") so a page never
    *  needs a second header band of its own. */
   context?: string
 }) {
@@ -32,13 +32,13 @@ export function Logo({
     <div className="flex shrink-0 items-center gap-2">
       <button
         onClick={onHome}
-        aria-label="Major Visualizer — back to start"
+        aria-label="Beyond the Degree — back to start"
         className="flex shrink-0 items-center gap-2.5 rounded-md"
       >
         <Wordmark mode={mode} />
         <span className="text-[16px] tracking-tight text-ink">
-          <span className="font-display pr-[0.04em] text-[17px] text-accent">Major</span>
-          <span className="font-semibold">Visualizer</span>
+          <span className="font-display pr-[0.04em] text-[17px] text-accent">Beyond</span>
+          <span className="font-semibold"> the Degree</span>
         </span>
       </button>
       {context && (
