@@ -1,0 +1,54 @@
+# Frontend + backend in ONE Cloud Run service.
+#
+# nginx serves the built SPA and reverse-proxies /api/ and /healthz to uvicorn on a
+# private port. Because both are behind the same origin, the browser never makes a
+# cross-origin request and ADVISOR_CORS_ORIGINS stops mattering entirely.
+
+# ---------- stage 1: build the SPA ----------
+FROM node:22-alpine AS web
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+RUN npm ci
+
+COPY tsconfig.json vite.config.ts index.html ./
+COPY src ./src
+COPY public ./public
+
+# Relative, not absolute: the API is same-origin now, so there is no host to bake in
+# and no rebuild needed when the service URL changes.
+ARG VITE_AGENT_URL=/api/v1/analyze-major
+ENV VITE_AGENT_URL=$VITE_AGENT_URL
+RUN npm run build
+
+# ---------- stage 2: python + nginx ----------
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends nginx \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY requirements.txt ./
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY main.py ./
+COPY advisor ./advisor
+COPY public ./public
+
+COPY --from=web /app/dist /var/www/html
+
+# Drop Debian's packaged default site, or it keeps port 80 and shadows nothing useful.
+RUN rm -f /etc/nginx/sites-enabled/default
+COPY nginx.combined.conf /etc/nginx/conf.d/default.conf
+COPY scripts/start-combined.sh /start.sh
+RUN chmod +x /start.sh
+
+ENV PORT=8080
+EXPOSE 8080
+CMD ["/start.sh"]

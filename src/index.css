@@ -20,8 +20,13 @@
      3.98–4.42:1. Focus rings (a 3:1 non-text requirement) only get stronger. */
   --accent: #2166bf;
   --accent-soft: rgba(33, 102, 191, 0.12);
-  /* Glass — floating surfaces only (header, toolbar, panel, tooltip, detail). */
-  --glass-bg: rgba(250, 249, 246, 0.72);
+  /* Glass — floating surfaces only (header, toolbar, panel, tooltip, detail).
+     0.72 → 0.94: the advisor panel and the stats popover float over the treemap,
+     and backdrop blur cannot be relied on to separate them from it — a framer-motion
+     ancestor with a transform creates a containing block that kills backdrop-filter,
+     so the tiles stay sharp behind the panel and the text becomes unreadable. The
+     opacity has to carry the contrast on its own; the blur is a bonus when it works. */
+  --glass-bg: rgba(250, 249, 246, 0.94);
   --glass-border: rgba(25, 24, 23, 0.08);
   --glass-solid: #faf9f6;
 }
@@ -38,7 +43,7 @@
   --line: rgba(244, 243, 239, 0.1);
   --accent: #5598e7;
   --accent-soft: rgba(85, 152, 231, 0.16);
-  --glass-bg: rgba(20, 19, 18, 0.68);
+  --glass-bg: rgba(20, 19, 18, 0.93);
   --glass-border: rgba(244, 243, 239, 0.1);
   --glass-solid: #141312;
 }
@@ -78,8 +83,12 @@
 @utility glass {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(16px) saturate(1.4);
+  /* -webkit- FIRST, standard LAST. The build pipeline collapses these two into one
+     declaration and keeps whichever came last; with the standard property first it
+     was emitting only -webkit-backdrop-filter, so backdrop-filter computed to `none`
+     in every production build and the blur never rendered outside dev mode. */
   -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  backdrop-filter: blur(16px) saturate(1.4);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {

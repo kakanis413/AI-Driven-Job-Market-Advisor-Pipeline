@@ -28,7 +28,10 @@ export interface NewsFeed {
 
 export async function fetchNews(family: Family, signal?: AbortSignal): Promise<NewsFeed> {
   if (!AGENT_URL) throw new Error('no advisor endpoint is configured (VITE_AGENT_URL)')
-  const base = new URL(AGENT_URL).origin
+  // Second arg matters: when the API is same-origin, VITE_AGENT_URL is a relative
+  // path ("/api/v1/analyze-major") and a bare `new URL(path)` throws. Resolving
+  // against the page's origin handles both that and the absolute cross-origin form.
+  const base = new URL(AGENT_URL, window.location.origin).origin
   const res = await fetch(`${base}/api/v1/news?family=${encodeURIComponent(family)}`, { signal })
   if (!res.ok) throw new Error(`News responded ${res.status}`)
   return (await res.json()) as NewsFeed
