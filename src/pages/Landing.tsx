@@ -271,7 +271,12 @@ function ResultsMap({
         {tiles.map((t) => {
           const fill = expC(t.major.exposure)
           const ink = inkFor(fill)
-          const showName = t.w > 76 && t.h > 34
+          // Same graduated treatment as the Explore treemap: full name+value
+          // when there's room, a compact single-line name down to a much
+          // smaller floor, color-only only for genuinely tiny slivers.
+          const showFull = t.w > 76 && t.h > 34
+          const showCompact = !showFull && t.w >= 30 && t.h >= 15
+          const compactY = Math.min(t.h - 4, Math.max(10, t.h / 2 + 3))
           return (
             <motion.g
               key={t.major.cip}
@@ -294,7 +299,7 @@ function ResultsMap({
                 stroke="var(--surface)"
                 strokeWidth={1.5}
               />
-              {showName && (
+              {showFull && (
                 <>
                   <text x={8} y={17} fill={ink} style={{ fontSize: 11.5, fontWeight: 600 }}>
                     {clip(t.major.major, t.w)}
@@ -309,6 +314,11 @@ function ResultsMap({
                     {fmtExposure(t.major.exposure)}
                   </text>
                 </>
+              )}
+              {showCompact && (
+                <text x={5} y={compactY} fill={ink} style={{ fontSize: 9, fontWeight: 600 }}>
+                  {clip(t.major.major, t.w - 4)}
+                </text>
               )}
             </motion.g>
           )

@@ -55,7 +55,7 @@ export default function MajorDetailCard({ major, mode }: { major: Major; mode: M
           specific, per-major explanation (major.rationale) is one tap away. */}
       {major.exposure !== null ? (
         <div className="mt-2.5 flex items-center justify-center gap-1.5">
-          <span className="text-[11.5px] text-ink3">Why this score</span>
+          <span className="text-[11.5px] font-semibold text-ink">Why this score</span>
           <InfoTip label="Why this exposure score" text={major.rationale} />
         </div>
       ) : (

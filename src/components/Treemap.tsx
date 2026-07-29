@@ -188,15 +188,21 @@ function TileView({
   const liftable = !reduce && dim === 1
   const m = t.major
   const ink = inkFor(fill)
-  const showName = t.w > 78 && t.h > 46
-  // Below the name threshold a tile renders NOTHING — no name, no number.
-  // A repeated "5.0" or a truncated acronym is noise that looks broken; at this
-  // scale color is the only encoding that works and the detail is in the
-  // tooltip. Hard rule 2 (color paired with a number) is still met wherever a
-  // label fits, and everywhere via the tooltip on hover/focus.
+  // Full treatment (name + value, two lines) needs real room. Below that, a
+  // tile still gets a single compact name line down to a much smaller floor —
+  // a map that's mostly silent color blocks reads as broken, not restrained.
+  // Only genuinely tiny slivers fall back to color-only; the tooltip always
+  // has the rest, and hard rule 2 (color paired with a number) is still met
+  // via the tooltip wherever the label itself can't carry a value too.
+  const showFull = t.w > 78 && t.h > 46
+  const showCompact = !showFull && t.w >= 32 && t.h >= 16
   const value = layer === 'exposure' ? fmtExposure(m.exposure) : fmtPay(m.median_pay)
   const maxChars = Math.max(3, Math.floor((t.w - 14) / 6.6))
   const label = m.major.length > maxChars ? `${m.major.slice(0, maxChars - 1)}…` : m.major
+  const compactMaxChars = Math.max(2, Math.floor((t.w - 8) / 5.3))
+  const compactLabel =
+    m.major.length > compactMaxChars ? `${m.major.slice(0, compactMaxChars - 1)}…` : m.major
+  const compactY = Math.min(t.h - 5, Math.max(11, t.h / 2 + 3.2))
 
   const transition = { ...spr, delay, opacity: { duration: 0.25, delay } }
 
@@ -268,12 +274,12 @@ function TileView({
         stroke="var(--surface)"
         strokeWidth={1}
       />
-      {showName && (
+      {showFull && (
         <text x={9} y={19} fill={ink} style={{ fontSize: 12.5, fontWeight: 600 }}>
           {label}
         </text>
       )}
-      {showName && (
+      {showFull && (
         <text
           x={9}
           y={35}
@@ -282,6 +288,11 @@ function TileView({
           style={{ fontSize: 11, fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}
         >
           {value}
+        </text>
+      )}
+      {showCompact && (
+        <text x={5} y={compactY} fill={ink} style={{ fontSize: 9.5, fontWeight: 600 }}>
+          {compactLabel}
         </text>
       )}
       {(hover || focus || selected) && (
