@@ -37,9 +37,16 @@ The application is designed to turn complex labor-market and education data into
 ```mermaid
 %%{init: {
   "theme": "base",
+  "flowchart": {
+    "nodeSpacing": 16,
+    "rankSpacing": 24,
+    "padding": 4,
+    "useMaxWidth": true
+  },
   "themeVariables": {
-    "background": "#080B0C",
+    "background": "transparent",
     "fontFamily": "Inter, Arial, sans-serif",
+    "fontSize": "15px",
     "primaryTextColor": "#F4FEFF",
     "lineColor": "#4CBFC8",
     "clusterBkg": "#0A252A",
@@ -51,72 +58,48 @@ The application is designed to turn complex labor-market and education data into
 
 graph TD
     classDef main fill:#123F46,stroke:#59D7E0,stroke-width:2px,color:#F4FEFF;
-    classDef tool fill:#10343A,stroke:#4FC8D1,stroke-width:1.8px,color:#F4FEFF;
-    classDef data fill:#0D3035,stroke:#4FC8D1,stroke-width:1.8px,color:#E8FCFD;
-    classDef external fill:#0B252A,stroke:#72D9DF,stroke-width:1.8px,color:#F4FEFF;
-    classDef pipeline fill:#102A30,stroke:#648E93,stroke-width:1.5px,color:#E4F4F5;
+    classDef group fill:#10343A,stroke:#4FC8D1,stroke-width:1.6px,color:#F4FEFF;
+    classDef data fill:#0D3035,stroke:#4FC8D1,stroke-width:1.6px,color:#E8FCFD;
+    classDef external fill:#0B252A,stroke:#72D9DF,stroke-width:1.6px,color:#F4FEFF;
+    classDef offline fill:#102A30,stroke:#648E93,stroke-width:1.4px,color:#E4F4F5;
 
     linkStyle default stroke:#4CBFC8,stroke-width:1.5px,fill:none;
 
-    UI["<b>MajorVisualizer web app</b><br/>React + D3 visualization, chat, news"]:::main
-    API["<b>FastAPI advisor API</b><br/>REST + SSE streaming<br/>optional API-key and rate-limit guard"]:::main
-    Runtime["<b>Advisor runtime</b><br/>ADK Runner · retries · 24-hour response cache"]:::main
-    Root["<b>college_advisor</b><br/>root agent orchestrates each request"]:::main
+    UI["MajorVisualizer Web App — Exploration, Chat, and News"]:::main
+    API["FastAPI Advisor API — REST + SSE Streaming"]:::main
+    Advisor["Advisor Runtime + Root Agent — Gemini, Retries, and Cache"]:::main
 
-    UI -->|"HTTPS / streamed SSE response"| API
-    API -->|"advisor request"| Runtime
-    Runtime --> Root
+    Tools["Grounded Local Tools — Major Data, AI Exposure, Pay, Comparisons, and Career Rankings"]:::group
+    Data["Shared Curated Dataset — Used by the UI and Advisor"]:::data
 
-    subgraph Tools["tool functions — fast grounded lookups"]
+    News["News Runtime + Specialist Agent — Cached Feeds and Background Refresh"]:::group
+    Gemini["Vertex AI / Gemini — Advisor Guidance"]:::external
+    Search["Google Search — Current Labor-Market and Industry News"]:::external
+
+    UI -->|"HTTPS / SSE"| API
+    API --> Advisor
+    Advisor --> Tools
+    Tools --> Data
+    UI -. "Renders" .-> Data
+
+    Advisor --> Gemini
+    Advisor -. "Live-news requests" .-> News
+    News --> Gemini
+    News --> Search
+
+    subgraph Refresh["Offline Data Refresh"]
         direction LR
-        MajorData["<b>get_major_data</b>"]:::tool
-        Exposure["<b>get_ai_exposure</b>"]:::tool
-        Pay["<b>get_median_pay</b>"]:::tool
-        Careers["<b>get_dynamic_top_careers</b>"]:::tool
-        Compare["<b>compare_majors</b>"]:::tool
-        Rankings["<b>get_top_majors</b>"]:::tool
-    end
-
-    Root --> Tools
-
-    DataJSON["<b>Shared curated data.json</b><br/>major metrics · exposure · pay<br/>career rankings · rationale"]:::data
-
-    Tools -->|"local lookup"| DataJSON
-    UI -. "loads the same dataset" .-> DataJSON
-
-    Gemini["<b>Vertex AI / Gemini</b><br/>reasoning and response generation"]:::external
-    Root --> Gemini
-
-    Parallel["<b>parallel_research</b><br/>used only for explicitly requested<br/>live web research"]:::tool
-    NewsAgent["<b>news_researcher agent</b><br/>ADK + Google Search grounding"]:::main
-    Search["<b>Google Search</b><br/>recent labor-market and industry signals"]:::external
-
-    Root -. "optional live-research path" .-> Parallel
-    Parallel --> NewsAgent
-    NewsAgent --> Gemini
-    NewsAgent --> Search
-
-    NewsRuntime["<b>News runtime</b><br/>prewarm + background refresh<br/>stale-while-revalidate"]:::main
-    NewsCache["<b>Instance-local news cache</b><br/>memory + .news_cache.json<br/>best-effort, not shared durable storage"]:::data
-
-    API -->|"GET /api/v1/news"| NewsRuntime
-    NewsRuntime -->|"serve cached feed"| NewsCache
-    NewsRuntime -. "refresh in background" .-> NewsAgent
-
-    subgraph Offline["offline data refresh and publishing path"]
-        direction LR
-        Sources["IPEDS · BLS · CIP-to-SOC<br/>scoring outputs"]:::pipeline
-        BQ["<b>BigQuery warehouse</b><br/>curated majors and labor-market tables"]:::pipeline
-        Pipeline["<b>Python data pipeline</b><br/>filter · normalize · export"]:::pipeline
-        Deploy["<b>Cloud Build + Cloud Run deploy</b><br/>packages updated data with web + API images"]:::pipeline
+        Sources["IPEDS, BLS, CIP-to-SOC, and AI-Scoring Inputs"]:::offline
+        BQ["BigQuery Warehouse"]:::offline
+        Pipeline["Data Pipeline — Filter, Normalize, and Export"]:::offline
+        Deploy["Cloud Build + Cloud Run Deployment"]:::offline
 
         Sources --> BQ --> Pipeline --> Deploy
     end
 
-    Pipeline -. "exports refreshed dataset" .-> DataJSON
+    Pipeline -. "Publishes refreshed data" .-> Data
 
-    style Tools fill:#09272C,stroke:#2F7379,stroke-width:1.5px,stroke-dasharray: 7 6
-    style Offline fill:#0A1D21,stroke:#466E73,stroke-width:1.2px,stroke-dasharray: 5 5
+    style Refresh fill:#0A1D21,stroke:#466E73,stroke-width:1.2px,stroke-dasharray: 5 5,color:#F4FEFF
 ```
 
 ### Request flow
