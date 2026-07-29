@@ -36,99 +36,52 @@ The application is designed to turn complex labor-market and education data into
 ## Architecture
 
 ```mermaid
-%%{init: {
-  "theme": "base",
-  "themeVariables": {
-    "background": "#080B0C",
-    "fontFamily": "Inter, Arial, sans-serif",
-    "primaryTextColor": "#F4FEFF",
-    "lineColor": "#4CBFC8",
-    "clusterBkg": "#0A252A",
-    "clusterBorder": "#2D7379"
-  }
-}}%%
+graph LR
+    classDef client fill:#0B0F19,stroke:#00F0FF,stroke-width:2px,color:#FFFFFF;
+    classDef runtime fill:#161B22,stroke:#A78BFA,stroke-width:2px,color:#FFFFFF;
+    classDef agent fill:#1F2937,stroke:#2DD4BF,stroke-width:2px,color:#FFFFFF;
+    classDef data fill:#111827,stroke:#FBBF24,stroke-width:2px,color:#FFFFFF;
+    classDef external fill:#1B2430,stroke:#FF7A7A,stroke-width:2px,color:#FFFFFF;
 
-graph TD
-    %% ── Dark teal presentation styling ──────────────────────────────
-    classDef main fill:#123F46,stroke:#59D7E0,stroke-width:2px,color:#F4FEFF;
-    classDef tool fill:#10343A,stroke:#4FC8D1,stroke-width:1.8px,color:#F4FEFF;
-    classDef data fill:#0D3035,stroke:#4FC8D1,stroke-width:1.8px,color:#E8FCFD;
-    classDef external fill:#0B252A,stroke:#72D9DF,stroke-width:1.8px,color:#F4FEFF;
-    classDef pipeline fill:#102A30,stroke:#648E93,stroke-width:1.5px,color:#E4F4F5;
-
-    linkStyle default stroke:#4CBFC8,stroke-width:1.5px,fill:none;
-
-    %% ── Live user request path ──────────────────────────────────────
-    UI["<b>MajorVisualizer web app</b><br/>React + D3 visualization, chat, news"]:::main
-
-    API["<b>FastAPI advisor API</b><br/>REST + SSE streaming<br/>optional API-key and rate-limit guard"]:::main
-
-    Runtime["<b>Advisor runtime</b><br/>ADK Runner · retries · 24-hour response cache"]:::main
-
-    Root["<b>college_advisor</b><br/>root agent orchestrates each request"]:::main
-
-    UI -->|"HTTPS / streamed SSE response"| API
-    API -->|"advisor request"| Runtime
-    Runtime --> Root
-
-    %% ── Fast grounded tools ─────────────────────────────────────────
-    subgraph Tools["tool functions — fast grounded lookups"]
+    subgraph Serving["Live application services"]
         direction LR
-        MajorData["<b>get_major_data</b>"]:::tool
-        Exposure["<b>get_ai_exposure</b>"]:::tool
-        Pay["<b>get_median_pay</b>"]:::tool
-        Careers["<b>get_dynamic_top_careers</b>"]:::tool
-        Compare["<b>compare_majors</b>"]:::tool
-        Rankings["<b>get_top_majors</b>"]:::tool
+        UI["React + D3 web application"]:::client
+        Static["Bundled data.json + universities.json"]:::data
+        API["FastAPI advisor API\nREST + SSE"]:::runtime
+        Runtime["Advisor runtime\nADK Runner, retries, response cache"]:::runtime
+        Root["college_advisor root agent"]:::agent
+        Tools["Local major-data tools\npay, exposure, comparisons, careers"]:::agent
+        News["News runtime\nSWR cache, prewarm, refresh"]:::runtime
+        NewsCache["Instance-local news cache"]:::data
+
+        UI -->|"loads"| Static
+        UI -->|"HTTPS / SSE"| API
+        API --> Runtime --> Root
+        Root --> Tools --> Static
+        API -->|"GET /news"| News --> NewsCache
     end
 
-    Root --> Tools
+    subgraph Intelligence["AI and live intelligence"]
+        Gemini["Vertex AI / Gemini"]:::external
+        NewsAgent["news_researcher agent\nADK + Google Search grounding"]:::agent
+        Search["Google Search"]:::external
 
-    DataJSON["<b>Shared curated data.json</b><br/>major metrics · exposure · pay<br/>career rankings · rationale"]:::data
+        Root --> Gemini
+        Root -. "explicit live-research request" .-> NewsAgent
+        News --> NewsAgent
+        NewsAgent --> Gemini
+        NewsAgent --> Search
+    end
 
-    Tools -->|"local lookup"| DataJSON
-    UI -. "loads the same dataset" .-> DataJSON
-
-    %% ── Intelligence and fresh news ─────────────────────────────────
-    Gemini["<b>Vertex AI / Gemini</b><br/>reasoning and response generation"]:::external
-    Root --> Gemini
-
-    Parallel["<b>parallel_research</b><br/>used only for explicitly requested<br/>live web research"]:::tool
-
-    NewsAgent["<b>news_researcher agent</b><br/>ADK + Google Search grounding"]:::main
-
-    Search["<b>Google Search</b><br/>recent labor-market and industry signals"]:::external
-
-    Root -. "optional live-research path" .-> Parallel
-    Parallel --> NewsAgent
-    NewsAgent --> Gemini
-    NewsAgent --> Search
-
-    %% ── News page: cache-first service ──────────────────────────────
-    NewsRuntime["<b>News runtime</b><br/>prewarm + background refresh<br/>stale-while-revalidate"]:::main
-
-    NewsCache["<b>Instance-local news cache</b><br/>memory + .news_cache.json<br/>best-effort, not shared durable storage"]:::data
-
-    API -->|"GET /api/v1/news"| NewsRuntime
-    NewsRuntime -->|"serve cached feed"| NewsCache
-    NewsRuntime -. "refresh in background" .-> NewsAgent
-
-    %% ── Offline data refresh path ───────────────────────────────────
-    subgraph Offline["offline data refresh and publishing path"]
-        direction LR
-        Sources["IPEDS · BLS · CIP-to-SOC<br/>scoring outputs"]:::pipeline
-        BQ["<b>BigQuery warehouse</b><br/>curated majors and labor-market tables"]:::pipeline
-        Pipeline["<b>Python data pipeline</b><br/>filter · normalize · export"]:::pipeline
-        Deploy["<b>Cloud Build + Cloud Run deploy</b><br/>packages updated data with web + API images"]:::pipeline
+    subgraph Refresh["Offline data refresh and publishing"]
+        Sources["IPEDS, BLS, CIP-to-SOC\nand scoring outputs"]:::external
+        BQ["BigQuery warehouse"]:::data
+        Pipeline["Python data pipeline\nfilter, normalize, export"]:::runtime
+        Deploy["Cloud Build + Cloud Run\ndeployment"]:::runtime
 
         Sources --> BQ --> Pipeline --> Deploy
+        Pipeline -. "refreshed dataset" .-> Static
     end
-
-    Pipeline -. "exports refreshed dataset" .-> DataJSON
-
-    %% ── Group styling ───────────────────────────────────────────────
-    style Tools fill:#09272C,stroke:#2F7379,stroke-width:1.5px,stroke-dasharray: 7 6
-    style Offline fill:#0A1D21,stroke:#466E73,stroke-width:1.2px,stroke-dasharray: 5 5
 ```
 
 ### Request flow
