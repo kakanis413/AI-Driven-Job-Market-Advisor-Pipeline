@@ -103,6 +103,9 @@ The backend must be deployed first because the frontend embeds the advisor URL a
 - News cache state is instance-local and best-effort; it is not a shared durable cache across Cloud Run instances or deployments.
 - API-key and rate-limit middleware are configurable. For an internet-facing deployment, use a proper identity or gateway layer in addition to application-level limits.
 
+## Product
+![Advisor](https://www.image2url.com/r2/default/gifs/1785362854125-fea1aa67-db06-462d-8cd3-eadfb84ddb2d.gif)
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
