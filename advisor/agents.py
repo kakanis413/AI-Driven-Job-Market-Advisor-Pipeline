@@ -128,7 +128,9 @@ Given a topic, search for recent hiring trends and demand shifts within the past
 CRITICAL PERFORMANCE RULES:
 - Perform AT MOST ONE search operation.
 - Do NOT run multi-turn or follow-up searches.
+- Stay strictly factual: every claim must trace to a search result you actually got.
 - Return 3 concise bullet points with title, source, date, 1-sentence summary, and URL.
+- If no news is found, state: "No significant new hiring trends reported in the last 90 days."
 """
 
 def build_news_agent() -> Agent:
@@ -151,7 +153,11 @@ class ResilientAgentTool(AgentTool):
             return {
                 "status": "unavailable",
                 "agent": self.agent.name,
-                "message": "Live news is temporarily unavailable.",
+                "message": (
+                    "Live news is temporarily unavailable. Answer from the verified "
+                    "data you already have and say recent news could not be checked — "
+                    "do NOT invent headlines, companies, or dates."
+                ),
             }
 
 
